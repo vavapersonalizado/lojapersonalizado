@@ -3,6 +3,13 @@
 import { useStore } from "@/context/StoreContext";
 import styles from "./page.module.css";
 
+interface Product {
+  id: number;
+  name: string;
+  price: number;
+  icon: string;
+}
+
 export default function Home() {
   const { products } = useStore();
 
@@ -16,7 +23,7 @@ export default function Home() {
       </section>
 
       <div className={styles.grid}>
-        {products.map((product) => (
+        {products.map((product: Product) => (
           <div key={product.id} className={styles.productCard}>
             <div className={styles.imagePlaceholder}>
               {product.icon}
