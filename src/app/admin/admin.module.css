@@ -1,0 +1,64 @@
+.container {
+    display: flex;
+    min-height: calc(100vh - 4rem);
+    /* Subtract navbar height */
+}
+
+.sidebar {
+    width: 250px;
+    background-color: var(--muted);
+    border-right: 1px solid var(--border);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.sectionTitle {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+    margin-bottom: 0.75rem;
+    letter-spacing: 0.05em;
+}
+
+.nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.navLink {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius);
+    color: var(--foreground);
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: background-color 0.2s;
+}
+
+.navLink:hover {
+    background-color: var(--background);
+}
+
+.navLinkActive {
+    background-color: var(--background);
+    font-weight: 500;
+    box-shadow: var(--shadow-sm);
+}
+
+.main {
+    flex: 1;
+    padding: 2rem;
+    background-color: var(--background);
+    overflow-y: auto;
+}
+
+.addBtn {
+    margin-top: 0.5rem;
+    width: 100%;
+    font-size: 0.75rem;
+}
