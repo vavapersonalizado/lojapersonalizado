@@ -1,19 +1,10 @@
 "use client";
 
-import { useAuth } from "@/context/AuthContext";
+import { useStore } from "@/context/StoreContext";
 import styles from "./page.module.css";
 
-const PRODUCTS = [
-  { id: 1, name: "Relógio Premium", price: 1299.00, icon: "⌚" },
-  { id: 2, name: "Fones de Ouvido Pro", price: 899.00, icon: "🎧" },
-  { id: 3, name: "Smartphone Ultra", price: 4599.00, icon: "📱" },
-  { id: 4, name: "Laptop Elite", price: 7899.00, icon: "💻" },
-  { id: 5, name: "Câmera 4K", price: 3299.00, icon: "📷" },
-  { id: 6, name: "Console Next-Gen", price: 3999.00, icon: "🎮" },
-];
-
 export default function Home() {
-  const { user } = useAuth();
+  const { products } = useStore();
 
   return (
     <main className="container">
@@ -25,7 +16,7 @@ export default function Home() {
       </section>
 
       <div className={styles.grid}>
-        {PRODUCTS.map((product) => (
+        {products.map((product) => (
           <div key={product.id} className={styles.productCard}>
             <div className={styles.imagePlaceholder}>
               {product.icon}
