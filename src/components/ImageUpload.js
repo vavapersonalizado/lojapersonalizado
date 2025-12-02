@@ -35,7 +35,9 @@ export default function ImageUpload({ onUpload }) {
             });
 
             if (!response.ok) {
-                throw new Error('Upload failed');
+                const errorData = await response.json().catch(() => ({}));
+                const errorMsg = errorData.error || errorData.details || 'Upload failed';
+                throw new Error(errorMsg);
             }
 
             const newBlob = await response.json();
