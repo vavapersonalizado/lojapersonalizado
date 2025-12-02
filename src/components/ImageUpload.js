@@ -12,6 +12,13 @@ export default function ImageUpload({ onUpload }) {
         const file = e.target.files?.[0];
         if (!file) return;
 
+        // Check file size (max 4.5MB for Vercel Blob free tier)
+        const maxSize = 4.5 * 1024 * 1024; // 4.5MB in bytes
+        if (file.size > maxSize) {
+            alert(`Arquivo muito grande! Tamanho máximo: 4.5MB\nTamanho do arquivo: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
+            return;
+        }
+
         // Detect file type
         const isVideo = file.type.startsWith('video/');
         setFileType(isVideo ? 'video' : 'image');
@@ -38,7 +45,8 @@ export default function ImageUpload({ onUpload }) {
             setFileType(null);
         } catch (error) {
             console.error('Error uploading file:', error);
-            alert('Erro no upload');
+            const errorMsg = error.message || 'Erro desconhecido no upload';
+            alert(`Erro no upload: ${errorMsg}\n\nVerifique:\n- Tamanho do arquivo (máx 4.5MB)\n- Conexão com internet\n- Console do navegador para mais detalhes`);
             setUploading(false);
             setPreview(null);
             setFileType(null);
