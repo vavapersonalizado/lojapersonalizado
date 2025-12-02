@@ -37,8 +37,8 @@ export default function AdminLayout({ children }) {
                         {categories.map((cat) => (
                             <Link
                                 key={cat.id}
-                                href={`/admin/category/${cat.id}`}
-                                className={`${styles.navLink} ${pathname === `/admin/category/${cat.id}` ? styles.navLinkActive : ''}`}
+                                href={`/category/${cat.id}`}
+                                className={`${styles.navLink} ${pathname === `/category/${cat.id}` ? styles.navLinkActive : ''}`}
                             >
                                 {cat.name}
                             </Link>

@@ -1,0 +1,80 @@
+.card {
+    background-color: var(--background);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.card:hover {
+    border-color: var(--ring);
+    transform: translateY(-2px);
+}
+
+.icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.name {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.price {
+    color: var(--muted-foreground);
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+}
+
+.actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: auto;
+    width: 100%;
+}
+
+.actionBtn {
+    flex: 1;
+    padding: 0.5rem;
+    font-size: 0.875rem;
+    border-radius: var(--radius);
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: transparent;
+    transition: background 0.2s;
+}
+
+.actionBtn:hover {
+    background: var(--secondary);
+}
+
+.primaryBtn {
+    background: var(--primary);
+    color: var(--primary-foreground);
+    border: none;
+}
+
+.primaryBtn:hover {
+    opacity: 0.9;
+}
+
+.deleteBtn:hover {
+    background: #fee2e2;
+    color: #ef4444;
+    border-color: #fca5a5;
+}
+
+.adminControls {
+    display: flex;
+    gap: 0.5rem;
+    width: 100%;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border);
+}

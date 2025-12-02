@@ -29,6 +29,7 @@
     align-items: center;
     text-align: center;
     transition: all 0.2s;
+    position: relative;
 }
 
 .productCard:hover {
@@ -57,4 +58,31 @@
     color: var(--muted-foreground);
     border: 2px dashed var(--border);
     border-radius: var(--radius);
+}
+
+.actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    width: 100%;
+}
+
+.actionBtn {
+    flex: 1;
+    padding: 0.25rem;
+    font-size: 0.75rem;
+    border-radius: var(--radius);
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: transparent;
+}
+
+.actionBtn:hover {
+    background: var(--secondary);
+}
+
+.deleteBtn:hover {
+    background: #fee2e2;
+    color: #ef4444;
+    border-color: #fca5a5;
 }

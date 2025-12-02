@@ -4,17 +4,8 @@ import { createContext, useContext, useState, useEffect } from "react";
 
 const StoreContext = createContext();
 
-const INITIAL_CATEGORIES = [
-    { id: "roupas", name: "Roupas" },
-    { id: "canecas", name: "Canecas" },
-    { id: "garrafas", name: "Garrafas" },
-];
-
-const INITIAL_PRODUCTS = [
-    { id: 1, name: "Camiseta Premium", price: 59.90, categoryId: "roupas", icon: "👕" },
-    { id: 2, name: "Caneca Dev", price: 35.00, categoryId: "canecas", icon: "☕" },
-    { id: 3, name: "Garrafa Térmica", price: 89.90, categoryId: "garrafas", icon: "🧴" },
-];
+const INITIAL_CATEGORIES = [];
+const INITIAL_PRODUCTS = [];
 
 export const StoreProvider = ({ children }) => {
     const [categories, setCategories] = useState(INITIAL_CATEGORIES);
@@ -44,8 +35,21 @@ export const StoreProvider = ({ children }) => {
         setCategories([...categories, { id, name }]);
     };
 
+    const deleteCategory = (id) => {
+        setCategories(categories.filter(c => c.id !== id));
+        // Optional: Delete products in this category? For now, keep them or orphan them.
+    };
+
     const addProduct = (product) => {
         setProducts([...products, { ...product, id: Date.now() }]);
+    };
+
+    const updateProduct = (id, updatedData) => {
+        setProducts(products.map(p => p.id === id ? { ...p, ...updatedData } : p));
+    };
+
+    const deleteProduct = (id) => {
+        setProducts(products.filter(p => p.id !== id));
     };
 
     const updateUserProfile = (email, data) => {
@@ -65,7 +69,10 @@ export const StoreProvider = ({ children }) => {
             products,
             userProfiles,
             addCategory,
+            deleteCategory,
             addProduct,
+            updateProduct,
+            deleteProduct,
             updateUserProfile,
             getProductsByCategory
         }}>

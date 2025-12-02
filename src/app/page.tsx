@@ -1,14 +1,8 @@
 "use client";
 
 import { useStore } from "@/context/StoreContext";
+import ProductCard from "@/components/ProductCard";
 import styles from "./page.module.css";
-
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  icon: string;
-}
 
 export default function Home() {
   const { products } = useStore();
@@ -23,21 +17,8 @@ export default function Home() {
       </section>
 
       <div className={styles.grid}>
-        {products.map((product: Product) => (
-          <div key={product.id} className={styles.productCard}>
-            <div className={styles.imagePlaceholder}>
-              {product.icon}
-            </div>
-            <div className={styles.productInfo}>
-              <h3 className={styles.productName}>{product.name}</h3>
-              <p className={styles.productPrice}>
-                {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(product.price)}
-              </p>
-              <button className={`btn btn-primary ${styles.addToCartBtn}`}>
-                Adicionar ao Carrinho
-              </button>
-            </div>
-          </div>
+        {products.map((product) => (
+          <ProductCard key={product.id} product={product} />
         ))}
       </div>
     </main>
