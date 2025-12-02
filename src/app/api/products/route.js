@@ -28,7 +28,7 @@ export async function POST(request) {
 
     try {
         const body = await request.json();
-        const { name, price, description, categoryId, image } = body;
+        const { name, price, description, categoryId, images, stock } = body;
 
         // Validate required fields
         if (!name || !price || !categoryId) {
@@ -41,7 +41,8 @@ export async function POST(request) {
                 price: parseFloat(price),
                 description,
                 categoryId,
-                image,
+                images: images || [],
+                stock: stock ? parseInt(stock) : 0,
             },
         });
 

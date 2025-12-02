@@ -14,7 +14,7 @@ export default function NewProductPage() {
         price: '',
         description: '',
         categoryId: '',
-        image: '',
+        images: [],
         stock: ''
     });
 
@@ -47,6 +47,15 @@ export default function NewProductPage() {
         }
     };
 
+    const handleAddImage = (url) => {
+        setFormData({ ...formData, images: [...formData.images, url] });
+    };
+
+    const handleRemoveImage = (index) => {
+        const newImages = formData.images.filter((_, i) => i !== index);
+        setFormData({ ...formData, images: newImages });
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         const res = await fetch('/api/products', {
@@ -63,7 +72,7 @@ export default function NewProductPage() {
     };
 
     return (
-        <div style={{ maxWidth: '1000px' }}>
+        <div style={{ maxWidth: '1200px' }}>
             <h1 style={{ marginBottom: '2rem' }}>Novo Produto</h1>
 
             <form onSubmit={handleSubmit}>
@@ -72,119 +81,193 @@ export default function NewProductPage() {
                     gridTemplateColumns: '1fr',
                     gap: '2rem'
                 }}>
-                    {/* Left Column - Form Fields */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                        <div>
-                            <label style={{ display: 'block', marginBottom: '0.5rem' }}>Nome</label>
-                            <input
-                                type="text"
-                                className="input"
-                                value={formData.name}
-                                onChange={e => setFormData({ ...formData, name: e.target.value })}
-                                required
-                            />
-                        </div>
+                    <style jsx>{`
+                        @media (min-width: 768px) {
+                            .product-form-grid {
+                                display: grid;
+                                grid-template-columns: 40% 60%;
+                                gap: 2rem;
+                            }
+                        }
+                    `}</style>
 
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                    <div className="product-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '2rem' }}>
+                        {/* Left Column - Form Fields */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                             <div>
-                                <label style={{ display: 'block', marginBottom: '0.5rem' }}>Preço (¥)</label>
+                                <label style={{ display: 'block', marginBottom: '0.5rem' }}>Nome</label>
                                 <input
-                                    type="number"
-                                    step="1"
+                                    type="text"
                                     className="input"
-                                    value={formData.price}
-                                    onChange={e => setFormData({ ...formData, price: e.target.value })}
-                                    placeholder="1000"
+                                    value={formData.name}
+                                    onChange={e => setFormData({ ...formData, name: e.target.value })}
                                     required
                                 />
                             </div>
 
-                            <div>
-                                <label style={{ display: 'block', marginBottom: '0.5rem' }}>Estoque (opcional)</label>
-                                <input
-                                    type="number"
-                                    step="1"
-                                    className="input"
-                                    value={formData.stock}
-                                    onChange={e => setFormData({ ...formData, stock: e.target.value })}
-                                    placeholder="0"
-                                />
-                            </div>
-                        </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                <div>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem' }}>Preço (¥)</label>
+                                    <input
+                                        type="number"
+                                        step="1"
+                                        className="input"
+                                        value={formData.price}
+                                        onChange={e => setFormData({ ...formData, price: e.target.value })}
+                                        placeholder="1000"
+                                        required
+                                    />
+                                </div>
 
-                        <div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                                <label>Categoria</label>
-                                {!showNewCategory && (
-                                    <button
-                                        type="button"
-                                        className="btn btn-outline"
-                                        onClick={() => setShowNewCategory(true)}
-                                        style={{ fontSize: '0.875rem', padding: '0.25rem 0.75rem' }}
+                                <div>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem' }}>Estoque</label>
+                                    <input
+                                        type="number"
+                                        step="1"
+                                        className="input"
+                                        value={formData.stock}
+                                        onChange={e => setFormData({ ...formData, stock: e.target.value })}
+                                        placeholder="0"
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                                    <label>Categoria</label>
+                                    {!showNewCategory && (
+                                        <button
+                                            type="button"
+                                            className="btn btn-outline"
+                                            onClick={() => setShowNewCategory(true)}
+                                            style={{ fontSize: '0.875rem', padding: '0.25rem 0.75rem' }}
+                                        >
+                                            + Nova
+                                        </button>
+                                    )}
+                                </div>
+                                {!showNewCategory ? (
+                                    <select
+                                        className="input"
+                                        value={formData.categoryId}
+                                        onChange={e => setFormData({ ...formData, categoryId: e.target.value })}
+                                        required
                                     >
-                                        + Nova
-                                    </button>
+                                        <option value="">Selecione...</option>
+                                        {categories.map(cat => (
+                                            <option key={cat.id} value={cat.id}>{cat.name}</option>
+                                        ))}
+                                    </select>
+                                ) : (
+                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                        <input
+                                            type="text"
+                                            className="input"
+                                            style={{ flex: 1 }}
+                                            placeholder="Nome da nova categoria"
+                                            value={newCategoryName}
+                                            onChange={e => setNewCategoryName(e.target.value)}
+                                        />
+                                        <button
+                                            type="button"
+                                            className="btn btn-primary"
+                                            onClick={handleAddCategory}
+                                        >
+                                            Adicionar
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="btn btn-outline"
+                                            onClick={() => setShowNewCategory(false)}
+                                        >
+                                            Cancelar
+                                        </button>
+                                    </div>
                                 )}
                             </div>
-                            {!showNewCategory ? (
-                                <select
+
+                            <div>
+                                <label style={{ display: 'block', marginBottom: '0.5rem' }}>Descrição</label>
+                                <textarea
                                     className="input"
-                                    value={formData.categoryId}
-                                    onChange={e => setFormData({ ...formData, categoryId: e.target.value })}
-                                    required
-                                >
-                                    <option value="">Selecione...</option>
-                                    {categories.map(cat => (
-                                        <option key={cat.id} value={cat.id}>{cat.name}</option>
-                                    ))}
-                                </select>
-                            ) : (
-                                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                    <input
-                                        type="text"
-                                        className="input"
-                                        style={{ flex: 1 }}
-                                        placeholder="Nome da nova categoria"
-                                        value={newCategoryName}
-                                        onChange={e => setNewCategoryName(e.target.value)}
-                                    />
-                                    <button
-                                        type="button"
-                                        className="btn btn-primary"
-                                        onClick={handleAddCategory}
-                                    >
-                                        Adicionar
-                                    </button>
-                                    <button
-                                        type="button"
-                                        className="btn btn-outline"
-                                        onClick={() => setShowNewCategory(false)}
-                                    >
-                                        Cancelar
-                                    </button>
+                                    style={{ height: '100px' }}
+                                    value={formData.description}
+                                    onChange={e => setFormData({ ...formData, description: e.target.value })}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Right Column - Image Gallery */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            <div>
+                                <label style={{ display: 'block', marginBottom: '0.5rem' }}>Adicionar Imagem</label>
+                                <ImageUpload onUpload={handleAddImage} />
+                            </div>
+
+                            <div>
+                                <label style={{ display: 'block', marginBottom: '0.5rem' }}>
+                                    Imagens do Produto ({formData.images.length})
+                                </label>
+                                <div style={{
+                                    border: '2px solid var(--border)',
+                                    borderRadius: 'var(--radius)',
+                                    padding: '1rem',
+                                    minHeight: '300px',
+                                    background: 'var(--muted)',
+                                    display: 'grid',
+                                    gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
+                                    gap: '1rem'
+                                }}>
+                                    {formData.images.length === 0 ? (
+                                        <div style={{
+                                            gridColumn: '1 / -1',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            color: 'var(--muted-foreground)',
+                                            textAlign: 'center',
+                                            padding: '2rem'
+                                        }}>
+                                            <p>Nenhuma imagem adicionada ainda.<br />Use o campo acima para adicionar imagens.</p>
+                                        </div>
+                                    ) : (
+                                        formData.images.map((img, index) => (
+                                            <div key={index} style={{ position: 'relative' }}>
+                                                <div style={{
+                                                    width: '100%',
+                                                    paddingBottom: '100%',
+                                                    background: `url(${img}) center/cover`,
+                                                    borderRadius: 'var(--radius)',
+                                                    position: 'relative'
+                                                }}>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleRemoveImage(index)}
+                                                        style={{
+                                                            position: 'absolute',
+                                                            top: '0.5rem',
+                                                            right: '0.5rem',
+                                                            background: 'rgba(0,0,0,0.7)',
+                                                            color: 'white',
+                                                            border: 'none',
+                                                            borderRadius: '50%',
+                                                            width: '24px',
+                                                            height: '24px',
+                                                            cursor: 'pointer',
+                                                            fontSize: '1rem',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center'
+                                                        }}
+                                                    >
+                                                        ×
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))
+                                    )}
                                 </div>
-                            )}
-                        </div>
-
-                        <div>
-                            <label style={{ display: 'block', marginBottom: '0.5rem' }}>Descrição</label>
-                            <textarea
-                                className="input"
-                                style={{ height: '100px' }}
-                                value={formData.description}
-                                onChange={e => setFormData({ ...formData, description: e.target.value })}
-                            />
-                        </div>
-
-                        {/* Image Upload - Below on all screens */}
-                        <div>
-                            <label style={{ display: 'block', marginBottom: '0.5rem' }}>Imagem do Produto</label>
-                            <ImageUpload onUpload={(url) => setFormData({ ...formData, image: url })} />
-                            {formData.image && (
-                                <p style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: 'var(--muted-foreground)' }}>
-                                    ✓ Imagem carregada
-                                </p>
-                            )}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -193,6 +276,14 @@ export default function NewProductPage() {
                     Salvar Produto
                 </button>
             </form>
+
+            <style jsx>{`
+                @media (min-width: 768px) {
+                    .product-form-grid {
+                        grid-template-columns: 40% 60% !important;
+                    }
+                }
+            `}</style>
         </div>
     );
 }

@@ -79,12 +79,12 @@ export default function Home() {
                             <div key={product.id} className="card">
                                 <div style={{
                                     height: '200px',
-                                    background: product.image ? `url(${product.image}) center/cover` : 'var(--muted)',
+                                    background: product.images?.[0] ? `url(${product.images[0]}) center/cover` : 'var(--muted)',
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center'
                                 }}>
-                                    {!product.image && <span style={{ fontSize: '2rem' }}>📦</span>}
+                                    {!product.images?.[0] && <span style={{ fontSize: '2rem' }}>📦</span>}
                                 </div>
                                 <div style={{ padding: '1rem' }}>
                                     <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>{product.name}</h3>
