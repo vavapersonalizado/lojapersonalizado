@@ -17,15 +17,15 @@ export default function NewProductPage() {
         image: ''
     });
 
-    useEffect(() => {
-        loadCategories();
-    }, []);
-
     const loadCategories = () => {
         fetch('/api/categories')
             .then(res => res.json())
             .then(data => setCategories(data));
     };
+
+    useEffect(() => {
+        loadCategories();
+    }, []);
 
     const handleAddCategory = async () => {
         if (!newCategoryName.trim()) return;

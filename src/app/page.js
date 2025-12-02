@@ -89,7 +89,7 @@ export default function Home() {
                                 <div style={{ padding: '1rem' }}>
                                     <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>{product.name}</h3>
                                     <p style={{ color: 'var(--primary)', fontWeight: 'bold', fontSize: '1.2rem' }}>
-                                        R$ {product.price.toFixed(2)}
+                                        ¥ {product.price.toFixed(0)}
                                     </p>
                                     <button className="btn btn-primary" style={{ width: '100%', marginTop: '1rem' }}>
                                         Adicionar ao Carrinho
