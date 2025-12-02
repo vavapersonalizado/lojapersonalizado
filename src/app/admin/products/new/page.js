@@ -14,7 +14,8 @@ export default function NewProductPage() {
         price: '',
         description: '',
         categoryId: '',
-        image: ''
+        image: '',
+        stock: ''
     });
 
     const loadCategories = () => {
@@ -69,10 +70,7 @@ export default function NewProductPage() {
                 <div style={{
                     display: 'grid',
                     gridTemplateColumns: '1fr',
-                    gap: '2rem',
-                    '@media (min-width: 768px)': {
-                        gridTemplateColumns: '1fr 350px'
-                    }
+                    gap: '2rem'
                 }}>
                     {/* Left Column - Form Fields */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -87,17 +85,31 @@ export default function NewProductPage() {
                             />
                         </div>
 
-                        <div>
-                            <label style={{ display: 'block', marginBottom: '0.5rem' }}>Preço (¥)</label>
-                            <input
-                                type="number"
-                                step="1"
-                                className="input"
-                                value={formData.price}
-                                onChange={e => setFormData({ ...formData, price: e.target.value })}
-                                placeholder="1000"
-                                required
-                            />
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                            <div>
+                                <label style={{ display: 'block', marginBottom: '0.5rem' }}>Preço (¥)</label>
+                                <input
+                                    type="number"
+                                    step="1"
+                                    className="input"
+                                    value={formData.price}
+                                    onChange={e => setFormData({ ...formData, price: e.target.value })}
+                                    placeholder="1000"
+                                    required
+                                />
+                            </div>
+
+                            <div>
+                                <label style={{ display: 'block', marginBottom: '0.5rem' }}>Estoque (opcional)</label>
+                                <input
+                                    type="number"
+                                    step="1"
+                                    className="input"
+                                    value={formData.stock}
+                                    onChange={e => setFormData({ ...formData, stock: e.target.value })}
+                                    placeholder="0"
+                                />
+                            </div>
                         </div>
 
                         <div>
@@ -117,23 +129,15 @@ export default function NewProductPage() {
                             {!showNewCategory ? (
                                 <select
                                     className="input"
-                                        value={formData.categoryId}
-                                        onChange={e => setFormData({ ...formData, categoryId: e.target.value })}
-                                        required
-                                    >
-                                        <option value="">Selecione...</option>
-                                        {categories.map(cat => (
-                                            <option key={cat.id} value={cat.id}>{cat.name}</option>
-                                        ))}
-                                    </select>
-                                    <button
-                                        type="button"
-                                        className="btn btn-outline"
-                                        onClick={() => setShowNewCategory(true)}
-                                    >
-                                        + Nova
-                                    </button>
-                                </div>
+                                    value={formData.categoryId}
+                                    onChange={e => setFormData({ ...formData, categoryId: e.target.value })}
+                                    required
+                                >
+                                    <option value="">Selecione...</option>
+                                    {categories.map(cat => (
+                                        <option key={cat.id} value={cat.id}>{cat.name}</option>
+                                    ))}
+                                </select>
                             ) : (
                                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                                     <input
@@ -171,24 +175,24 @@ export default function NewProductPage() {
                                 onChange={e => setFormData({ ...formData, description: e.target.value })}
                             />
                         </div>
-                    </div>
 
-                    {/* Right Column / Bottom on Mobile - Image Upload */}
-                    <div>
-                        <label style={{ display: 'block', marginBottom: '0.5rem' }}>Imagem do Produto</label>
-                        <ImageUpload onUpload={(url) => setFormData({ ...formData, image: url })} />
-                        {formData.image && (
-                            <p style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: 'var(--muted-foreground)' }}>
-                                ✓ Imagem carregada
-                            </p>
-                        )}
+                        {/* Image Upload - Below on all screens */}
+                        <div>
+                            <label style={{ display: 'block', marginBottom: '0.5rem' }}>Imagem do Produto</label>
+                            <ImageUpload onUpload={(url) => setFormData({ ...formData, image: url })} />
+                            {formData.image && (
+                                <p style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: 'var(--muted-foreground)' }}>
+                                    ✓ Imagem carregada
+                                </p>
+                            )}
+                        </div>
                     </div>
                 </div>
 
                 <button type="submit" className="btn btn-primary" style={{ marginTop: '2rem', width: '100%' }}>
                     Salvar Produto
                 </button>
-            </form >
-        </div >
+            </form>
+        </div>
     );
 }
