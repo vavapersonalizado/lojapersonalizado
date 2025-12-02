@@ -115,10 +115,8 @@ export default function NewProductPage() {
                                 )}
                             </div>
                             {!showNewCategory ? (
-                                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                    <select
-                                        className="input"
-                                        style={{ flex: 1 }}
+                                <select
+                                    className="input"
                                         value={formData.categoryId}
                                         onChange={e => setFormData({ ...formData, categoryId: e.target.value })}
                                         required
@@ -190,7 +188,7 @@ export default function NewProductPage() {
                 <button type="submit" className="btn btn-primary" style={{ marginTop: '2rem', width: '100%' }}>
                     Salvar Produto
                 </button>
-            </form>
-        </div>
+            </form >
+        </div >
     );
 }
