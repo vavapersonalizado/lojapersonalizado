@@ -35,13 +35,16 @@ export async function POST(request) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
+        // Extract URLs from images array (images can be {url, type} or just strings)
+        const imageUrls = images?.map(img => typeof img === 'string' ? img : img.url) || [];
+
         const product = await prisma.product.create({
             data: {
                 name,
                 price: parseFloat(price),
                 description,
                 categoryId,
-                images: images || [],
+                images: imageUrls,
                 stock: stock ? parseInt(stock) : 0,
             },
         });
