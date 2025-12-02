@@ -28,11 +28,14 @@ export default function UsersPage() {
     if (loading || !user || !user.isSuperUser) return null;
 
     // Convert userProfiles object to array for table display
-    const usersList = Object.entries(userProfiles).map(([email, profile]) => ({
-        email,
-        ...profile,
-        role: profile.role || "client" // Default role if not set
-    }));
+    const usersList = Object.entries(userProfiles).map(([email, profile]) => {
+        const userProfile = profile as any;
+        return {
+            email,
+            ...userProfile,
+            role: userProfile.role || "client" // Default role if not set
+        };
+    });
 
     const handleRoleChange = (email: string, newRole: string) => {
         const currentProfile = userProfiles[email] || {};
