@@ -8,27 +8,6 @@ export const authOptions = {
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
         }),
     ],
-    callbacks: {
-        async signIn({ user, account, profile }) {
-            return true;
-        },
-        async session({ session, token }) {
-            if (session.user) {
-                session.user.id = token.sub;
-                session.user.isSuperUser = session.user.email === "projetovanvava@gmail.com";
-            }
-            return session;
-        },
-        async jwt({ token, user, account }) {
-            if (user) {
-                token.id = user.id;
-            }
-            return token;
-        },
-    },
-    pages: {
-        signIn: '/login',
-    },
     secret: process.env.NEXTAUTH_SECRET,
 };
 
