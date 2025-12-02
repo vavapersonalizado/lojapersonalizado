@@ -47,8 +47,8 @@ export default function NewProductPage() {
         }
     };
 
-    const handleAddImage = (url) => {
-        setFormData({ ...formData, images: [...formData.images, url] });
+    const handleAddImage = (url, type = 'image') => {
+        setFormData({ ...formData, images: [...formData.images, { url, type }] });
     };
 
     const handleRemoveImage = (index) => {
@@ -216,15 +216,41 @@ export default function NewProductPage() {
                                         <p>Nenhuma imagem adicionada ainda.<br />Use o campo acima para adicionar imagens.</p>
                                     </div>
                                 ) : (
-                                    formData.images.map((img, index) => (
+                                    formData.images.map((media, index) => (
                                         <div key={index} style={{ position: 'relative' }}>
                                             <div style={{
                                                 width: '100%',
                                                 paddingBottom: '100%',
-                                                background: `url(${img}) center/cover`,
                                                 borderRadius: 'var(--radius)',
-                                                position: 'relative'
+                                                position: 'relative',
+                                                overflow: 'hidden',
+                                                background: 'var(--muted)'
                                             }}>
+                                                {media.type === 'video' ? (
+                                                    <video
+                                                        src={media.url}
+                                                        style={{
+                                                            position: 'absolute',
+                                                            top: 0,
+                                                            left: 0,
+                                                            width: '100%',
+                                                            height: '100%',
+                                                            objectFit: 'cover'
+                                                        }}
+                                                        muted
+                                                        loop
+                                                        playsInline
+                                                    />
+                                                ) : (
+                                                    <div style={{
+                                                        position: 'absolute',
+                                                        top: 0,
+                                                        left: 0,
+                                                        width: '100%',
+                                                        height: '100%',
+                                                        background: `url(${media.url}) center/cover`
+                                                    }} />
+                                                )}
                                                 <button
                                                     type="button"
                                                     onClick={() => handleRemoveImage(index)}
@@ -242,7 +268,8 @@ export default function NewProductPage() {
                                                         fontSize: '1rem',
                                                         display: 'flex',
                                                         alignItems: 'center',
-                                                        justifyContent: 'center'
+                                                        justifyContent: 'center',
+                                                        zIndex: 10
                                                     }}
                                                 >
                                                     ×
