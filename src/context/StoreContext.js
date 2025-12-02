@@ -14,6 +14,21 @@ export const StoreProvider = ({ children }) => {
 
     // Load from localStorage on mount
     useEffect(() => {
+        // FORCE CLEAR OLD DATA (Migration)
+        const storedProdsRaw = localStorage.getItem("products");
+        if (storedProdsRaw) {
+            const parsed = JSON.parse(storedProdsRaw);
+            // Check if it contains the old fake product "Camiseta Premium" (id: 1)
+            if (parsed.some(p => p.id === 1 && p.name === "Camiseta Premium")) {
+                console.log("Clearing old fake data...");
+                localStorage.removeItem("products");
+                localStorage.removeItem("categories");
+                setProducts([]);
+                setCategories([]);
+                return; // Stop loading old data
+            }
+        }
+
         const storedCats = localStorage.getItem("categories");
         const storedProds = localStorage.getItem("products");
         const storedProfiles = localStorage.getItem("userProfiles");
