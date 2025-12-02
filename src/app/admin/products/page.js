@@ -44,7 +44,7 @@ export default function AdminProductsPage() {
                     {products.map(product => (
                         <tr key={product.id} style={{ borderBottom: '1px solid var(--border)' }}>
                             <td style={{ padding: '1rem' }}>{product.name}</td>
-                            <td style={{ padding: '1rem' }}>R$ {product.price.toFixed(2)}</td>
+                            <td style={{ padding: '1rem' }}>¥ {product.price.toFixed(0)}</td>
                             <td style={{ padding: '1rem' }}>{product.category?.name || '-'}</td>
                             <td style={{ padding: '1rem' }}>
                                 <button style={{ marginRight: '0.5rem' }}>✏️</button>

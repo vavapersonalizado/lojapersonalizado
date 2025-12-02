@@ -1,0 +1,16 @@
+/* Admin Product Form Styles */
+@media (min-width: 768px) {
+    .productFormGrid {
+        display: grid;
+        grid-template-columns: 1fr 350px;
+        gap: 2rem;
+    }
+}
+
+@media (max-width: 767px) {
+    .productFormGrid {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+}
