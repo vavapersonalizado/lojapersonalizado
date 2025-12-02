@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import ImageUpload from '@/components/ImageUpload';
 
 export default function NewProductPage() {
     const router = useRouter();
@@ -89,14 +90,13 @@ export default function NewProductPage() {
                 </div>
 
                 <div>
-                    <label style={{ display: 'block', marginBottom: '0.5rem' }}>URL da Imagem</label>
-                    <input
-                        type="url"
-                        className="input"
-                        value={formData.image}
-                        onChange={e => setFormData({ ...formData, image: e.target.value })}
-                        placeholder="https://exemplo.com/imagem.jpg"
-                    />
+                    <label style={{ display: 'block', marginBottom: '0.5rem' }}>Imagem do Produto</label>
+                    <ImageUpload onUpload={(url) => setFormData({ ...formData, image: url })} />
+                    {formData.image && (
+                        <p style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: 'var(--muted-foreground)' }}>
+                            Imagem carregada: {formData.image}
+                        </p>
+                    )}
                 </div>
 
                 <button type="submit" className="btn btn-primary" style={{ marginTop: '1rem' }}>
