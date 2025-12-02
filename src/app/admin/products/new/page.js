@@ -101,7 +101,19 @@ export default function NewProductPage() {
                         </div>
 
                         <div>
-                            <label style={{ display: 'block', marginBottom: '0.5rem' }}>Categoria</label>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                                <label>Categoria</label>
+                                {!showNewCategory && (
+                                    <button
+                                        type="button"
+                                        className="btn btn-outline"
+                                        onClick={() => setShowNewCategory(true)}
+                                        style={{ fontSize: '0.875rem', padding: '0.25rem 0.75rem' }}
+                                    >
+                                        + Nova
+                                    </button>
+                                )}
+                            </div>
                             {!showNewCategory ? (
                                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                                     <select
