@@ -104,13 +104,17 @@ export default function CategoryPage() {
                         <div key={product.id} className="card">
                             <div style={{
                                 height: '200px',
-                                background: product.images?.[0]?.url ? `url(${product.images[0].url}) center/cover` : 'var(--muted)',
+                                background: product.images?.[0]?.url
+                                    ? `url(${product.images[0].url}) center/cover`
+                                    : product.images?.[0]
+                                        ? `url(${product.images[0]}) center/cover`
+                                        : 'var(--muted)',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 borderRadius: 'var(--radius) var(--radius) 0 0'
                             }}>
-                                {!product.images?.[0]?.url && <span style={{ fontSize: '2rem' }}>📦</span>}
+                                {(!product.images?.[0]?.url && !product.images?.[0]) && <span style={{ fontSize: '2rem' }}>📦</span>}
                             </div>
                             <div style={{ padding: '1rem' }}>
                                 <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>{product.name}</h3>
