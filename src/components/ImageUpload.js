@@ -1,6 +1,4 @@
-"use client";
-
-import { useState, useRef } from 'react';
+import { upload } from '@vercel/blob/client';
 
 export default function ImageUpload({ onUpload }) {
     const [preview, setPreview] = useState(null);
@@ -12,10 +10,10 @@ export default function ImageUpload({ onUpload }) {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        // Check file size (max 4.5MB for Vercel Blob free tier)
-        const maxSize = 4.5 * 1024 * 1024; // 4.5MB in bytes
+        // Check file size (max 50MB for client uploads is safer, but keep reasonable)
+        const maxSize = 50 * 1024 * 1024; // 50MB
         if (file.size > maxSize) {
-            alert(`Arquivo muito grande! Tamanho máximo: 4.5MB\nTamanho do arquivo: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
+            alert(`Arquivo muito grande! Tamanho máximo: 50MB\nTamanho do arquivo: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
             return;
         }
 
@@ -29,26 +27,19 @@ export default function ImageUpload({ onUpload }) {
         setUploading(true);
 
         try {
-            const response = await fetch(`/api/upload?filename=${file.name}`, {
-                method: 'POST',
-                body: file,
+            const newBlob = await upload(file.name, file, {
+                access: 'public',
+                handleUploadUrl: '/api/upload',
             });
 
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                const errorMsg = errorData.error || errorData.details || 'Upload failed';
-                throw new Error(errorMsg);
-            }
-
-            const newBlob = await response.json();
-            onUpload(newBlob.url, isVideo ? 'video' : 'image'); // Pass URL and type
+            onUpload(newBlob.url, isVideo ? 'video' : 'image');
             setUploading(false);
             setPreview(null);
             setFileType(null);
         } catch (error) {
             console.error('Error uploading file:', error);
             const errorMsg = error.message || 'Erro desconhecido no upload';
-            alert(`Erro no upload: ${errorMsg}\n\nVerifique:\n- Tamanho do arquivo (máx 4.5MB)\n- Conexão com internet\n- Console do navegador para mais detalhes`);
+            alert(`Erro no upload: ${errorMsg}\n\nTente novamente.`);
             setUploading(false);
             setPreview(null);
             setFileType(null);
