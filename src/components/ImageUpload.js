@@ -1,3 +1,6 @@
+"use client";
+
+import { useState, useRef } from 'react';
 import { upload } from '@vercel/blob/client';
 
 export default function ImageUpload({ onUpload }) {
