@@ -34,8 +34,10 @@ export default function AdminProductsPage() {
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                     <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)' }}>
+                        <th style={{ padding: '1rem' }}>Imagem</th>
                         <th style={{ padding: '1rem' }}>Nome</th>
                         <th style={{ padding: '1rem' }}>Preço</th>
+                        <th style={{ padding: '1rem' }}>Estoque</th>
                         <th style={{ padding: '1rem' }}>Categoria</th>
                         <th style={{ padding: '1rem' }}>Ações</th>
                     </tr>
@@ -43,8 +45,20 @@ export default function AdminProductsPage() {
                 <tbody>
                     {products.map(product => (
                         <tr key={product.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                            <td style={{ padding: '1rem' }}>
+                                {product.images && product.images.length > 0 ? (
+                                    <img
+                                        src={product.images[0]}
+                                        alt={product.name}
+                                        style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '4px' }}
+                                    />
+                                ) : (
+                                    <div style={{ width: '50px', height: '50px', background: '#eee', borderRadius: '4px' }} />
+                                )}
+                            </td>
                             <td style={{ padding: '1rem' }}>{product.name}</td>
                             <td style={{ padding: '1rem' }}>¥ {product.price.toFixed(0)}</td>
+                            <td style={{ padding: '1rem' }}>{product.stock}</td>
                             <td style={{ padding: '1rem' }}>{product.category?.name || '-'}</td>
                             <td style={{ padding: '1rem' }}>
                                 <button style={{ marginRight: '0.5rem' }}>✏️</button>
