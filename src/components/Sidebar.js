@@ -1,12 +1,13 @@
 "use client";
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { useState, useEffect } from 'react';
 
 export default function Sidebar() {
     const pathname = usePathname();
+    const router = useRouter();
     const { data: session } = useSession();
     const isAdmin = session?.user?.role === 'admin';
 
@@ -84,9 +85,36 @@ export default function Sidebar() {
             display: 'flex',
             flexDirection: 'column'
         }}>
-            <div style={{ marginBottom: '2rem', fontSize: '1.2rem', fontWeight: 'bold' }}>
-                Menu
+            <div style={{ marginBottom: '1.5rem' }}>
+                <div style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>
+                    Menu
+                </div>
+                {isAdmin && (
+                    <div style={{
+                        fontSize: '0.75rem',
+                        color: 'var(--primary)',
+                        background: 'var(--secondary)',
+                        padding: '0.25rem 0.5rem',
+                        borderRadius: 'var(--radius)',
+                        display: 'inline-block'
+                    }}>
+                        ⚡ Modo Admin
+                    </div>
+                )}
             </div>
+
+            {/* Admin Quick Actions */}
+            {isAdmin && (
+                <div style={{ marginBottom: '1.5rem' }}>
+                    <button
+                        onClick={() => router.push('/admin/products/new')}
+                        className="btn btn-primary"
+                        style={{ width: '100%', marginBottom: '0.5rem' }}
+                    >
+                        ➕ Adicionar Produto
+                    </button>
+                </div>
+            )}
 
             <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 {menuItems.map((item, index) => {
@@ -119,13 +147,20 @@ export default function Sidebar() {
                                 )}
 
                                 {isAdmin && item.settingKey && (
-                                    <input
-                                        type="checkbox"
-                                        checked={settings[item.settingKey] || false}
-                                        onChange={() => toggleSetting(item.settingKey)}
-                                        title={`Visível para clientes: ${settings[item.settingKey] ? 'Sim' : 'Não'}`}
-                                        style={{ cursor: 'pointer', width: '18px', height: '18px' }}
-                                    />
+                                    <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                                        <input
+                                            type="checkbox"
+                                            checked={settings[item.settingKey] !== false}
+                                            onChange={() => toggleSetting(item.settingKey)}
+                                            title={`Visível para clientes: ${settings[item.settingKey] ? 'Sim' : 'Não'}`}
+                                            style={{
+                                                cursor: 'pointer',
+                                                width: '16px',
+                                                height: '16px',
+                                                accentColor: 'var(--primary)'
+                                            }}
+                                        />
+                                    </label>
                                 )}
                             </div>
 
