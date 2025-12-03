@@ -22,13 +22,22 @@ export default function UsersPage() {
         }
 
         fetch('/api/users')
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error('Failed to fetch users');
+                return res.json();
+            })
             .then(data => {
-                setUsers(data);
+                if (Array.isArray(data)) {
+                    setUsers(data);
+                } else {
+                    console.error('Data is not an array:', data);
+                    setUsers([]);
+                }
                 setLoading(false);
             })
             .catch(err => {
                 console.error(err);
+                setUsers([]);
                 setLoading(false);
             });
     }, [session, status, router]);
