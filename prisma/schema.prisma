@@ -59,6 +59,7 @@ model Category {
   id        String    @id @default(cuid())
   name      String
   slug      String    @unique
+  visible   Boolean   @default(true)
   products  Product[]
 }
 
