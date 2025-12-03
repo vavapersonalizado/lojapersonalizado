@@ -1,7 +1,8 @@
+"use client";
+
 import { useState, useEffect } from 'react';
-import { useSession, signIn } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import Link from 'next/link';
-import UserProfile from '@/components/UserProfile';
 
 export default function Home() {
     const { data: session } = useSession();
@@ -22,31 +23,13 @@ export default function Home() {
     }, []);
 
     return (
-        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-            {/* Navbar */}
-            <header style={{
-                padding: '1rem 2rem',
-                borderBottom: '1px solid var(--border)',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                background: 'var(--background)'
-            }}>
-                <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>Loja Personalizada</h1>
-                <nav style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                    {session ? (
-                        <UserProfile />
-                    ) : (
-                        <button onClick={() => signIn('google')} className="btn btn-primary">Entrar</button>
-                    )}
-                </nav>
-            </header>
-
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
             {/* Hero */}
             <section style={{
-                padding: '4rem 2rem',
+                padding: '3rem 2rem',
                 textAlign: 'center',
-                background: 'linear-gradient(to bottom, var(--secondary), var(--background))'
+                background: 'linear-gradient(to bottom, var(--secondary), var(--background))',
+                borderRadius: 'var(--radius)'
             }}>
                 <h2 style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>Produtos Exclusivos</h2>
                 <p style={{ color: 'var(--muted-foreground)', fontSize: '1.1rem' }}>Encontre o que você precisa com a melhor qualidade.</p>
