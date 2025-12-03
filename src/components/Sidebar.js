@@ -86,8 +86,9 @@ export default function Sidebar() {
 
             <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 {menuItems.map((item, index) => {
-                    const isVisible = item.alwaysVisible || settings[item.settingKey] || isAdmin;
-                    if (!isVisible) return null;
+                    // Admin vê tudo sempre, cliente só vê se estiver habilitado
+                    const isVisibleToClient = settings[item.settingKey];
+                    if (!isAdmin && !isVisibleToClient) return null;
 
                     return (
                         <div key={index}>
@@ -116,7 +117,7 @@ export default function Sidebar() {
                                 {isAdmin && item.settingKey && (
                                     <input
                                         type="checkbox"
-                                        checked={settings[item.settingKey]}
+                                        checked={settings[item.settingKey] || false}
                                         onChange={() => toggleSetting(item.settingKey)}
                                         title={`Visível para clientes: ${settings[item.settingKey] ? 'Sim' : 'Não'}`}
                                         style={{ cursor: 'pointer' }}
