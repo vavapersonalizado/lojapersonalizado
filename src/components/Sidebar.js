@@ -74,7 +74,7 @@ export default function Sidebar() {
     return (
         <aside style={{
             width: '250px',
-            background: 'yellow',
+            background: 'var(--card)',
             borderRight: '1px solid var(--border)',
             padding: '1rem',
             height: '100vh',
