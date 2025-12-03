@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSession } from "next-auth/react";
 import Link from 'next/link';
+import ProductCard from '@/components/ProductCard';
 
 export default function ProductsPage() {
     const { data: session } = useSession();
@@ -63,36 +64,7 @@ export default function ProductsPage() {
                     gap: '2rem'
                 }}>
                     {products.map(product => (
-                        <div key={product.id} className="card">
-                            <div style={{
-                                height: '200px',
-                                background: product.images?.[0]?.url
-                                    ? `url(${product.images[0].url}) center/cover`
-                                    : product.images?.[0]
-                                        ? `url(${product.images[0]}) center/cover`
-                                        : 'var(--muted)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                borderRadius: 'var(--radius) var(--radius) 0 0'
-                            }}>
-                                {(!product.images?.[0]?.url && !product.images?.[0]) && <span style={{ fontSize: '2rem' }}>📦</span>}
-                            </div>
-                            <div style={{ padding: '1rem' }}>
-                                <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>{product.name}</h3>
-                                <p style={{ color: 'var(--primary)', fontWeight: 'bold', fontSize: '1.2rem', marginBottom: '0.5rem' }}>
-                                    ¥ {product.price.toFixed(0)}
-                                </p>
-                                {product.category && (
-                                    <p style={{ fontSize: '0.875rem', color: 'var(--muted-foreground)', marginBottom: '1rem' }}>
-                                        {product.category.name}
-                                    </p>
-                                )}
-                                <button className="btn btn-primary" style={{ width: '100%' }}>
-                                    Adicionar ao Carrinho
-                                </button>
-                            </div>
-                        </div>
+                        <ProductCard key={product.id} product={product} />
                     ))}
                 </div>
             )}

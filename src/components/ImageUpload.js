@@ -17,7 +17,7 @@ export default function ImageUpload({ onUpload }) {
                 multiple: false,
                 maxFiles: 1,
                 resourceType: "auto",
-                clientAllowedFormats: ["image", "video"],
+                clientAllowedFormats: ["image", "video", "glb", "gltf"],
                 maxFileSize: 50000000, // 50MB
                 styles: {
                     palette: {

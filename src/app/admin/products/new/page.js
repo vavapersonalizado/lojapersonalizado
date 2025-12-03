@@ -241,6 +241,22 @@ export default function NewProductPage() {
                                                         loop
                                                         playsInline
                                                     />
+                                                ) : media.url.endsWith('.glb') || media.url.endsWith('.gltf') ? (
+                                                    <div style={{
+                                                        position: 'absolute',
+                                                        top: 0,
+                                                        left: 0,
+                                                        width: '100%',
+                                                        height: '100%',
+                                                        background: '#f0f0f0',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        flexDirection: 'column'
+                                                    }}>
+                                                        <span style={{ fontSize: '2rem' }}>🧊</span>
+                                                        <span style={{ fontSize: '0.8rem', color: '#666' }}>Modelo 3D</span>
+                                                    </div>
                                                 ) : (
                                                     <div style={{
                                                         position: 'absolute',
