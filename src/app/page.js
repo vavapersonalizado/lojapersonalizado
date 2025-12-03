@@ -31,7 +31,7 @@ export default function Home() {
                 background: 'linear-gradient(to bottom, var(--secondary), var(--background))',
                 borderRadius: 'var(--radius)'
             }}>
-                <h2 style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>Produtos Exclusivos</h2>
+                <h2 style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>Vanessa Yachiro Personalizados</h2>
                 <p style={{ color: 'var(--muted-foreground)', fontSize: '1.1rem' }}>Encontre o que você precisa com a melhor qualidade.</p>
             </section>
 

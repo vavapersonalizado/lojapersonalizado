@@ -2,7 +2,7 @@ import "./globals.css";
 import { Providers } from "./providers";
 
 export const metadata = {
-    title: "Loja Personalizada",
+    title: "Vanessa Yachiro Personalizados",
     description: "Sua loja de produtos personalizados",
 };
 
