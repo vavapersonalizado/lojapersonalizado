@@ -10,6 +10,10 @@ export default function Sidebar() {
     const { data: session } = useSession();
     const isAdmin = session?.user?.role === 'admin';
 
+    // Debug logging
+    console.log('Sidebar - Session:', session);
+    console.log('Sidebar - isAdmin:', isAdmin);
+
     const [settings, setSettings] = useState({
         showProducts: true,
         showCategories: true,
@@ -120,7 +124,7 @@ export default function Sidebar() {
                                         checked={settings[item.settingKey] || false}
                                         onChange={() => toggleSetting(item.settingKey)}
                                         title={`Visível para clientes: ${settings[item.settingKey] ? 'Sim' : 'Não'}`}
-                                        style={{ cursor: 'pointer' }}
+                                        style={{ cursor: 'pointer', width: '18px', height: '18px' }}
                                     />
                                 )}
                             </div>
