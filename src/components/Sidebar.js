@@ -122,39 +122,61 @@ export default function Sidebar() {
                     Menu
                 </div>
                 {isAdmin && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    <>
                         <div style={{
-                            fontSize: '0.75rem',
-                            color: 'var(--primary)',
-                            background: 'var(--secondary)',
-                            padding: '0.25rem 0.5rem',
-                            borderRadius: 'var(--radius)',
-                            display: 'inline-block',
-                            alignSelf: 'flex-start'
-                        }}>
-                            ⚡ Modo Admin
-                        </div>
-
-                        <label style={{
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '0.5rem',
-                            fontSize: '0.85rem',
-                            cursor: 'pointer',
-                            padding: '0.25rem',
-                            border: '1px solid var(--border)',
-                            borderRadius: 'var(--radius)',
-                            background: 'var(--muted)'
+                            justifyContent: 'space-between',
+                            marginBottom: '0.5rem'
                         }}>
-                            <input
-                                type="checkbox"
-                                checked={isClientMode}
-                                onChange={(e) => setIsClientMode(e.target.checked)}
-                                style={{ accentColor: 'var(--primary)' }}
-                            />
-                            👁️ Ver como Cliente
-                        </label>
-                    </div>
+                            <div style={{
+                                fontSize: '0.75rem',
+                                color: 'var(--primary)',
+                                background: 'var(--secondary)',
+                                padding: '0.25rem 0.5rem',
+                                borderRadius: 'var(--radius)',
+                            }}>
+                                ⚡ Modo Admin
+                            </div>
+
+                            <label style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                fontSize: '0.8rem',
+                                cursor: 'pointer',
+                                color: 'var(--muted-foreground)'
+                            }}>
+                                <input
+                                    type="checkbox"
+                                    checked={isClientMode}
+                                    onChange={(e) => setIsClientMode(e.target.checked)}
+                                    style={{ accentColor: 'var(--primary)' }}
+                                />
+                                Ver como Cliente
+                            </label>
+                        </div>
+
+                        {!isClientMode && (
+                            <Link
+                                href="/admin/users"
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.5rem',
+                                    padding: '0.5rem',
+                                    borderRadius: 'var(--radius)',
+                                    background: pathname === '/admin/users' ? 'var(--primary)' : 'transparent',
+                                    color: pathname === '/admin/users' ? 'var(--primary-foreground)' : 'inherit',
+                                    textDecoration: 'none',
+                                    fontSize: '0.9rem',
+                                    marginBottom: '0.5rem'
+                                }}
+                            >
+                                👥 Clientes
+                            </Link>
+                        )}
+                    </>
                 )}
             </div>
 
