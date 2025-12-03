@@ -1,8 +1,7 @@
-"use client";
-
 import { useState, useEffect } from 'react';
-import { useSession, signIn, signOut } from "next-auth/react";
+import { useSession, signIn } from "next-auth/react";
 import Link from 'next/link';
+import UserProfile from '@/components/UserProfile';
 
 export default function Home() {
     const { data: session } = useSession();
@@ -36,10 +35,7 @@ export default function Home() {
                 <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>Loja Personalizada</h1>
                 <nav style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                     {session ? (
-                        <>
-                            <Link href="/admin/products" className="btn btn-outline">Admin</Link>
-                            <button onClick={() => signOut()} className="btn btn-outline">Sair</button>
-                        </>
+                        <UserProfile />
                     ) : (
                         <button onClick={() => signIn('google')} className="btn btn-primary">Entrar</button>
                     )}
