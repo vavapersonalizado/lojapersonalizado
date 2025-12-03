@@ -54,7 +54,9 @@ export default function Sidebar() {
             // Revert on error
             setSettings(settings);
         }
-        const toggleCategoryVisibility = async (categoryId, currentVisibility) => {
+    };
+
+    const toggleCategoryVisibility = async (categoryId, currentVisibility) => {
             if (!isAdmin) return;
 
             // Optimistic update
