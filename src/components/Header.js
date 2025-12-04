@@ -7,6 +7,7 @@ import UserProfile from './UserProfile';
 import { useCart } from '@/contexts/CartContext';
 import { useState } from 'react';
 import CartDrawer from './CartDrawer';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function Header() {
     const { data: session } = useSession();
@@ -14,15 +15,24 @@ export default function Header() {
     const { getCartCount } = useCart();
     const [showCart, setShowCart] = useState(false);
     const cartCount = getCartCount();
+    const { language, changeLanguage, t } = useLanguage();
+
+    const languages = [
+        { code: 'pt', flag: '🇧🇷', name: 'Português' },
+        { code: 'en', flag: '🇺🇸', name: 'English' },
+        { code: 'es', flag: '🇪🇸', name: 'Español' },
+        { code: 'ja', flag: '🇯🇵', name: '日本語' },
+        { code: 'tl', flag: '🇵🇭', name: 'Tagalog' },
+    ];
 
     const getPageName = (path) => {
-        if (path === '/') return 'Início';
-        if (path === '/products') return 'Produtos';
-        if (path.startsWith('/categories/')) return 'Categoria';
-        if (path === '/events') return 'Eventos';
-        if (path === '/partners') return 'Parceiros';
-        if (path === '/sponsors') return 'Patrocinadores';
-        if (path.startsWith('/admin')) return 'Admin';
+        if (path === '/') return t('header.home');
+        if (path === '/products') return t('header.products');
+        if (path.startsWith('/categories/')) return t('header.category');
+        if (path === '/events') return t('header.events');
+        if (path === '/partners') return t('header.partners');
+        if (path === '/sponsors') return t('header.sponsors');
+        if (path.startsWith('/admin')) return t('header.admin');
         return '';
     };
 
@@ -50,8 +60,29 @@ export default function Header() {
                 </h1>
             </Link>
 
-            {/* Direita: Carrinho + Perfil */}
+            {/* Direita: Idioma + Carrinho + Perfil */}
             <nav style={{ display: 'flex', gap: '1rem', alignItems: 'center', justifySelf: 'end' }}>
+                {/* Language Selector */}
+                <select
+                    value={language}
+                    onChange={(e) => changeLanguage(e.target.value)}
+                    style={{
+                        padding: '0.5rem',
+                        borderRadius: 'var(--radius)',
+                        border: '1px solid var(--border)',
+                        background: 'var(--background)',
+                        cursor: 'pointer',
+                        fontSize: '0.9rem'
+                    }}
+                    title="Select Language"
+                >
+                    {languages.map(lang => (
+                        <option key={lang.code} value={lang.code}>
+                            {lang.flag} {lang.name}
+                        </option>
+                    ))}
+                </select>
+
                 {/* Cart Icon */}
                 <button
                     onClick={() => setShowCart(true)}

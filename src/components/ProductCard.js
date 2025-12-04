@@ -6,6 +6,7 @@ import { useCart } from '@/contexts/CartContext';
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const ModelViewer = dynamic(() => import('./ModelViewer'), { ssr: false });
 
@@ -13,6 +14,7 @@ export default function ProductCard({ product, isClientMode }) {
     const { data: session } = useSession();
     const router = useRouter();
     const isAdmin = session?.user?.role === 'admin';
+    const { formatCurrency } = useLanguage();
     // Helper to get the main media (3D model or first image)
     const getMainMedia = () => {
         if (!product.images || product.images.length === 0) return null;
@@ -129,7 +131,7 @@ export default function ProductCard({ product, isClientMode }) {
 
                 <div style={{ marginTop: 'auto' }}>
                     <p style={{ color: 'var(--primary)', fontWeight: 'bold', fontSize: '1.2rem', marginBottom: '0.5rem' }}>
-                        R$ {product.price.toFixed(2)}
+                        {formatCurrency(product.price)}
                     </p>
                     {product.category && (
                         <p style={{ fontSize: '0.875rem', color: 'var(--muted-foreground)', marginBottom: '1rem' }}>
@@ -145,6 +147,7 @@ export default function ProductCard({ product, isClientMode }) {
 
 function AddToCartButton({ product }) {
     const { addToCart } = useCart();
+    const { t } = useLanguage();
     const [added, setAdded] = useState(false);
 
     const handleAddToCart = () => {
