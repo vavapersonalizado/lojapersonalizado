@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from 'react';
-import ModelViewer from './ModelViewer';
+import dynamic from 'next/dynamic';
+
+const ModelViewer = dynamic(() => import('./ModelViewer'), { ssr: false });
 
 export default function ProductGallery({ images = [], name }) {
     const [selectedIndex, setSelectedIndex] = useState(0);
