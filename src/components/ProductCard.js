@@ -4,10 +4,15 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useCart } from '@/contexts/CartContext';
 import { useState } from 'react';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 const ModelViewer = dynamic(() => import('./ModelViewer'), { ssr: false });
 
-export default function ProductCard({ product }) {
+export default function ProductCard({ product, isClientMode }) {
+    const { data: session } = useSession();
+    const router = useRouter();
+    const isAdmin = session?.user?.role === 'admin';
     // Helper to get the main media (3D model or first image)
     const getMainMedia = () => {
         if (!product.images || product.images.length === 0) return null;
@@ -40,6 +45,42 @@ export default function ProductCard({ product }) {
                 borderRadius: 'var(--radius) var(--radius) 0 0',
                 overflow: 'hidden'
             }}>
+                {/* Admin Controls Overlay */}
+                {isAdmin && !isClientMode && (
+                    <div style={{
+                        position: 'absolute',
+                        top: '10px',
+                        left: '10px',
+                        zIndex: 10,
+                        display: 'flex',
+                        gap: '0.5rem'
+                    }}>
+                        <input
+                            type="checkbox"
+                            style={{
+                                width: '20px',
+                                height: '20px',
+                                cursor: 'pointer',
+                                accentColor: 'var(--primary)'
+                            }}
+                            title="Selecionar produto"
+                        />
+                        <button
+                            onClick={() => router.push(`/admin/products/${product.id}/edit`)}
+                            className="btn btn-primary"
+                            style={{
+                                padding: '0.25rem 0.5rem',
+                                fontSize: '0.8rem',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.25rem'
+                            }}
+                        >
+                            ✏️ Editar
+                        </button>
+                    </div>
+                )}
+
                 {media ? (
                     media.type === '3d' ? (
                         <div style={{ width: '100%', height: '100%' }}>
