@@ -25,7 +25,7 @@ export async function GET(request, { params }) {
     }
 }
 
-export async function PUT(request, { params }) {
+export async function PUT(request, context) {
     const session = await getServerSession(authOptions);
 
     if (!session || session.user.role !== 'admin') {
@@ -33,7 +33,7 @@ export async function PUT(request, { params }) {
     }
 
     try {
-        const { id } = params;
+        const { id } = await context.params;
         const body = await request.json();
         const { name, description, price, stock, categoryId } = body;
 
@@ -55,7 +55,7 @@ export async function PUT(request, { params }) {
     }
 }
 
-export async function DELETE(request, { params }) {
+export async function DELETE(request, context) {
     const session = await getServerSession(authOptions);
 
     if (!session || session.user.role !== 'admin') {
@@ -63,7 +63,7 @@ export async function DELETE(request, { params }) {
     }
 
     try {
-        const { id } = params;
+        const { id } = await context.params;
 
         await prisma.product.delete({
             where: { id }
