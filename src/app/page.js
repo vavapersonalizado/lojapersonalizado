@@ -11,13 +11,22 @@ export default function Home() {
 
     useEffect(() => {
         fetch('/api/products')
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error('Erro ao buscar produtos');
+                return res.json();
+            })
             .then(data => {
-                setProducts(data);
+                if (Array.isArray(data)) {
+                    setProducts(data);
+                } else {
+                    console.error('Formato de dados inválido:', data);
+                    setProducts([]);
+                }
                 setLoading(false);
             })
             .catch(err => {
-                console.error(err);
+                console.error('Erro:', err);
+                setProducts([]);
                 setLoading(false);
             });
     }, []);
