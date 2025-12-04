@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSession } from "next-auth/react";
 import Link from 'next/link';
+import ProductCard from '@/components/ProductCard';
 
 export default function Home() {
     const { data: session } = useSession();
@@ -64,26 +65,7 @@ export default function Home() {
                         gap: '2rem'
                     }}>
                         {products.map(product => (
-                            <div key={product.id} className="card">
-                                <div style={{
-                                    height: '200px',
-                                    background: product.images?.[0] ? `url(${product.images[0]}) center/cover` : 'var(--muted)',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center'
-                                }}>
-                                    {!product.images?.[0] && <span style={{ fontSize: '2rem' }}>📦</span>}
-                                </div>
-                                <div style={{ padding: '1rem' }}>
-                                    <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>{product.name}</h3>
-                                    <p style={{ color: 'var(--primary)', fontWeight: 'bold', fontSize: '1.2rem' }}>
-                                        ¥ {product.price.toFixed(0)}
-                                    </p>
-                                    <button className="btn btn-primary" style={{ width: '100%', marginTop: '1rem' }}>
-                                        Adicionar ao Carrinho
-                                    </button>
-                                </div>
-                            </div>
+                            <ProductCard key={product.id} product={product} isClientMode={true} />
                         ))}
                     </div>
                 )}

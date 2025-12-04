@@ -1,8 +1,12 @@
 "use client";
 
-import '@google/model-viewer';
+import { useEffect } from 'react';
 
 export default function ModelViewer({ src, poster, alt, style }) {
+    useEffect(() => {
+        import('@google/model-viewer').catch(console.error);
+    }, []);
+
     return (
         <div style={{ width: '100%', height: '100%', ...style }}>
             <model-viewer
