@@ -7,14 +7,22 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
     try {
+        console.log('[API] Fetching products...');
         const products = await prisma.product.findMany({
             orderBy: { createdAt: 'desc' },
-            include: { category: true } // Include category details if needed
+            include: { category: true }
         });
+        console.log(`[API] Found ${products.length} products`);
         return NextResponse.json(products);
     } catch (error) {
-        console.error("Error fetching products:", error);
-        return NextResponse.json({ error: "Error fetching products" }, { status: 500 });
+        console.error("[API] Error fetching products:", error);
+        console.error("[API] Error name:", error.name);
+        console.error("[API] Error message:", error.message);
+        console.error("[API] Error stack:", error.stack);
+        return NextResponse.json({
+            error: "Error fetching products",
+            details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        }, { status: 500 });
     }
 }
 
