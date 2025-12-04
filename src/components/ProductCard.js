@@ -41,57 +41,57 @@ export default function ProductCard({ product, isClientMode }) {
     return (
         <div className="card" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
             <div style={{ position: 'relative' }}>
-                <Link href={`/products/${product.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
-                    <div style={{
-                        height: '250px',
-                        position: 'relative',
-                        background: 'var(--muted)',
-                        borderRadius: 'var(--radius) var(--radius) 0 0',
-                        overflow: 'hidden'
-                    }}>
-                        {media ? (
-                            media.type === '3d' ? (
-                                <div style={{ width: '100%', height: '100%' }}>
-                                    <ModelViewer
-                                        src={media.url}
-                                        alt={product.name}
-                                        style={{ backgroundColor: '#f5f5f5' }}
-                                    />
-                                    <div style={{
-                                        position: 'absolute',
-                                        top: '10px',
-                                        right: '10px',
-                                        background: 'rgba(0,0,0,0.6)',
-                                        color: 'white',
-                                        padding: '4px 8px',
-                                        borderRadius: '4px',
-                                        fontSize: '0.8rem',
-                                        pointerEvents: 'none'
-                                    }}>
-                                        🧊 3D
-                                    </div>
-                                </div>
-                            ) : (
+                <div style={{
+                    height: '250px',
+                    position: 'relative',
+                    background: 'var(--muted)',
+                    borderRadius: 'var(--radius) var(--radius) 0 0',
+                    overflow: 'hidden'
+                }}>
+                    {media && media.type === '3d' ? (
+                        <div style={{ width: '100%', height: '100%' }}>
+                            <ModelViewer
+                                src={media.url}
+                                alt={product.name}
+                                style={{ backgroundColor: '#f5f5f5' }}
+                            />
+                            <div style={{
+                                position: 'absolute',
+                                top: '10px',
+                                right: '10px',
+                                background: 'rgba(0,0,0,0.6)',
+                                color: 'white',
+                                padding: '4px 8px',
+                                borderRadius: '4px',
+                                fontSize: '0.8rem',
+                                pointerEvents: 'none'
+                            }}>
+                                🧊 3D
+                            </div>
+                        </div>
+                    ) : (
+                        <Link href={`/products/${product.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block', width: '100%', height: '100%' }}>
+                            {media ? (
                                 <div style={{
                                     width: '100%',
                                     height: '100%',
                                     background: `url(${media.url}) center/cover`
                                 }} />
-                            )
-                        ) : (
-                            <div style={{
-                                width: '100%',
-                                height: '100%',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                fontSize: '3rem'
-                            }}>
-                                📦
-                            </div>
-                        )}
-                    </div>
-                </Link>
+                            ) : (
+                                <div style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontSize: '3rem'
+                                }}>
+                                    📦
+                                </div>
+                            )}
+                        </Link>
+                    )}
+                </div>
 
                 {/* Admin Controls Overlay - Outside Link */}
                 {isAdmin && !isClientMode && (
