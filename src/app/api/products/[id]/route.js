@@ -76,3 +76,27 @@ export async function DELETE(request, context) {
         return NextResponse.json({ error: "Error deleting product" }, { status: 500 });
     }
 }
+
+export async function PATCH(request, context) {
+    const session = await getServerSession(authOptions);
+
+    if (!session || session.user.role !== 'admin') {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    try {
+        const { id } = await context.params;
+        const body = await request.json();
+        const { visible } = body;
+
+        const product = await prisma.product.update({
+            where: { id },
+            data: { visible }
+        });
+
+        return NextResponse.json(product);
+    } catch (error) {
+        console.error("Error updating product visibility:", error);
+        return NextResponse.json({ error: "Error updating product" }, { status: 500 });
+    }
+}

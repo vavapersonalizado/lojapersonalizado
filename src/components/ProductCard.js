@@ -103,16 +103,7 @@ export default function ProductCard({ product, isClientMode }) {
                         display: 'flex',
                         gap: '0.5rem'
                     }}>
-                        <input
-                            type="checkbox"
-                            style={{
-                                width: '20px',
-                                height: '20px',
-                                cursor: 'pointer',
-                                accentColor: 'var(--primary)'
-                            }}
-                            title="Selecionar produto"
-                        />
+                        <VisibilityToggle product={product} />
                         <button
                             onClick={() => router.push(`/admin/products/${product.id}/edit`)}
                             className="btn btn-primary"
@@ -182,5 +173,51 @@ function AddToCartButton({ product }) {
         >
             {added ? `✓ ${t('common.added')}` : `🛒 ${t('common.add_to_cart')}`}
         </button>
+    );
+}
+
+function VisibilityToggle({ product }) {
+    const [visible, setVisible] = useState(product.visible !== false);
+    const [updating, setUpdating] = useState(false);
+
+    const handleToggle = async (e) => {
+        e.stopPropagation(); // Prevent card click
+        setUpdating(true);
+
+        try {
+            const response = await fetch(`/api/products/${product.id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ visible: !visible })
+            });
+
+            if (response.ok) {
+                setVisible(!visible);
+            } else {
+                alert('Erro ao atualizar visibilidade');
+            }
+        } catch (error) {
+            console.error('Error toggling visibility:', error);
+            alert('Erro ao atualizar visibilidade');
+        } finally {
+            setUpdating(false);
+        }
+    };
+
+    return (
+        <input
+            type="checkbox"
+            checked={visible}
+            onChange={handleToggle}
+            disabled={updating}
+            style={{
+                width: '20px',
+                height: '20px',
+                cursor: updating ? 'wait' : 'pointer',
+                accentColor: 'var(--primary)',
+                opacity: updating ? 0.5 : 1
+            }}
+            title={`Visível para clientes: ${visible ? 'Sim' : 'Não'}`}
+        />
     );
 }

@@ -77,6 +77,7 @@ model Product {
   price       Float
   stock       Int        @default(0)
   images      String[]   @default([])
+  visible     Boolean    @default(true) // Show to clients
   categoryId  String
   category    Category   @relation(fields: [categoryId], references: [id])
   cartItems   CartItem[]

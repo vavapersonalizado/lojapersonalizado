@@ -9,11 +9,15 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
     try {
         console.log('[API] Fetching products...');
+        const session = await getServerSession(authOptions);
+        const isAdmin = session?.user?.role === 'admin';
+
         const products = await prisma.product.findMany({
+            where: isAdmin ? {} : { visible: true },
             orderBy: { createdAt: 'desc' },
             include: { category: true }
         });
-        console.log(`[API] Found ${products.length} products`);
+        console.log(`[API] Found ${products.length} products (admin: ${isAdmin})`);
         return NextResponse.json(products);
     } catch (error) {
         console.error("[API] Error fetching products:", error);
@@ -56,6 +60,7 @@ export async function POST(request) {
                 categoryId,
                 images: imageUrls,
                 stock: stock ? parseInt(stock) : 0,
+                visible: true, // New products are visible by default
             },
         });
 
