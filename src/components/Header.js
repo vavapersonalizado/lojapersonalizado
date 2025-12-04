@@ -7,6 +7,7 @@ import UserProfile from './UserProfile';
 import { useCart } from '@/contexts/CartContext';
 import { useState } from 'react';
 import CartDrawer from './CartDrawer';
+import LoginModal from './LoginModal';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function Header() {
@@ -14,6 +15,7 @@ export default function Header() {
     const pathname = usePathname();
     const { getCartCount } = useCart();
     const [showCart, setShowCart] = useState(false);
+    const [showLoginModal, setShowLoginModal] = useState(false);
     const cartCount = getCartCount();
     const { language, changeLanguage, t } = useLanguage();
 
@@ -121,7 +123,7 @@ export default function Header() {
                 {session ? (
                     <UserProfile />
                 ) : (
-                    <button onClick={() => signIn('google')} className="btn btn-primary">
+                    <button onClick={() => setShowLoginModal(true)} className="btn btn-primary">
                         Entrar
                     </button>
                 )}
@@ -129,6 +131,9 @@ export default function Header() {
 
             {/* Cart Drawer */}
             <CartDrawer isOpen={showCart} onClose={() => setShowCart(false)} />
+
+            {/* Login Modal */}
+            <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
         </header>
     );
 }
