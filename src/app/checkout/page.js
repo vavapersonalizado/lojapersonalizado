@@ -4,11 +4,13 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/contexts/CartContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function CheckoutPage() {
     const { data: session, status } = useSession();
     const router = useRouter();
     const { cart, getCartTotal, clearCart } = useCart();
+    const { t, formatCurrency } = useLanguage();
 
     const [couponCode, setCouponCode] = useState('');
     const [couponDiscount, setCouponDiscount] = useState(0);
@@ -40,11 +42,11 @@ export default function CheckoutPage() {
                 setCouponDiscount(data.discount);
                 setCouponError('');
             } else {
-                setCouponError(data.error || 'Cupom inválido');
+                setCouponError(data.error || t('checkout.coupon_invalid'));
                 setCouponDiscount(0);
             }
-        } catch (error) {
-            setCouponError('Erro ao validar cupom');
+        } catch {
+            setCouponError(t('checkout.coupon_error'));
             setCouponDiscount(0);
         } finally {
             setValidatingCoupon(false);
@@ -85,11 +87,10 @@ export default function CheckoutPage() {
                 setOrderSuccess(true);
             } else {
                 const data = await res.json();
-                alert(data.error || 'Erro ao criar pedido');
+                alert(data.error || t('checkout.order_error'));
             }
-        } catch (error) {
-            console.error(error);
-            alert('Erro ao processar pedido');
+        } catch {
+            alert(t('checkout.order_error'));
         } finally {
             setSubmitting(false);
         }
@@ -100,7 +101,7 @@ export default function CheckoutPage() {
             <div style={{ maxWidth: '600px', margin: '4rem auto', padding: '2rem', textAlign: 'center' }}>
                 <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>✅</div>
                 <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '1rem' }}>
-                    Pedido Recebido!
+                    {t('order.received')}
                 </h1>
                 <div style={{
                     background: 'var(--muted)',
@@ -110,10 +111,10 @@ export default function CheckoutPage() {
                     marginBottom: '2rem'
                 }}>
                     <p style={{ fontSize: '1.1rem', lineHeight: '1.6', marginBottom: '1rem' }}>
-                        Obrigado por seu pedido! Nossa equipe entrará em contato em até <strong>24 horas</strong> para confirmar o prazo de entrega e a forma de pagamento.
+                        {t('order.thank_you')}
                     </p>
                     <p style={{ color: 'var(--muted-foreground)' }}>
-                        Você receberá todas as informações por email.
+                        {t('order.email_sent')}
                     </p>
                 </div>
                 <button
@@ -121,20 +122,20 @@ export default function CheckoutPage() {
                     className="btn btn-primary"
                     style={{ padding: '0.75rem 2rem' }}
                 >
-                    Continuar Comprando
+                    {t('cart.continue_shopping')}
                 </button>
             </div>
         );
     }
 
     if (cart.length === 0) {
-        return <div style={{ padding: '2rem' }}>Carregando...</div>;
+        return <div style={{ padding: '2rem' }}>{t('common.loading')}</div>;
     }
 
     return (
         <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem' }}>
             <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '2rem' }}>
-                Finalizar Pedido
+                {t('checkout.title')}
             </h1>
 
             {/* Order Summary */}
@@ -146,7 +147,7 @@ export default function CheckoutPage() {
                 marginBottom: '2rem'
             }}>
                 <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '1rem' }}>
-                    Resumo do Pedido
+                    {t('checkout.order_summary')}
                 </h2>
 
                 {cart.map((item) => (
@@ -159,29 +160,29 @@ export default function CheckoutPage() {
                         <div>
                             <div style={{ fontWeight: '500' }}>{item.name}</div>
                             <div style={{ fontSize: '0.9rem', color: 'var(--muted-foreground)' }}>
-                                Quantidade: {item.quantity}
+                                {t('common.quantity')}: {item.quantity}
                             </div>
                         </div>
                         <div style={{ fontWeight: '600' }}>
-                            R$ {(item.price * item.quantity).toFixed(2)}
+                            {formatCurrency(item.price * item.quantity)}
                         </div>
                     </div>
                 ))}
 
                 <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '2px solid var(--border)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                        <span>Subtotal:</span>
-                        <span>R$ {getCartTotal().toFixed(2)}</span>
+                        <span>{t('common.subtotal')}:</span>
+                        <span>{formatCurrency(getCartTotal())}</span>
                     </div>
                     {couponDiscount > 0 && (
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', color: 'green' }}>
-                            <span>Desconto ({couponCode}):</span>
-                            <span>- R$ {couponDiscount.toFixed(2)}</span>
+                            <span>{t('common.discount')} ({couponCode}):</span>
+                            <span>- {formatCurrency(couponDiscount)}</span>
                         </div>
                     )}
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.25rem', fontWeight: 'bold', marginTop: '0.5rem' }}>
-                        <span>Total:</span>
-                        <span style={{ color: 'var(--primary)' }}>R$ {calculateTotal().toFixed(2)}</span>
+                        <span>{t('common.total')}:</span>
+                        <span style={{ color: 'var(--primary)' }}>{formatCurrency(calculateTotal())}</span>
                     </div>
                 </div>
             </div>
@@ -195,14 +196,14 @@ export default function CheckoutPage() {
                 marginBottom: '2rem'
             }}>
                 <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '1rem' }}>
-                    Cupom de Desconto
+                    {t('checkout.coupon_code')}
                 </h2>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                     <input
                         type="text"
                         value={couponCode}
                         onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                        placeholder="Digite o código do cupom"
+                        placeholder={t('checkout.enter_coupon')}
                         style={{
                             flex: 1,
                             padding: '0.75rem',
@@ -216,7 +217,7 @@ export default function CheckoutPage() {
                         className="btn btn-outline"
                         disabled={validatingCoupon || !couponCode.trim()}
                     >
-                        {validatingCoupon ? 'Validando...' : 'Aplicar'}
+                        {validatingCoupon ? t('checkout.validating') : t('checkout.apply')}
                     </button>
                 </div>
                 {couponError && (
@@ -226,7 +227,7 @@ export default function CheckoutPage() {
                 )}
                 {couponDiscount > 0 && (
                     <p style={{ color: 'green', fontSize: '0.9rem', marginTop: '0.5rem' }}>
-                        ✓ Cupom aplicado com sucesso!
+                        ✓ {t('checkout.coupon_applied')}
                     </p>
                 )}
             </div>
@@ -238,11 +239,11 @@ export default function CheckoutPage() {
                 disabled={submitting}
                 style={{ width: '100%', padding: '1rem', fontSize: '1.1rem' }}
             >
-                {submitting ? 'Processando...' : 'Confirmar Pedido'}
+                {submitting ? t('checkout.processing') : t('checkout.confirm_order')}
             </button>
 
             <p style={{ textAlign: 'center', color: 'var(--muted-foreground)', fontSize: '0.9rem', marginTop: '1rem' }}>
-                Ao confirmar, você receberá um email com os detalhes do pedido.
+                {t('checkout.email_notice')}
             </p>
         </div>
     );
