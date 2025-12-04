@@ -20,16 +20,21 @@ export default function LoginModal({ isOpen, onClose }) {
     if (!isOpen) return null;
 
     const handleGoogleLogin = () => {
-        // Open OAuth in popup window
+        // Calculate popup position (centered)
         const width = 500;
-        const height = 600;
+        const height = 650;
         const left = window.screen.width / 2 - width / 2;
         const top = window.screen.height / 2 - height / 2;
 
+        // Build the OAuth URL with popup redirect
+        const callbackUrl = encodeURIComponent(window.location.origin + '/auth/callback');
+        const authUrl = `/api/auth/signin/google?callbackUrl=${callbackUrl}`;
+
+        // Open in popup window
         const popup = window.open(
-            '/api/auth/signin/google',
-            'Google Login',
-            `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no,scrollbars=yes`
+            authUrl,
+            'GoogleLogin',
+            `width=${width},height=${height},left=${left},top=${top},toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes`
         );
 
         // Check if popup was blocked
@@ -38,14 +43,19 @@ export default function LoginModal({ isOpen, onClose }) {
             return;
         }
 
-        // Poll to check if popup closed (user completed login)
+        // Monitor popup for closure
         const checkPopup = setInterval(() => {
-            if (popup.closed) {
-                clearInterval(checkPopup);
-                // Give NextAuth time to set the session
-                setTimeout(() => {
-                    window.location.reload();
-                }, 500);
+            try {
+                if (popup.closed) {
+                    clearInterval(checkPopup);
+                    onClose();
+                    // Reload to get updated session
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 300);
+                }
+            } catch (e) {
+                // Cross-origin error is expected
             }
         }, 500);
     };
@@ -124,7 +134,7 @@ export default function LoginModal({ isOpen, onClose }) {
                 </button>
 
                 <div style={{ marginTop: '1.5rem', textAlign: 'center', fontSize: '0.8rem', color: 'var(--muted-foreground)' }}>
-                    O login abrirá em uma janela separada.
+                    O login abrirá em uma janela popup pequena.
                 </div>
             </div>
         </div>
