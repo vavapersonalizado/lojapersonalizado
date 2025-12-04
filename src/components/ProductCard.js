@@ -2,6 +2,8 @@
 
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
+import { useCart } from '@/contexts/CartContext';
+import { useState } from 'react';
 
 const ModelViewer = dynamic(() => import('./ModelViewer'), { ssr: false });
 
