@@ -21,6 +21,11 @@ export async function GET() {
                 email: true,
                 image: true,
                 role: true,
+                phone: true,
+                notes: true,
+                classification: true,
+                discountEligible: true,
+                discountPercentage: true,
                 createdAt: true, // Assuming createdAt exists, if not I might need to check schema. User model usually doesn't have createdAt by default in some setups unless added. Let's check schema first or just omit it for now to be safe, or add it.
                 // Checking schema from previous turns... User model in schema.prisma:
                 // model User { id, name, email, emailVerified, image, role, accounts, sessions, orders }

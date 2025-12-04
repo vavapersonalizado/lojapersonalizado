@@ -14,6 +14,8 @@ export default function UsersPage() {
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState('');
 
+    const [editingUser, setEditingUser] = useState(null);
+
     const fetchUsers = () => {
         fetch('/api/users')
             .then(res => {
@@ -50,14 +52,50 @@ export default function UsersPage() {
         fetchUsers();
     }, [session, status, router]);
 
+    const handleEditClick = (user) => {
+        setEditingUser(user);
+        setFormData({
+            name: user.name || '',
+            email: user.email || '',
+            phone: user.phone || '',
+            notes: user.notes || '',
+            role: user.role || 'client',
+            classification: user.classification || '',
+            discountEligible: user.discountEligible || false,
+            discountPercentage: user.discountPercentage || 0
+        });
+        setShowModal(true);
+    };
+
+    const handleCreateClick = () => {
+        setEditingUser(null);
+        setFormData({
+            name: '',
+            email: '',
+            phone: '',
+            notes: '',
+            role: 'client',
+            classification: '',
+            discountEligible: false,
+            discountPercentage: 0
+        });
+        setShowModal(true);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setSubmitting(true);
         setError('');
 
         try {
-            const res = await fetch('/api/users/register', {
-                method: 'POST',
+            const url = editingUser
+                ? `/api/users/${editingUser.id}`
+                : '/api/users/register';
+
+            const method = editingUser ? 'PUT' : 'POST';
+
+            const res = await fetch(url, {
+                method: method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
             });
@@ -65,13 +103,14 @@ export default function UsersPage() {
             const data = await res.json();
 
             if (!res.ok) {
-                throw new Error(data.error || 'Failed to register client');
+                throw new Error(data.error || 'Failed to save user');
             }
 
             // Success - refresh users list and close modal
             fetchUsers();
             setShowModal(false);
             setFormData({ name: '', email: '', phone: '', notes: '' });
+            setEditingUser(null);
         } catch (err) {
             setError(err.message);
         } finally {
@@ -87,7 +126,7 @@ export default function UsersPage() {
                 <h1 style={{ fontSize: '2rem', fontWeight: 'bold' }}>Gerenciar Clientes</h1>
                 <button
                     className="btn btn-primary"
-                    onClick={() => setShowModal(true)}
+                    onClick={handleCreateClick}
                 >
                     ➕ Cadastrar Cliente
                 </button>
@@ -97,15 +136,18 @@ export default function UsersPage() {
                 background: 'var(--card)',
                 borderRadius: 'var(--radius)',
                 border: '1px solid var(--border)',
-                overflow: 'hidden'
+                overflow: 'hidden',
+                overflowX: 'auto'
             }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '800px' }}>
                     <thead>
                         <tr style={{ background: 'var(--muted)', textAlign: 'left' }}>
                             <th style={{ padding: '1rem' }}>Nome</th>
                             <th style={{ padding: '1rem' }}>Email</th>
-                            <th style={{ padding: '1rem' }}>Telefone</th>
+                            <th style={{ padding: '1rem' }}>Classificação</th>
+                            <th style={{ padding: '1rem' }}>Desconto</th>
                             <th style={{ padding: '1rem' }}>Função</th>
+                            <th style={{ padding: '1rem' }}>Ações</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -123,10 +165,32 @@ export default function UsersPage() {
                                             {user.name?.[0] || '?'}
                                         </div>
                                     )}
-                                    {user.name || 'Sem nome'}
+                                    <div>
+                                        <div>{user.name || 'Sem nome'}</div>
+                                        <div style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)' }}>{user.phone}</div>
+                                    </div>
                                 </td>
                                 <td style={{ padding: '1rem' }}>{user.email}</td>
-                                <td style={{ padding: '1rem' }}>{user.phone || '-'}</td>
+                                <td style={{ padding: '1rem' }}>
+                                    {user.classification ? (
+                                        <span style={{
+                                            background: '#e0f2fe',
+                                            color: '#0369a1',
+                                            padding: '0.2rem 0.5rem',
+                                            borderRadius: '4px',
+                                            fontSize: '0.85rem'
+                                        }}>
+                                            {user.classification}
+                                        </span>
+                                    ) : '-'}
+                                </td>
+                                <td style={{ padding: '1rem' }}>
+                                    {user.discountEligible ? (
+                                        <span style={{ color: 'green', fontWeight: 'bold' }}>
+                                            {user.discountPercentage}%
+                                        </span>
+                                    ) : '-'}
+                                </td>
                                 <td style={{ padding: '1rem' }}>
                                     <span style={{
                                         padding: '0.25rem 0.5rem',
@@ -138,13 +202,22 @@ export default function UsersPage() {
                                         {user.role === 'admin' ? 'Admin' : 'Cliente'}
                                     </span>
                                 </td>
+                                <td style={{ padding: '1rem' }}>
+                                    <button
+                                        className="btn btn-outline"
+                                        style={{ padding: '0.25rem 0.5rem', fontSize: '0.9rem' }}
+                                        onClick={() => handleEditClick(user)}
+                                    >
+                                        ✏️ Editar
+                                    </button>
+                                </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
             </div>
 
-            {/* Registration Modal */}
+            {/* Registration/Edit Modal */}
             {showModal && (
                 <div style={{
                     position: 'fixed',
@@ -162,97 +235,136 @@ export default function UsersPage() {
                         background: 'var(--card)',
                         borderRadius: 'var(--radius)',
                         padding: '2rem',
-                        maxWidth: '500px',
+                        maxWidth: '600px',
                         width: '90%',
+                        maxHeight: '90vh',
+                        overflowY: 'auto',
                         border: '1px solid var(--border)'
                     }}>
-                        <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1.5rem' }}>Cadastrar Cliente</h2>
+                        <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1.5rem' }}>
+                            {editingUser ? 'Editar Cliente' : 'Cadastrar Cliente'}
+                        </h2>
 
                         <form onSubmit={handleSubmit}>
-                            <div style={{ marginBottom: '1rem' }}>
-                                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-                                    Nome *
-                                </label>
-                                <input
-                                    type="text"
-                                    required
-                                    value={formData.name}
-                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    style={{
-                                        width: '100%',
-                                        padding: '0.5rem',
-                                        borderRadius: 'var(--radius)',
-                                        border: '1px solid var(--border)',
-                                        background: 'var(--background)'
-                                    }}
-                                />
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                <div style={{ marginBottom: '1rem' }}>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+                                        Nome *
+                                    </label>
+                                    <input
+                                        type="text"
+                                        required
+                                        value={formData.name}
+                                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                        style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
+                                    />
+                                </div>
+
+                                <div style={{ marginBottom: '1rem' }}>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+                                        Email *
+                                    </label>
+                                    <input
+                                        type="email"
+                                        required
+                                        disabled={!!editingUser} // Disable email edit for existing users
+                                        value={formData.email}
+                                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                        style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)', opacity: editingUser ? 0.7 : 1 }}
+                                    />
+                                </div>
                             </div>
 
-                            <div style={{ marginBottom: '1rem' }}>
-                                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-                                    Email *
-                                </label>
-                                <input
-                                    type="email"
-                                    required
-                                    value={formData.email}
-                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                    style={{
-                                        width: '100%',
-                                        padding: '0.5rem',
-                                        borderRadius: 'var(--radius)',
-                                        border: '1px solid var(--border)',
-                                        background: 'var(--background)'
-                                    }}
-                                />
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                <div style={{ marginBottom: '1rem' }}>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+                                        Telefone
+                                    </label>
+                                    <input
+                                        type="tel"
+                                        value={formData.phone}
+                                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                        style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
+                                    />
+                                </div>
+
+                                <div style={{ marginBottom: '1rem' }}>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+                                        Função
+                                    </label>
+                                    <select
+                                        value={formData.role}
+                                        onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                                        style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
+                                    >
+                                        <option value="client">Cliente</option>
+                                        <option value="admin">Admin</option>
+                                    </select>
+                                </div>
                             </div>
 
-                            <div style={{ marginBottom: '1rem' }}>
-                                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-                                    Telefone
-                                </label>
-                                <input
-                                    type="tel"
-                                    value={formData.phone}
-                                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                                    style={{
-                                        width: '100%',
-                                        padding: '0.5rem',
-                                        borderRadius: 'var(--radius)',
-                                        border: '1px solid var(--border)',
-                                        background: 'var(--background)'
-                                    }}
-                                />
+                            <hr style={{ margin: '1.5rem 0', border: '0', borderTop: '1px solid var(--border)' }} />
+
+                            <h3 style={{ fontSize: '1.1rem', fontWeight: 'bold', marginBottom: '1rem' }}>Classificação e Descontos</h3>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                <div style={{ marginBottom: '1rem' }}>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+                                        Classificação
+                                    </label>
+                                    <select
+                                        value={formData.classification}
+                                        onChange={(e) => setFormData({ ...formData, classification: e.target.value })}
+                                        style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
+                                    >
+                                        <option value="">Padrão</option>
+                                        <option value="VIP">VIP</option>
+                                        <option value="Family">Família</option>
+                                        <option value="Friend">Amigo</option>
+                                        <option value="Partner">Parceiro</option>
+                                    </select>
+                                </div>
+
+                                <div style={{ marginBottom: '1rem' }}>
+                                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', fontWeight: '500' }}>
+                                        <input
+                                            type="checkbox"
+                                            checked={formData.discountEligible}
+                                            onChange={(e) => setFormData({ ...formData, discountEligible: e.target.checked })}
+                                        />
+                                        Elegível para Desconto Automático
+                                    </label>
+
+                                    {formData.discountEligible && (
+                                        <div>
+                                            <label style={{ fontSize: '0.9rem', display: 'block', marginBottom: '0.25rem' }}>Porcentagem (%)</label>
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                max="100"
+                                                value={formData.discountPercentage}
+                                                onChange={(e) => setFormData({ ...formData, discountPercentage: e.target.value })}
+                                                style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
+                                            />
+                                        </div>
+                                    )}
+                                </div>
                             </div>
 
                             <div style={{ marginBottom: '1.5rem' }}>
                                 <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-                                    Observações
+                                    Observações Internas
                                 </label>
                                 <textarea
                                     value={formData.notes}
                                     onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                                     rows={3}
-                                    style={{
-                                        width: '100%',
-                                        padding: '0.5rem',
-                                        borderRadius: 'var(--radius)',
-                                        border: '1px solid var(--border)',
-                                        background: 'var(--background)',
-                                        resize: 'vertical'
-                                    }}
+                                    style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)', resize: 'vertical' }}
                                 />
                             </div>
 
                             {error && (
-                                <div style={{
-                                    padding: '0.75rem',
-                                    background: '#fee',
-                                    color: '#c00',
-                                    borderRadius: 'var(--radius)',
-                                    marginBottom: '1rem',
-                                    fontSize: '0.9rem'
-                                }}>
+                                <div style={{ padding: '0.75rem', background: '#fee', color: '#c00', borderRadius: 'var(--radius)', marginBottom: '1rem', fontSize: '0.9rem' }}>
                                     {error}
                                 </div>
                             )}
@@ -265,6 +377,7 @@ export default function UsersPage() {
                                         setShowModal(false);
                                         setFormData({ name: '', email: '', phone: '', notes: '' });
                                         setError('');
+                                        setEditingUser(null);
                                     }}
                                     disabled={submitting}
                                 >
@@ -275,7 +388,7 @@ export default function UsersPage() {
                                     className="btn btn-primary"
                                     disabled={submitting}
                                 >
-                                    {submitting ? 'Cadastrando...' : 'Cadastrar'}
+                                    {submitting ? 'Salvando...' : (editingUser ? 'Salvar Alterações' : 'Cadastrar')}
                                 </button>
                             </div>
                         </form>

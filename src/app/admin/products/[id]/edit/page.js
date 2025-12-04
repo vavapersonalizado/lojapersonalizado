@@ -16,6 +16,7 @@ export default function EditProductPage() {
 
     const [formData, setFormData] = useState({
         name: '',
+        sku: '',
         description: '',
         price: '',
         stock: '',
@@ -47,6 +48,7 @@ export default function EditProductPage() {
                 setProduct(data);
                 setFormData({
                     name: data.name || '',
+                    sku: data.sku || '',
                     description: data.description || '',
                     price: data.price || '',
                     stock: data.stock || '',
@@ -146,6 +148,25 @@ export default function EditProductPage() {
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         required
+                        style={{
+                            width: '100%',
+                            padding: '0.75rem',
+                            borderRadius: 'var(--radius)',
+                            border: '1px solid var(--border)',
+                            background: 'var(--background)'
+                        }}
+                    />
+                </div>
+
+                <div>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+                        Código (SKU)
+                    </label>
+                    <input
+                        type="text"
+                        value={formData.sku}
+                        onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
+                        placeholder="Ex: PROD-001"
                         style={{
                             width: '100%',
                             padding: '0.75rem',

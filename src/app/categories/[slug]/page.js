@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import ProductCard from '@/components/ProductCard';
+import Breadcrumbs from '@/components/Breadcrumbs';
 
 export default function CategoryPage() {
     const params = useParams();
@@ -13,6 +14,7 @@ export default function CategoryPage() {
     const [products, setProducts] = useState([]);
     const [category, setCategory] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [sortBy, setSortBy] = useState('newest'); // newest, price-asc, price-desc, name-asc
 
     useEffect(() => {
         // Fetch category info
@@ -41,8 +43,24 @@ export default function CategoryPage() {
             });
     }, [params.slug, category?.id]);
 
+    const getSortedProducts = () => {
+        const sorted = [...products];
+        switch (sortBy) {
+            case 'price-asc':
+                return sorted.sort((a, b) => a.price - b.price);
+            case 'price-desc':
+                return sorted.sort((a, b) => b.price - a.price);
+            case 'name-asc':
+                return sorted.sort((a, b) => a.name.localeCompare(b.name));
+            case 'newest':
+            default:
+                // Assuming default order from API is newest or by ID
+                return sorted;
+        }
+    };
+
     if (loading) {
-        return <p>Carregando...</p>;
+        return <p style={{ padding: '2rem', textAlign: 'center' }}>Carregando...</p>;
     }
 
     if (!category) {
@@ -57,12 +75,19 @@ export default function CategoryPage() {
     }
 
     return (
-        <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '2rem' }}>
+            <Breadcrumbs items={[
+                { label: 'Categorias', href: '/products' }, // Or a categories list page if it existed
+                { label: category.name }
+            ]} />
+
             <div style={{
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                marginBottom: '2rem'
+                marginBottom: '2rem',
+                flexWrap: 'wrap',
+                gap: '1rem'
             }}>
                 <div>
                     <h1 style={{ fontSize: '2rem', fontWeight: 'bold' }}>{category.name}</h1>
@@ -70,11 +95,31 @@ export default function CategoryPage() {
                         {products.length} {products.length === 1 ? 'produto' : 'produtos'}
                     </p>
                 </div>
-                {isAdmin && (
-                    <Link href="/admin/products/new" className="btn btn-primary">
-                        ➕ Adicionar Produto
-                    </Link>
-                )}
+
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                    <select
+                        value={sortBy}
+                        onChange={(e) => setSortBy(e.target.value)}
+                        style={{
+                            padding: '0.5rem',
+                            borderRadius: 'var(--radius)',
+                            border: '1px solid var(--border)',
+                            background: 'var(--background)',
+                            color: 'var(--foreground)'
+                        }}
+                    >
+                        <option value="newest">Mais Recentes</option>
+                        <option value="price-asc">Preço: Menor para Maior</option>
+                        <option value="price-desc">Preço: Maior para Menor</option>
+                        <option value="name-asc">Nome: A-Z</option>
+                    </select>
+
+                    {isAdmin && (
+                        <Link href="/admin/products/new" className="btn btn-primary">
+                            ➕ Adicionar Produto
+                        </Link>
+                    )}
+                </div>
             </div>
 
             {products.length === 0 ? (
@@ -101,7 +146,7 @@ export default function CategoryPage() {
                     gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
                     gap: '2rem'
                 }}>
-                    {products.map(product => (
+                    {getSortedProducts().map(product => (
                         <ProductCard key={product.id} product={product} />
                     ))}
                 </div>

@@ -13,20 +13,47 @@ export default function CheckoutPage() {
     const { t, formatCurrency } = useLanguage();
 
     const [couponCode, setCouponCode] = useState('');
-    const [couponDiscount, setCouponDiscount] = useState(0);
+    const [couponData, setCouponData] = useState(null); // { discount, type, cumulative, productId }
     const [couponError, setCouponError] = useState('');
     const [validatingCoupon, setValidatingCoupon] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [orderSuccess, setOrderSuccess] = useState(false);
 
+    const [userDiscount, setUserDiscount] = useState({ eligible: false, percentage: 0, classification: '' });
+    const [loadingUser, setLoadingUser] = useState(true);
+
     useEffect(() => {
         if (status === 'unauthenticated') {
             router.push('/');
+            return;
         }
         if (cart.length === 0 && !orderSuccess) {
             router.push('/products');
+            return;
         }
-    }, [status, cart, router, orderSuccess]);
+
+        if (session?.user?.email) {
+            // Fetch full user profile to get discount info
+            fetch(`/api/users/profile?email=${session.user.email}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.discountEligible) {
+                        setUserDiscount({
+                            eligible: true,
+                            percentage: data.discountPercentage || 0,
+                            classification: data.classification || ''
+                        });
+                    }
+                    setLoadingUser(false);
+                })
+                .catch(err => {
+                    console.error("Error fetching user profile:", err);
+                    setLoadingUser(false);
+                });
+        } else {
+            setLoadingUser(false);
+        }
+    }, [status, cart, router, orderSuccess, session]);
 
     const validateCoupon = async () => {
         if (!couponCode.trim()) return;
@@ -39,25 +66,94 @@ export default function CheckoutPage() {
             const data = await res.json();
 
             if (res.ok) {
-                setCouponDiscount(data.discount);
+                setCouponData(data);
                 setCouponError('');
             } else {
                 setCouponError(data.error || t('checkout.coupon_invalid'));
-                setCouponDiscount(0);
+                setCouponData(null);
             }
         } catch {
             setCouponError(t('checkout.coupon_error'));
-            setCouponDiscount(0);
+            setCouponData(null);
         } finally {
             setValidatingCoupon(false);
         }
     };
 
-    const calculateTotal = () => {
+    const calculateTotals = () => {
         const subtotal = getCartTotal();
-        const discount = couponDiscount;
-        return subtotal - discount;
+        let totalDiscount = 0;
+        let appliedUserDiscount = 0;
+        let appliedCouponDiscount = 0;
+
+        // 1. Calculate User Discount
+        if (userDiscount.eligible) {
+            appliedUserDiscount = subtotal * (userDiscount.percentage / 100);
+        }
+
+        // 2. Calculate Coupon Discount
+        if (couponData) {
+            let currentCouponValue = 0;
+
+            if (couponData.productId) {
+                // Product specific coupon
+                const targetItem = cart.find(item => item.id === couponData.productId);
+                if (targetItem) {
+                    const itemTotal = targetItem.price * targetItem.quantity;
+                    if (couponData.type === 'percentage') {
+                        currentCouponValue = itemTotal * (couponData.discount / 100);
+                    } else {
+                        currentCouponValue = couponData.discount; // Fixed amount per order or per item? Assuming per order for now, but if it's product specific usually it's per item. Let's assume fixed amount total for simplicity unless specified.
+                        // Actually, if it's a fixed discount on a product, it usually applies once or per item. Let's assume it applies once to the total of that item line.
+                    }
+                }
+            } else {
+                // General coupon
+                if (couponData.type === 'percentage') {
+                    currentCouponValue = subtotal * (couponData.discount / 100);
+                } else {
+                    currentCouponValue = couponData.discount;
+                }
+            }
+
+            appliedCouponDiscount = currentCouponValue;
+        }
+
+        // 3. Combine Discounts
+        if (couponData) {
+            if (couponData.cumulative) {
+                // Cumulative: Add both
+                totalDiscount = appliedUserDiscount + appliedCouponDiscount;
+            } else {
+                // Not Cumulative: Use the larger one
+                // Wait, user said: "pode acumular, a não ser que... não acumulativo".
+                // If NOT cumulative, it shouldn't stack with user discount.
+                // Usually this means you pick the best one.
+                if (appliedCouponDiscount > appliedUserDiscount) {
+                    totalDiscount = appliedCouponDiscount;
+                    appliedUserDiscount = 0; // Reset user discount for display purposes if we want to show what was applied
+                } else {
+                    totalDiscount = appliedUserDiscount;
+                    appliedCouponDiscount = 0; // Coupon not applied effectively
+                }
+            }
+        } else {
+            totalDiscount = appliedUserDiscount;
+        }
+
+        // Cap discount at subtotal
+        if (totalDiscount > subtotal) totalDiscount = subtotal;
+
+        return {
+            subtotal,
+            userDiscountVal: appliedUserDiscount,
+            couponDiscountVal: appliedCouponDiscount,
+            totalDiscount,
+            finalTotal: subtotal - totalDiscount
+        };
     };
+
+    const totals = calculateTotals();
 
     const handleSubmitOrder = async () => {
         if (!session?.user) return;
@@ -75,10 +171,10 @@ export default function CheckoutPage() {
                         price: item.price,
                         quantity: item.quantity
                     })),
-                    couponCode: couponCode || null,
-                    discount: couponDiscount,
-                    total: getCartTotal(),
-                    finalTotal: calculateTotal()
+                    couponCode: couponData ? couponCode : null,
+                    discount: totals.totalDiscount,
+                    total: totals.subtotal,
+                    finalTotal: totals.finalTotal
                 })
             });
 
@@ -172,17 +268,36 @@ export default function CheckoutPage() {
                 <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '2px solid var(--border)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                         <span>{t('common.subtotal')}:</span>
-                        <span>{formatCurrency(getCartTotal())}</span>
+                        <span>{formatCurrency(totals.subtotal)}</span>
                     </div>
-                    {couponDiscount > 0 && (
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', color: 'green' }}>
-                            <span>{t('common.discount')} ({couponCode}):</span>
-                            <span>- {formatCurrency(couponDiscount)}</span>
+
+                    {/* User Discount Display */}
+                    {userDiscount.eligible && (
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', color: 'blue' }}>
+                            <span>
+                                Desconto Cliente ({userDiscount.classification || 'VIP'} - {userDiscount.percentage}%)
+                                {couponData && !couponData.cumulative && totals.userDiscountVal === 0 && " (Substituído pelo Cupom)"}
+                            </span>
+                            <span>- {formatCurrency(totals.userDiscountVal)}</span>
                         </div>
                     )}
+
+                    {/* Coupon Discount Display */}
+                    {couponData && (
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', color: 'green' }}>
+                            <span>
+                                Cupom ({couponCode})
+                                {couponData.productId && " (Produto Específico)"}
+                                {!couponData.cumulative && " (Não Acumulativo)"}
+                                {!couponData.cumulative && totals.couponDiscountVal === 0 && " (Menor que desc. cliente)"}
+                            </span>
+                            <span>- {formatCurrency(totals.couponDiscountVal)}</span>
+                        </div>
+                    )}
+
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.25rem', fontWeight: 'bold', marginTop: '0.5rem' }}>
                         <span>{t('common.total')}:</span>
-                        <span style={{ color: 'var(--primary)' }}>{formatCurrency(calculateTotal())}</span>
+                        <span style={{ color: 'var(--primary)' }}>{formatCurrency(totals.finalTotal)}</span>
                     </div>
                 </div>
             </div>
@@ -225,7 +340,7 @@ export default function CheckoutPage() {
                         {couponError}
                     </p>
                 )}
-                {couponDiscount > 0 && (
+                {couponData && (
                     <p style={{ color: 'green', fontSize: '0.9rem', marginTop: '0.5rem' }}>
                         ✓ {t('checkout.coupon_applied')}
                     </p>

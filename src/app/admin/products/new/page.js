@@ -11,6 +11,7 @@ export default function NewProductPage() {
     const [newCategoryName, setNewCategoryName] = useState('');
     const [formData, setFormData] = useState({
         name: '',
+        sku: '',
         price: '',
         description: '',
         categoryId: '',
@@ -87,6 +88,17 @@ export default function NewProductPage() {
                                 value={formData.name}
                                 onChange={e => setFormData({ ...formData, name: e.target.value })}
                                 required
+                            />
+                        </div>
+
+                        <div>
+                            <label style={{ display: 'block', marginBottom: '0.5rem' }}>Código (SKU)</label>
+                            <input
+                                type="text"
+                                className="input"
+                                value={formData.sku}
+                                onChange={e => setFormData({ ...formData, sku: e.target.value })}
+                                placeholder="Ex: PROD-001"
                             />
                         </div>
 

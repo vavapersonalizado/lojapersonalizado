@@ -28,7 +28,7 @@ export async function POST(request) {
 
     try {
         const body = await request.json();
-        const { name, price, description, categoryId, images, stock } = body;
+        const { name, sku, price, description, categoryId, images, stock } = body;
 
         // Validate required fields
         if (!name || !price || !categoryId) {
@@ -41,6 +41,7 @@ export async function POST(request) {
         const product = await prisma.product.create({
             data: {
                 name,
+                sku,
                 price: parseFloat(price),
                 description,
                 categoryId,

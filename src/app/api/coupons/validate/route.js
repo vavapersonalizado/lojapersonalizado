@@ -33,7 +33,9 @@ export async function GET(request) {
         return NextResponse.json({
             code: coupon.code,
             discount: coupon.discount,
-            type: coupon.type
+            type: coupon.type,
+            cumulative: coupon.cumulative,
+            productId: coupon.productId
         });
     } catch (error) {
         console.error("Error validating coupon:", error);

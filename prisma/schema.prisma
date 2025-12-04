@@ -48,6 +48,9 @@ model User {
   sessions      Session[]
   orders        Order[]
   carts         Cart[]
+  classification     String?   // VIP, Family, etc.
+  discountEligible   Boolean   @default(false)
+  discountPercentage Float     @default(0)
 }
 
 model VerificationToken {
@@ -69,6 +72,7 @@ model Category {
 model Product {
   id          String     @id @default(cuid())
   name        String
+  sku         String?    @unique // Admin only product code
   description String?
   price       Float
   stock       Int        @default(0)
@@ -141,5 +145,7 @@ model Coupon {
   usedCount   Int       @default(0)
   expiresAt   DateTime?
   isActive    Boolean   @default(true)
+  cumulative  Boolean   @default(true) // Can be used with other discounts?
+  productId   String?   // If set, applies only to this product
   createdAt   DateTime  @default(now())
 }

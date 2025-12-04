@@ -40,106 +40,113 @@ export default function ProductCard({ product, isClientMode }) {
 
     return (
         <div className="card" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-            <div style={{
-                height: '250px',
-                position: 'relative',
-                background: 'var(--muted)',
-                borderRadius: 'var(--radius) var(--radius) 0 0',
-                overflow: 'hidden'
-            }}>
-                {/* Admin Controls Overlay */}
-                {isAdmin && !isClientMode && (
-                    <div style={{
-                        position: 'absolute',
-                        top: '10px',
-                        left: '10px',
-                        zIndex: 10,
-                        display: 'flex',
-                        gap: '0.5rem'
-                    }}>
-                        <input
-                            type="checkbox"
-                            style={{
-                                width: '20px',
-                                height: '20px',
-                                cursor: 'pointer',
-                                accentColor: 'var(--primary)'
-                            }}
-                            title="Selecionar produto"
-                        />
-                        <button
-                            onClick={() => router.push(`/admin/products/${product.id}/edit`)}
-                            className="btn btn-primary"
-                            style={{
-                                padding: '0.25rem 0.5rem',
-                                fontSize: '0.8rem',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '0.25rem'
-                            }}
-                        >
-                            ✏️ Editar
-                        </button>
-                    </div>
-                )}
-
-                {media ? (
-                    media.type === '3d' ? (
-                        <div style={{ width: '100%', height: '100%' }}>
-                            <ModelViewer
-                                src={media.url}
-                                alt={product.name}
-                                style={{ backgroundColor: '#f5f5f5' }}
+            <Link href={`/products/${product.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block', flex: 1 }}>
+                <div style={{
+                    height: '250px',
+                    position: 'relative',
+                    background: 'var(--muted)',
+                    borderRadius: 'var(--radius) var(--radius) 0 0',
+                    overflow: 'hidden'
+                }}>
+                    {/* Admin Controls Overlay */}
+                    {isAdmin && !isClientMode && (
+                        <div style={{
+                            position: 'absolute',
+                            top: '10px',
+                            left: '10px',
+                            zIndex: 10,
+                            display: 'flex',
+                            gap: '0.5rem'
+                        }} onClick={(e) => e.preventDefault()}>
+                            <input
+                                type="checkbox"
+                                style={{
+                                    width: '20px',
+                                    height: '20px',
+                                    cursor: 'pointer',
+                                    accentColor: 'var(--primary)'
+                                }}
+                                title="Selecionar produto"
                             />
-                            <div style={{
-                                position: 'absolute',
-                                top: '10px',
-                                right: '10px',
-                                background: 'rgba(0,0,0,0.6)',
-                                color: 'white',
-                                padding: '4px 8px',
-                                borderRadius: '4px',
-                                fontSize: '0.8rem',
-                                pointerEvents: 'none'
-                            }}>
-                                🧊 3D
-                            </div>
+                            <button
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    router.push(`/admin/products/${product.id}/edit`);
+                                }}
+                                className="btn btn-primary"
+                                style={{
+                                    padding: '0.25rem 0.5rem',
+                                    fontSize: '0.8rem',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.25rem'
+                                }}
+                            >
+                                ✏️ Editar
+                            </button>
                         </div>
+                    )}
+
+                    {media ? (
+                        media.type === '3d' ? (
+                            <div style={{ width: '100%', height: '100%' }}>
+                                <ModelViewer
+                                    src={media.url}
+                                    alt={product.name}
+                                    style={{ backgroundColor: '#f5f5f5' }}
+                                />
+                                <div style={{
+                                    position: 'absolute',
+                                    top: '10px',
+                                    right: '10px',
+                                    background: 'rgba(0,0,0,0.6)',
+                                    color: 'white',
+                                    padding: '4px 8px',
+                                    borderRadius: '4px',
+                                    fontSize: '0.8rem',
+                                    pointerEvents: 'none'
+                                }}>
+                                    🧊 3D
+                                </div>
+                            </div>
+                        ) : (
+                            <div style={{
+                                width: '100%',
+                                height: '100%',
+                                background: `url(${media.url}) center/cover`
+                            }} />
+                        )
                     ) : (
                         <div style={{
                             width: '100%',
                             height: '100%',
-                            background: `url(${media.url}) center/cover`
-                        }} />
-                    )
-                ) : (
-                    <div style={{
-                        width: '100%',
-                        height: '100%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '3rem'
-                    }}>
-                        📦
-                    </div>
-                )}
-            </div>
-
-            <div style={{ padding: '1rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', fontWeight: '600' }}>{product.name}</h3>
-
-                <div style={{ marginTop: 'auto' }}>
-                    <p style={{ color: 'var(--primary)', fontWeight: 'bold', fontSize: '1.2rem', marginBottom: '0.5rem' }}>
-                        {formatCurrency(product.price)}
-                    </p>
-                    {product.category && (
-                        <p style={{ fontSize: '0.875rem', color: 'var(--muted-foreground)', marginBottom: '1rem' }}>
-                            {product.category.name}
-                        </p>
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '3rem'
+                        }}>
+                            📦
+                        </div>
                     )}
-                    <AddToCartButton product={product} />
                 </div>
+
+                <div style={{ padding: '1rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                    <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', fontWeight: '600' }}>{product.name}</h3>
+
+                    <div style={{ marginTop: 'auto' }}>
+                        <p style={{ color: 'var(--primary)', fontWeight: 'bold', fontSize: '1.2rem', marginBottom: '0.5rem' }}>
+                            {formatCurrency(product.price)}
+                        </p>
+                        {product.category && (
+                            <p style={{ fontSize: '0.875rem', color: 'var(--muted-foreground)', marginBottom: '1rem' }}>
+                                {product.category.name}
+                            </p>
+                        )}
+                    </div>
+                </div>
+            </Link>
+            <div style={{ padding: '0 1rem 1rem 1rem' }}>
+                <AddToCartButton product={product} />
             </div>
         </div>
     );
