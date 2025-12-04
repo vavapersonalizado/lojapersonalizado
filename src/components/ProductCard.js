@@ -103,9 +103,7 @@ export default function ProductCard({ product }) {
 }
 
 function AddToCartButton({ product }) {
-    const { useCart } = require('@/contexts/CartContext');
     const { addToCart } = useCart();
-    const { useState } = require('react');
     const [added, setAdded] = useState(false);
 
     const handleAddToCart = () => {

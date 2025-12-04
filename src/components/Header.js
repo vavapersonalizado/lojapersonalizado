@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import UserProfile from './UserProfile';
 import { useCart } from '@/contexts/CartContext';
 import { useState } from 'react';
+import CartDrawer from './CartDrawer';
 
 export default function Header() {
     const { data: session } = useSession();
@@ -95,46 +96,8 @@ export default function Header() {
                 )}
             </nav>
 
-            {/* Cart Drawer - placeholder for now */}
-            {showCart && (
-                <div
-                    style={{
-                        position: 'fixed',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        background: 'rgba(0,0,0,0.5)',
-                        zIndex: 1000
-                    }}
-                    onClick={() => setShowCart(false)}
-                >
-                    <div
-                        style={{
-                            position: 'absolute',
-                            right: 0,
-                            top: 0,
-                            bottom: 0,
-                            width: '400px',
-                            maxWidth: '90vw',
-                            background: 'var(--card)',
-                            padding: '2rem',
-                            overflowY: 'auto'
-                        }}
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <h2 style={{ marginBottom: '1rem' }}>Carrinho</h2>
-                        <p>Drawer do carrinho será implementado...</p>
-                        <button
-                            className="btn btn-outline"
-                            onClick={() => setShowCart(false)}
-                            style={{ marginTop: '1rem' }}
-                        >
-                            Fechar
-                        </button>
-                    </div>
-                </div>
-            )}
+            {/* Cart Drawer */}
+            <CartDrawer isOpen={showCart} onClose={() => setShowCart(false)} />
         </header>
     );
 }
