@@ -91,7 +91,7 @@ export default function Home() {
 
             {/* Footer */}
             <footer style={{ padding: '2rem', textAlign: 'center', borderTop: '1px solid var(--border)', color: 'var(--muted-foreground)' }}>
-                &copy; 2025 Loja Personalizada. Todos os direitos reservados.
+                &copy; 2025 Loja Personalizada. Todos os direitos reservados. (v1.1)
             </footer>
         </div>
     );
