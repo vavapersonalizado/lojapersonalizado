@@ -158,23 +158,43 @@ export default function Sidebar() {
                         </div>
 
                         {!isClientMode && (
-                            <Link
-                                href="/admin/users"
-                                style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '0.5rem',
-                                    padding: '0.5rem',
-                                    borderRadius: 'var(--radius)',
-                                    background: pathname === '/admin/users' ? 'var(--primary)' : 'transparent',
-                                    color: pathname === '/admin/users' ? 'var(--primary-foreground)' : 'inherit',
-                                    textDecoration: 'none',
-                                    fontSize: '0.9rem',
-                                    marginBottom: '0.5rem'
-                                }}
-                            >
-                                👥 Clientes
-                            </Link>
+                            <>
+                                <Link
+                                    href="/admin/users"
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0.5rem',
+                                        padding: '0.5rem',
+                                        borderRadius: 'var(--radius)',
+                                        background: pathname === '/admin/users' ? 'var(--primary)' : 'transparent',
+                                        color: pathname === '/admin/users' ? 'var(--primary-foreground)' : 'inherit',
+                                        textDecoration: 'none',
+                                        fontSize: '0.9rem',
+                                        marginBottom: '0.5rem'
+                                    }}
+                                >
+                                    👥 Clientes
+                                </Link>
+
+                                <Link
+                                    href="/admin/orders"
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0.5rem',
+                                        padding: '0.5rem',
+                                        borderRadius: 'var(--radius)',
+                                        background: pathname === '/admin/orders' ? 'var(--primary)' : 'transparent',
+                                        color: pathname === '/admin/orders' ? 'var(--primary-foreground)' : 'inherit',
+                                        textDecoration: 'none',
+                                        fontSize: '0.9rem',
+                                        marginBottom: '0.5rem'
+                                    }}
+                                >
+                                    📦 Pedidos
+                                </Link>
+                            </>
                         )}
                     </>
                 )}
