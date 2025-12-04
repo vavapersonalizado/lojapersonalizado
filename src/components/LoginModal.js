@@ -1,13 +1,53 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { useState } from "react";
+import { useEffect } from "react";
 
 export default function LoginModal({ isOpen, onClose }) {
+    useEffect(() => {
+        // Listen for login completion message from popup
+        const handleMessage = (event) => {
+            if (event.data === 'login-success') {
+                onClose();
+                window.location.reload(); // Refresh to update session
+            }
+        };
+
+        window.addEventListener('message', handleMessage);
+        return () => window.removeEventListener('message', handleMessage);
+    }, [onClose]);
+
     if (!isOpen) return null;
 
     const handleGoogleLogin = () => {
-        signIn('google', { callbackUrl: window.location.href });
+        // Open OAuth in popup window
+        const width = 500;
+        const height = 600;
+        const left = window.screen.width / 2 - width / 2;
+        const top = window.screen.height / 2 - height / 2;
+
+        const popup = window.open(
+            '/api/auth/signin/google',
+            'Google Login',
+            `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no,scrollbars=yes`
+        );
+
+        // Check if popup was blocked
+        if (!popup || popup.closed || typeof popup.closed === 'undefined') {
+            alert('Por favor, permita popups para este site para fazer login.');
+            return;
+        }
+
+        // Poll to check if popup closed (user completed login)
+        const checkPopup = setInterval(() => {
+            if (popup.closed) {
+                clearInterval(checkPopup);
+                // Give NextAuth time to set the session
+                setTimeout(() => {
+                    window.location.reload();
+                }, 500);
+            }
+        }, 500);
     };
 
     return (
@@ -84,7 +124,7 @@ export default function LoginModal({ isOpen, onClose }) {
                 </button>
 
                 <div style={{ marginTop: '1.5rem', textAlign: 'center', fontSize: '0.8rem', color: 'var(--muted-foreground)' }}>
-                    Ao continuar, você concorda com nossos Termos de Serviço e Política de Privacidade.
+                    O login abrirá em uma janela separada.
                 </div>
             </div>
         </div>
