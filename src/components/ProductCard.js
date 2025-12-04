@@ -86,18 +86,51 @@ export default function ProductCard({ product }) {
 
                 <div style={{ marginTop: 'auto' }}>
                     <p style={{ color: 'var(--primary)', fontWeight: 'bold', fontSize: '1.2rem', marginBottom: '0.5rem' }}>
-                        ¥ {product.price.toFixed(0)}
+                        R$ {product.price.toFixed(2)}
                     </p>
                     {product.category && (
                         <p style={{ fontSize: '0.875rem', color: 'var(--muted-foreground)', marginBottom: '1rem' }}>
                             {product.category.name}
                         </p>
                     )}
-                    <button className="btn btn-primary" style={{ width: '100%' }}>
-                        Adicionar ao Carrinho
-                    </button>
+                    <AddToCartButton product={product} />
                 </div>
             </div>
         </div>
+    );
+}
+
+function AddToCartButton({ product }) {
+    const { useCart } = require('@/contexts/CartContext');
+    const { addToCart } = useCart();
+    const { useState } = require('react');
+    const [added, setAdded] = useState(false);
+
+    const handleAddToCart = () => {
+        addToCart(product, 1);
+        setAdded(true);
+        setTimeout(() => setAdded(false), 2000);
+    };
+
+    if (product.stock === 0) {
+        return (
+            <button
+                className="btn btn-outline"
+                disabled
+                style={{ width: '100%', opacity: 0.5 }}
+            >
+                Indisponível
+            </button>
+        );
+    }
+
+    return (
+        <button
+            className="btn btn-primary"
+            onClick={handleAddToCart}
+            style={{ width: '100%' }}
+        >
+            {added ? '✓ Adicionado!' : '🛒 Adicionar ao Carrinho'}
+        </button>
     );
 }

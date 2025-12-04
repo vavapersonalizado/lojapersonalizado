@@ -47,6 +47,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   orders        Order[]
+  carts         Cart[]
 }
 
 model VerificationToken {
@@ -66,26 +67,30 @@ model Category {
 }
 
 model Product {
-  id          String   @id @default(cuid())
+  id          String     @id @default(cuid())
   name        String
   description String?
   price       Float
-  stock       Int      @default(0)
-  images      String[] @default([])
+  stock       Int        @default(0)
+  images      String[]   @default([])
   categoryId  String
-  category    Category @relation(fields: [categoryId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  category    Category   @relation(fields: [categoryId], references: [id])
+  cartItems   CartItem[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 }
 
 model Order {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  total     Float
-  status    String   @default("pending") // pending, paid, shipped, delivered
-  createdAt DateTime @default(now())
-  items     OrderItem[]
+  id           String      @id @default(cuid())
+  userId       String
+  user         User        @relation(fields: [userId], references: [id])
+  total        Float
+  discount     Float       @default(0)
+  finalTotal   Float
+  couponCode   String?
+  status       String      @default("pending") // pending, processing, completed, cancelled
+  createdAt    DateTime    @default(now())
+  items        OrderItem[]
 }
 
 model OrderItem {
@@ -105,4 +110,36 @@ model SiteSettings {
   showEvents     Boolean @default(true)
   showPartners   Boolean @default(true)
   showSponsors   Boolean @default(true)
+}
+
+model Cart {
+  id        String     @id @default(cuid())
+  userId    String?
+  user      User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model CartItem {
+  id        String  @id @default(cuid())
+  cartId    String
+  cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int     @default(1)
+
+  @@unique([cartId, productId])
+}
+
+model Coupon {
+  id          String    @id @default(cuid())
+  code        String    @unique
+  discount    Float     // Percentage (0-100) or fixed amount
+  type        String    @default("percentage") // "percentage" or "fixed"
+  maxUses     Int?      // null = unlimited
+  usedCount   Int       @default(0)
+  expiresAt   DateTime?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
 }
