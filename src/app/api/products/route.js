@@ -3,6 +3,7 @@ import prisma from '@/lib/prisma';
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]/route";
 
+// Force redeploy to regenerate Prisma client after migration
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
