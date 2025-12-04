@@ -9,7 +9,12 @@ export default function ImageUpload({ onUpload }) {
             onSuccess={(result) => {
                 if (result.info?.secure_url) {
                     const isVideo = result.info.resource_type === 'video';
-                    onUpload(result.info.secure_url, isVideo ? 'video' : 'image');
+                    const is3D = result.info.format === 'glb' || result.info.format === 'gltf';
+                    let type = 'image';
+                    if (isVideo) type = 'video';
+                    if (is3D) type = '3d';
+
+                    onUpload(result.info.secure_url, type);
                 }
             }}
             options={{
@@ -58,8 +63,9 @@ export default function ImageUpload({ onUpload }) {
                         onClick={() => open()}
                     >
                         <div style={{ color: 'var(--muted-foreground)' }}>
-                            <p style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>☁️📷🎥</p>
-                            <p>Clique para fazer upload (Cloudinary)</p>
+                            <p style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>☁️📷🎥📦</p>
+                            <p>Clique para fazer upload</p>
+                            <p style={{ fontSize: '0.8rem', opacity: 0.8 }}>(Imagens, Vídeos ou 3D .glb)</p>
                         </div>
                     </div>
                 );
