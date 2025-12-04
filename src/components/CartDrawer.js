@@ -2,10 +2,12 @@
 
 import { useCart } from '@/contexts/CartContext';
 import { useRouter } from 'next/navigation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function CartDrawer({ isOpen, onClose }) {
     const { cart, removeFromCart, updateQuantity, getCartTotal, clearCart } = useCart();
     const router = useRouter();
+    const { t, formatCurrency } = useLanguage();
 
     if (!isOpen) return null;
 
@@ -51,7 +53,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                     alignItems: 'center'
                 }}>
                     <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', margin: 0 }}>
-                        🛒 Carrinho
+                        🛒 {t('cart.title')}
                     </h2>
                     <button
                         onClick={onClose}
@@ -76,7 +78,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                             color: 'var(--muted-foreground)'
                         }}>
                             <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🛒</div>
-                            <p>Seu carrinho está vazio</p>
+                            <p>{t('cart.empty')}</p>
                         </div>
                     ) : (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -125,7 +127,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                                             {item.name}
                                         </h3>
                                         <p style={{ fontSize: '1.1rem', fontWeight: 'bold', color: 'var(--primary)', margin: 0 }}>
-                                            R$ {item.price.toFixed(2)}
+                                            {formatCurrency(item.price)}
                                         </p>
 
                                         {/* Quantity Controls */}
@@ -158,7 +160,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                                                     cursor: 'pointer',
                                                     fontSize: '1.2rem'
                                                 }}
-                                                title="Remover"
+                                                title={t('common.delete')}
                                             >
                                                 🗑️
                                             </button>
@@ -185,9 +187,9 @@ export default function CartDrawer({ isOpen, onClose }) {
                             fontSize: '1.25rem',
                             fontWeight: 'bold'
                         }}>
-                            <span>Total:</span>
+                            <span>{t('common.total')}:</span>
                             <span style={{ color: 'var(--primary)' }}>
-                                R$ {getCartTotal().toFixed(2)}
+                                {formatCurrency(getCartTotal())}
                             </span>
                         </div>
                         <button
@@ -195,14 +197,14 @@ export default function CartDrawer({ isOpen, onClose }) {
                             className="btn btn-primary"
                             style={{ width: '100%', padding: '0.75rem', fontSize: '1.1rem' }}
                         >
-                            Finalizar Pedido
+                            {t('cart.checkout')}
                         </button>
                         <button
                             onClick={clearCart}
                             className="btn btn-outline"
                             style={{ width: '100%', marginTop: '0.5rem' }}
                         >
-                            Limpar Carrinho
+                            {t('cart.clear')}
                         </button>
                     </div>
                 )}

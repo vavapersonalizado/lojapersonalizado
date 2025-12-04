@@ -163,7 +163,7 @@ function AddToCartButton({ product }) {
                 disabled
                 style={{ width: '100%', opacity: 0.5 }}
             >
-                Indisponível
+                {t('common.unavailable')}
             </button>
         );
     }
@@ -174,7 +174,7 @@ function AddToCartButton({ product }) {
             onClick={handleAddToCart}
             style={{ width: '100%' }}
         >
-            {added ? '✓ Adicionado!' : '🛒 Adicionar ao Carrinho'}
+            {added ? `✓ ${t('common.added')}` : `🛒 ${t('common.add_to_cart')}`}
         </button>
     );
 }
