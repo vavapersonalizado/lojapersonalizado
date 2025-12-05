@@ -15,12 +15,18 @@ export async function GET() {
             WHERE table_name = 'Product';
         `;
 
-        // 3. Try to fetch one product
+        // 3. Try to fetch one product and counts
         const product = await prisma.product.findFirst();
+        const productCount = await prisma.product.count();
+        const userCount = await prisma.user.count();
 
         return NextResponse.json({
             status: 'ok',
             dbConnection: 'success',
+            counts: {
+                products: productCount,
+                users: userCount
+            },
             columns: columns,
             sampleProduct: product
         });
