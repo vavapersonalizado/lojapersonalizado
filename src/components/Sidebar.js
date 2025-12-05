@@ -34,8 +34,18 @@ export default function Sidebar() {
 
         fetch('/api/categories')
             .then(res => res.json())
-            .then(data => setCategories(data))
-            .catch(err => console.error(err));
+            .then(data => {
+                if (Array.isArray(data)) {
+                    setCategories(data);
+                } else {
+                    console.error('Invalid categories data:', data);
+                    setCategories([]);
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                setCategories([]);
+            });
     }, []);
 
     const toggleSetting = async (key) => {
