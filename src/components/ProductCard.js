@@ -13,6 +13,10 @@ const ModelViewer = dynamic(() => import('./ModelViewer'), { ssr: false });
 export default function ProductCard({ product, isClientMode }) {
     const { data: session } = useSession();
     const router = useRouter();
+
+    // Defensive check
+    if (!product || !product.id) return null;
+
     const isAdmin = session?.user?.role === 'admin';
     const { formatCurrency } = useLanguage();
     // Helper to get the main media (3D model or first image)
