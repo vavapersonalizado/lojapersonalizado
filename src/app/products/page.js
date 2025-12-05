@@ -13,13 +13,24 @@ export default function ProductsPage() {
 
     useEffect(() => {
         fetch('/api/products')
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+                return res.json();
+            })
             .then(data => {
-                setProducts(data);
+                if (Array.isArray(data)) {
+                    setProducts(data);
+                } else {
+                    console.error('API returned non-array data:', data);
+                    setProducts([]);
+                }
                 setLoading(false);
             })
             .catch(err => {
-                console.error(err);
+                console.error('Error fetching products:', err);
+                setProducts([]);
                 setLoading(false);
             });
     }, []);
