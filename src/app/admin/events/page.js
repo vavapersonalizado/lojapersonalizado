@@ -122,6 +122,19 @@ export default function AdminEvents() {
                                 </p>
                             </div>
                         </div>
+                        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                                <input
+                                    type="checkbox"
+                                    checked={event.active}
+                                    onChange={() => toggleActive(event.id, event.active)}
+                                />
+                                Ativo
+                            </label>
+                            <button onClick={() => handleDelete(event.id)} className="btn btn-outline" style={{ color: 'red', borderColor: 'red' }}>
+                                🗑️
+                            </button>
+                        </div>
                     </div>
                 ))}
             </div>

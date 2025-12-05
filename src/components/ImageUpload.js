@@ -52,97 +52,92 @@ export default function ImageUpload({ onUpload, currentImage }) {
     };
 
     return (
-        <CldUploadWidget
-            uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET}
-            onSuccess={(result) => {
-                // This is called for each individual file
-                if (result.info?.secure_url) {
-                    const isVideo = result.info.resource_type === 'video';
-                    const is3D = result.info.format === 'glb' || result.info.format === 'gltf';
-                    let type = 'image';
-                    if (isVideo) type = 'video';
-                    if (is3D) type = '3d';
+        <div style={{ width: '100%' }}>
+            <CldUploadWidget
+                uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET}
+                onSuccess={(result) => {
+                    if (result.info?.secure_url) {
+                        const isVideo = result.info.resource_type === 'video';
+                        const is3D = result.info.format === 'glb' || result.info.format === 'gltf';
+                        let type = 'image';
+                        if (isVideo) type = 'video';
+                        if (is3D) type = '3d';
 
-                    onUpload(result.info.secure_url, type);
-                }
-            }}
-            onQueuesEnd={(result, { widget }) => {
-                // This is called when ALL uploads are complete
-                console.log('All uploads completed!', result);
-            }}
-            options={{
-                sources: ['local', 'url', 'camera', 'google_drive', 'dropbox'],
-                showAdvancedOptions: true,
-                cropping: true,
-                multiple: false, // Changed to false to simplify state management for single image fields
-                defaultSource: "local",
-                maxFiles: 10,
-                resourceType: "auto",
-                clientAllowedFormats: ["image", "video", "glb", "gltf"],
-                maxFileSize: 50000000, // 50MB
-                googleApiKey: null, // Disable Google AI moderation
-                styles: {
-                    palette: {
-                        window: "#FFFFFF",
-                        windowBorder: "#90A0B3",
-                        tabIcon: "#0078FF",
-                        menuIcons: "#5A616A",
-                        textDark: "#000000",
-                        textLight: "#FFFFFF",
-                        link: "#0078FF",
-                        action: "#FF620C",
-                        inactiveTabIcon: "#0E2F5A",
-                        error: "#F44235",
-                        inProgress: "#0078FF",
-                        complete: "#20B832",
-                        sourceBg: "#E4EBF1"
+                        onUpload(result.info.secure_url, type);
                     }
-                }
-            }}
-        >
-            {({ open }) => {
-                if (currentImage) {
-                    return (
-                        <div style={{ textAlign: 'center' }}>
-                            <div style={{
-                                position: 'relative',
-                                width: '100%',
-                                height: '200px',
-                                marginBottom: '1rem',
-                                border: '1px solid var(--border)',
-                                borderRadius: 'var(--radius)',
-                                overflow: 'hidden'
-                            }}>
-                                <img
-                                    src={currentImage}
-                                    alt="Preview"
-                                    style={{ width: '100%', height: '100%', objectFit: 'contain', background: '#f0f0f0' }}
-                                />
+                }}
+                options={{
+                    sources: ['local', 'url', 'camera', 'google_drive', 'dropbox'],
+                    showAdvancedOptions: true,
+                    cropping: true,
+                    multiple: false,
+                    defaultSource: "local",
+                    maxFiles: 10,
+                    resourceType: "auto",
+                    clientAllowedFormats: ["image", "video", "glb", "gltf"],
+                    maxFileSize: 50000000,
+                    googleApiKey: null,
+                    styles: {
+                        palette: {
+                            window: "#FFFFFF",
+                            windowBorder: "#90A0B3",
+                            tabIcon: "#0078FF",
+                            menuIcons: "#5A616A",
+                            textDark: "#000000",
+                            textLight: "#FFFFFF",
+                            link: "#0078FF",
+                            action: "#FF620C",
+                            inactiveTabIcon: "#0E2F5A",
+                            error: "#F44235",
+                            inProgress: "#0078FF",
+                            complete: "#20B832",
+                            sourceBg: "#E4EBF1"
+                        }
+                    }
+                }}
+            >
+                {({ open }) => {
+                    if (currentImage) {
+                        return (
+                            <div style={{ textAlign: 'center' }}>
+                                <div style={{
+                                    position: 'relative',
+                                    width: '100%',
+                                    height: '200px',
+                                    marginBottom: '1rem',
+                                    border: '1px solid var(--border)',
+                                    borderRadius: 'var(--radius)',
+                                    overflow: 'hidden'
+                                }}>
+                                    <img
+                                        src={currentImage}
+                                        alt="Preview"
+                                        style={{ width: '100%', height: '100%', objectFit: 'contain', background: '#f0f0f0' }}
+                                    />
+                                </div>
+                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                    <button
+                                        type="button"
+                                        onClick={() => open()}
+                                        className="btn btn-outline"
+                                        style={{ flex: 1 }}
+                                    >
+                                        🔄 Alterar Imagem
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => onUpload('')}
+                                        className="btn btn-outline"
+                                        style={{ color: 'red', borderColor: 'red' }}
+                                    >
+                                        🗑️ Remover
+                                    </button>
+                                </div>
                             </div>
-                            <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                <button
-                                    type="button"
-                                    onClick={() => open()}
-                                    className="btn btn-outline"
-                                    style={{ flex: 1 }}
-                                >
-                                    🔄 Alterar Imagem
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => onUpload('')}
-                                    className="btn btn-outline"
-                                    style={{ color: 'red', borderColor: 'red' }}
-                                >
-                                    🗑️ Remover
-                                </button>
-                            </div>
-                        </div>
-                    );
-                }
+                        );
+                    }
 
-                return (
-                    <>
+                    return (
                         <div
                             style={{
                                 border: '2px dashed var(--border)',
@@ -170,17 +165,20 @@ export default function ImageUpload({ onUpload, currentImage }) {
                                 </p>
                             </div>
                         </div>
-                        <button
-                            type="button"
-                            onClick={openMediaLibrary}
-                            className="btn btn-outline"
-                            style={{ marginTop: '1rem', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
-                        >
-                            🖼️ Selecionar da Galeria (Cloudinary)
-                        </button>
-                    </>
-                );
-            }}
-        </CldUploadWidget>
+                    );
+                }}
+            </CldUploadWidget>
+
+            {!currentImage && (
+                <button
+                    type="button"
+                    onClick={openMediaLibrary}
+                    className="btn btn-outline"
+                    style={{ marginTop: '1rem', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                >
+                    🖼️ Selecionar da Galeria (Cloudinary)
+                </button>
+            )}
+        </div>
     );
 }
