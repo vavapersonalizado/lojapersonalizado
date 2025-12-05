@@ -20,9 +20,9 @@ export const authOptions = {
         }),
     ],
     secret: process.env.NEXTAUTH_SECRET,
-    pages: {
-        signIn: '/auth/callback',
-    },
+    // pages: {
+    //     signIn: '/auth/callback',
+    // },
     callbacks: {
         async session({ session, user }) {
             if (session?.user) {

@@ -20,44 +20,7 @@ export default function LoginModal({ isOpen, onClose }) {
     if (!isOpen) return null;
 
     const handleGoogleLogin = () => {
-        // Calculate popup position (centered)
-        const width = 500;
-        const height = 650;
-        const left = window.screen.width / 2 - width / 2;
-        const top = window.screen.height / 2 - height / 2;
-
-        // Build the OAuth URL with popup redirect
-        const callbackUrl = encodeURIComponent(window.location.origin + '/auth/callback');
-        const authUrl = `/api/auth/signin/google?callbackUrl=${callbackUrl}`;
-
-        // Open in popup window
-        const popup = window.open(
-            authUrl,
-            'GoogleLogin',
-            `width=${width},height=${height},left=${left},top=${top},toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes`
-        );
-
-        // Check if popup was blocked
-        if (!popup || popup.closed || typeof popup.closed === 'undefined') {
-            alert('Por favor, permita popups para este site para fazer login.');
-            return;
-        }
-
-        // Monitor popup for closure
-        const checkPopup = setInterval(() => {
-            try {
-                if (popup.closed) {
-                    clearInterval(checkPopup);
-                    onClose();
-                    // Reload to get updated session
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 300);
-                }
-            } catch (e) {
-                // Cross-origin error is expected
-            }
-        }, 500);
+        signIn('google');
     };
 
     return (
