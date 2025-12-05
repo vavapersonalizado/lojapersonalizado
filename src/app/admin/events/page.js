@@ -2,13 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
+import ImageUpload from '@/components/ImageUpload';
 
 export default function AdminEvents() {
     const { data: session } = useSession();
     // router removed
     const [events, setEvents] = useState([]);
     // loading removed
-    const [formData, setFormData] = useState({ title: '', date: '', description: '' });
+    const [formData, setFormData] = useState({ title: '', date: '', description: '', imageUrl: '' });
 
     useEffect(() => {
         fetchEvents();
@@ -35,7 +36,7 @@ export default function AdminEvents() {
                 body: JSON.stringify(formData)
             });
             if (res.ok) {
-                setFormData({ title: '', date: '', description: '' });
+                setFormData({ title: '', date: '', description: '', imageUrl: '' });
                 fetchEvents();
             }
         } catch (error) {
@@ -96,6 +97,13 @@ export default function AdminEvents() {
                         onChange={e => setFormData({ ...formData, description: e.target.value })}
                         style={{ padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
                     />
+                    <div>
+                        <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Imagem do Evento (Opcional)</label>
+                        <ImageUpload
+                            onUpload={(url) => setFormData({ ...formData, imageUrl: url })}
+                            currentImage={formData.imageUrl}
+                        />
+                    </div>
                     <button type="submit" className="btn btn-primary">Adicionar Evento</button>
                 </form>
             </div>
@@ -103,24 +111,16 @@ export default function AdminEvents() {
             <div style={{ display: 'grid', gap: '1rem' }}>
                 {events.map(event => (
                     <div key={event.id} className="card" style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div>
-                            <h4 style={{ marginBottom: '0.25rem' }}>{event.title}</h4>
-                            <p style={{ fontSize: '0.9rem', color: 'var(--muted-foreground)' }}>
-                                {new Date(event.date).toLocaleDateString()}
-                            </p>
-                        </div>
-                        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                                <input
-                                    type="checkbox"
-                                    checked={event.active}
-                                    onChange={() => toggleActive(event.id, event.active)}
-                                />
-                                Ativo
-                            </label>
-                            <button onClick={() => handleDelete(event.id)} className="btn btn-outline" style={{ color: 'red', borderColor: 'red' }}>
-                                🗑️
-                            </button>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                            {event.imageUrl && (
+                                <img src={event.imageUrl} alt={event.title} style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: 'var(--radius)' }} />
+                            )}
+                            <div>
+                                <h4 style={{ marginBottom: '0.25rem' }}>{event.title}</h4>
+                                <p style={{ fontSize: '0.9rem', color: 'var(--muted-foreground)' }}>
+                                    {new Date(event.date).toLocaleDateString()}
+                                </p>
+                            </div>
                         </div>
                     </div>
                 ))}
