@@ -40,22 +40,63 @@ export default function ProductCard({ product, isClientMode }) {
         return { type: 'image', url };
     };
 
-    const media = getMainMedia();
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const [isHovered, setIsHovered] = useState(false);
+
+    // Carousel Logic
+    const handleMouseEnter = () => {
+        setIsHovered(true);
+        if (product.images && product.images.length > 1) {
+            // Start cycling images
+            const interval = setInterval(() => {
+                setCurrentImageIndex(prev => (prev + 1) % product.images.length);
+            }, 1000);
+            // Store interval id to clear later
+            setCurrentImageIndex.interval = interval;
+        }
+    };
+
+    const handleMouseLeave = () => {
+        setIsHovered(false);
+        setCurrentImageIndex(0); // Reset to first image
+        if (setCurrentImageIndex.interval) {
+            clearInterval(setCurrentImageIndex.interval);
+        }
+    };
+
+    const currentMedia = product.images && product.images.length > 0
+        ? product.images[currentImageIndex]
+        : null;
+
+    const mediaUrl = typeof currentMedia === 'string' ? currentMedia : currentMedia?.url;
+    const is3D = mediaUrl?.endsWith('.glb') || mediaUrl?.endsWith('.gltf');
 
     return (
-        <div className="card" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+        <div
+            className="card"
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            style={{
+                display: 'flex',
+                flexDirection: 'column',
+                height: '100%',
+                transition: 'all 0.3s ease',
+                transform: isHovered ? 'translateY(-5px)' : 'none',
+                boxShadow: isHovered ? 'var(--shadow-lg)' : 'var(--shadow)'
+            }}
+        >
             <div style={{ position: 'relative' }}>
                 <div style={{
-                    height: '180px',
+                    height: '220px',
                     position: 'relative',
                     background: 'var(--muted)',
                     borderRadius: 'var(--radius) var(--radius) 0 0',
                     overflow: 'hidden'
                 }}>
-                    {media && media.type === '3d' ? (
+                    {is3D ? (
                         <div style={{ width: '100%', height: '100%' }}>
                             <ModelViewer
-                                src={media.url}
+                                src={mediaUrl}
                                 alt={product.name}
                                 style={{ backgroundColor: '#f5f5f5' }}
                             />
@@ -75,11 +116,12 @@ export default function ProductCard({ product, isClientMode }) {
                         </div>
                     ) : (
                         <Link href={`/products/${product.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block', width: '100%', height: '100%' }}>
-                            {media ? (
+                            {mediaUrl ? (
                                 <div style={{
                                     width: '100%',
                                     height: '100%',
-                                    background: `url(${media.url}) center/cover`
+                                    background: `url(${mediaUrl}) center/cover`,
+                                    transition: 'background-image 0.3s ease'
                                 }} />
                             ) : (
                                 <div style={{
@@ -94,6 +136,28 @@ export default function ProductCard({ product, isClientMode }) {
                                 </div>
                             )}
                         </Link>
+                    )}
+
+                    {/* Carousel Indicator */}
+                    {product.images && product.images.length > 1 && isHovered && (
+                        <div style={{
+                            position: 'absolute',
+                            bottom: '10px',
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            display: 'flex',
+                            gap: '4px'
+                        }}>
+                            {product.images.map((_, idx) => (
+                                <div key={idx} style={{
+                                    width: '6px',
+                                    height: '6px',
+                                    borderRadius: '50%',
+                                    background: idx === currentImageIndex ? 'var(--primary)' : 'rgba(255,255,255,0.5)',
+                                    boxShadow: '0 1px 2px rgba(0,0,0,0.3)'
+                                }} />
+                            ))}
+                        </div>
                     )}
                 </div>
 
@@ -125,7 +189,7 @@ export default function ProductCard({ product, isClientMode }) {
                 )}
             </div>
 
-            <div style={{ padding: '1rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
+            <div style={{ padding: '1.25rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
                 <Link href={`/products/${product.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                     <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', fontWeight: '600' }}>{product.name}</h3>
                 </Link>

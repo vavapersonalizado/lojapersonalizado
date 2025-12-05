@@ -7,6 +7,7 @@ export const metadata = {
 };
 
 import Sidebar from "@/components/Sidebar";
+import RightSidebar from "@/components/RightSidebar";
 import Header from "@/components/Header";
 
 export default function RootLayout({ children }) {
@@ -21,6 +22,7 @@ export default function RootLayout({ children }) {
                             <main style={{ flex: 1, padding: '2rem', overflowY: 'auto' }}>
                                 {children}
                             </main>
+                            <RightSidebar />
                         </div>
                     </div>
                 </Providers>

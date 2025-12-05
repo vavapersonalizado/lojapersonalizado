@@ -35,13 +35,57 @@ export default function Home() {
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
             {/* Hero */}
+            {/* Hero */}
             <section style={{
-                padding: '3rem 2rem',
+                padding: '4rem 2rem',
                 textAlign: 'center',
-                background: 'linear-gradient(to bottom, var(--secondary), var(--background))',
-                borderRadius: 'var(--radius)'
+                background: 'linear-gradient(135deg, var(--primary), var(--secondary))',
+                borderRadius: 'var(--radius)',
+                color: 'white',
+                boxShadow: 'var(--shadow-lg)',
+                position: 'relative',
+                overflow: 'hidden'
             }}>
-                <p style={{ color: 'var(--muted-foreground)', fontSize: '1.1rem' }}>Encontre os melhores personalizados com a melhor qualidade.</p>
+                <div style={{ position: 'relative', zIndex: 1 }}>
+                    <p style={{
+                        fontSize: '1.5rem',
+                        marginBottom: '1rem',
+                        opacity: 0.9,
+                        fontFamily: 'Outfit, sans-serif'
+                    }}>
+                        Encontre os melhores personalizados com a melhor qualidade.
+                    </p>
+                    <button className="btn" style={{
+                        background: 'var(--accent)',
+                        color: 'var(--accent-foreground)',
+                        fontSize: '1.1rem',
+                        padding: '0.75rem 2rem',
+                        marginTop: '1rem',
+                        boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
+                    }}>
+                        Ver Produtos ✨
+                    </button>
+                </div>
+
+                {/* Decorative Circles */}
+                <div style={{
+                    position: 'absolute',
+                    top: '-50px',
+                    left: '-50px',
+                    width: '200px',
+                    height: '200px',
+                    borderRadius: '50%',
+                    background: 'rgba(255,255,255,0.1)'
+                }} />
+                <div style={{
+                    position: 'absolute',
+                    bottom: '-50px',
+                    right: '-50px',
+                    width: '300px',
+                    height: '300px',
+                    borderRadius: '50%',
+                    background: 'rgba(255,255,255,0.05)'
+                }} />
             </section>
 
             {/* Product Grid */}
