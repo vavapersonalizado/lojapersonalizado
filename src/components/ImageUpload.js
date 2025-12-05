@@ -19,8 +19,8 @@ export default function ImageUpload({ onUpload }) {
             }}
             options={{
                 sources: ['local', 'url', 'camera'],
-                multiple: false,
-                maxFiles: 1,
+                multiple: true,
+                maxFiles: 10,
                 resourceType: "auto",
                 clientAllowedFormats: ["image", "video", "glb", "gltf"],
                 maxFileSize: 50000000, // 50MB
