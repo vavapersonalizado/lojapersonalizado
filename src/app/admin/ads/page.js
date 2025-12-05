@@ -18,7 +18,7 @@ export default function AdminAds() {
         try {
             const res = await fetch('/api/ads?admin=true');
             const data = await res.json();
-            setAds(data);
+            setAds(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error('Error fetching ads:', error);
         } finally {

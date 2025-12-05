@@ -110,6 +110,7 @@ export default function Sidebar() {
             }))
         },
         { name: 'Eventos', path: '/events', settingKey: 'showEvents' },
+        { name: 'Promoções', path: '/promotions', settingKey: 'showPromotions' }, // Added to client menu
         { name: 'Parceiros', path: '/partners', settingKey: 'showPartners' },
         { name: 'Patrocinadores', path: '/sponsors', settingKey: 'showSponsors' },
     ];
@@ -203,7 +204,7 @@ export default function Sidebar() {
                                 { name: 'Galeria', path: '/admin/galeria', icon: '🖼️' },
                                 { name: 'Cupons', path: '/admin/coupons', icon: '🎟️' },
                                 { name: 'Eventos', path: '/admin/events', icon: '📅' },
-                                { name: 'Promoções', path: '/admin/promotions', icon: '🔥' },
+                                // Promoções moved to main menu
                                 { name: 'Propagandas', path: '/admin/ads', icon: '📢' },
                                 { name: 'Config', path: '/admin/settings', icon: '⚙️' }
                             ].map(link => (

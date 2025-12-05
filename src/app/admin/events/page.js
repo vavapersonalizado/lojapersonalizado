@@ -2,13 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 
 export default function AdminEvents() {
     const { data: session } = useSession();
-    const router = useRouter();
+    // router removed
     const [events, setEvents] = useState([]);
-    const [loading, setLoading] = useState(true);
+    // loading removed
     const [formData, setFormData] = useState({ title: '', date: '', description: '' });
 
     useEffect(() => {
@@ -19,11 +18,11 @@ export default function AdminEvents() {
         try {
             const res = await fetch('/api/events?admin=true');
             const data = await res.json();
-            setEvents(data);
+            setEvents(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error('Error fetching events:', error);
         } finally {
-            setLoading(false);
+            // loading removed
         }
     };
 

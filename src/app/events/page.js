@@ -50,8 +50,16 @@ export default function EventsPage() {
             ) : (
                 <div style={{ display: 'grid', gap: '1.5rem' }}>
                     {events.map(event => (
-                        <div key={event.id} className="card">
-                            {/* Event card content will go here */}
+                        <div key={event.id} className="card" style={{ padding: '1.5rem' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                                <div>
+                                    <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>{event.title}</h3>
+                                    <p style={{ color: 'var(--primary)', fontWeight: '500', marginBottom: '1rem' }}>
+                                        📅 {new Date(event.date).toLocaleDateString()}
+                                    </p>
+                                    <p style={{ color: 'var(--muted-foreground)' }}>{event.description}</p>
+                                </div>
+                            </div>
                         </div>
                     ))}
                 </div>
