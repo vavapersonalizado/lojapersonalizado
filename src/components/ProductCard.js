@@ -13,12 +13,15 @@ const ModelViewer = dynamic(() => import('./ModelViewer'), { ssr: false });
 export default function ProductCard({ product, isClientMode }) {
     const { data: session } = useSession();
     const router = useRouter();
+    const { formatCurrency } = useLanguage();
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const [isHovered, setIsHovered] = useState(false);
 
     // Defensive check
     if (!product || !product.id) return null;
 
     const isAdmin = session?.user?.role === 'admin';
-    const { formatCurrency } = useLanguage();
+
     // Helper to get the main media (3D model or first image)
     const getMainMedia = () => {
         if (!product.images || product.images.length === 0) return null;
@@ -39,9 +42,6 @@ export default function ProductCard({ product, isClientMode }) {
         const url = typeof firstImage === 'string' ? firstImage : firstImage.url;
         return { type: 'image', url };
     };
-
-    const [currentImageIndex, setCurrentImageIndex] = useState(0);
-    const [isHovered, setIsHovered] = useState(false);
 
     // Carousel Logic
     const handleMouseEnter = () => {
