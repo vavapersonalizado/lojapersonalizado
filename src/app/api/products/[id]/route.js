@@ -7,6 +7,7 @@ export async function GET(request, { params }) {
     try {
         const { id } = params;
         console.log('Fetching product with ID:', id);
+        // Force redeploy to regenerate Prisma Client
 
         const product = await prisma.product.findUnique({
             where: { id },
