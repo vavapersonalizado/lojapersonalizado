@@ -202,6 +202,9 @@ export default function Sidebar() {
                                 { name: 'Produtos', path: '/admin/products', icon: '🛍️' },
                                 { name: 'Galeria', path: '/admin/galeria', icon: '🖼️' },
                                 { name: 'Cupons', path: '/admin/coupons', icon: '🎟️' },
+                                { name: 'Eventos', path: '/admin/events', icon: '📅' },
+                                { name: 'Promoções', path: '/admin/promotions', icon: '🔥' },
+                                { name: 'Propagandas', path: '/admin/ads', icon: '📢' },
                                 { name: 'Config', path: '/admin/settings', icon: '⚙️' }
                             ].map(link => (
                                 <Link

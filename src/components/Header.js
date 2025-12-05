@@ -56,7 +56,8 @@ export default function Header() {
             </div>
 
             {/* Centro: Nome da Loja */}
-            <Link href="/" style={{ textDecoration: 'none', color: 'inherit', justifySelf: 'center' }}>
+            <Link href="/" style={{ textDecoration: 'none', color: 'inherit', justifySelf: 'center', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <img src="/logo.png" alt="Logo" style={{ height: '50px', width: 'auto' }} />
                 <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', cursor: 'pointer', textAlign: 'center' }}>
                     Vanessa Yachiro Personalizados
                 </h1>
