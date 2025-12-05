@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import ImageUpload from '@/components/ImageUpload';
+import MediaSelector from '@/components/MediaSelector';
 
 export default function NewProductPage() {
     const router = useRouter();
@@ -203,6 +204,9 @@ export default function NewProductPage() {
                         <div>
                             <label style={{ display: 'block', marginBottom: '0.5rem' }}>Adicionar Imagem</label>
                             <ImageUpload onUpload={handleAddImage} />
+                            <div style={{ marginTop: '0.5rem' }}>
+                                <MediaSelector onSelect={handleAddImage} />
+                            </div>
                         </div>
 
                         <div>
