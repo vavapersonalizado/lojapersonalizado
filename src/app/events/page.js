@@ -11,8 +11,19 @@ export default function EventsPage() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // TODO: Fetch events from API when implemented
-        setLoading(false);
+        const fetchEvents = async () => {
+            try {
+                const res = await fetch('/api/events');
+                const data = await res.json();
+                setEvents(Array.isArray(data) ? data : []);
+            } catch (error) {
+                console.error('Error fetching events:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchEvents();
     }, []);
 
     return (
@@ -24,11 +35,6 @@ export default function EventsPage() {
                 marginBottom: '2rem'
             }}>
                 <h1 style={{ fontSize: '2rem', fontWeight: 'bold' }}>Eventos</h1>
-                {isAdmin && (
-                    <Link href="/events/new" className="btn btn-primary">
-                        ➕ Adicionar Evento
-                    </Link>
-                )}
             </div>
 
             {loading ? (
@@ -51,7 +57,7 @@ export default function EventsPage() {
                 <div style={{ display: 'grid', gap: '1.5rem' }}>
                     {events.map(event => (
                         <div key={event.id} className="card" style={{ padding: '1.5rem' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                                 <div>
                                     <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>{event.title}</h3>
                                     <p style={{ color: 'var(--primary)', fontWeight: '500', marginBottom: '1rem' }}>
@@ -59,6 +65,25 @@ export default function EventsPage() {
                                     </p>
                                     <p style={{ color: 'var(--muted-foreground)' }}>{event.description}</p>
                                 </div>
+                                {event.images && event.images.length > 0 && (
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '0.5rem' }}>
+                                        {event.images.map((img, idx) => (
+                                            <img
+                                                key={idx}
+                                                src={img}
+                                                alt={`${event.title} - ${idx + 1}`}
+                                                style={{
+                                                    width: '100%',
+                                                    height: '150px',
+                                                    objectFit: 'cover',
+                                                    borderRadius: 'var(--radius)',
+                                                    cursor: 'pointer'
+                                                }}
+                                                onClick={() => window.open(img, '_blank')}
+                                            />
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         </div>
                     ))}

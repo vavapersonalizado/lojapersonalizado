@@ -113,9 +113,9 @@ export default function RightSidebar() {
                     }}>
                         {promotions[currentPromoIndex] && (
                             <>
-                                {promotions[currentPromoIndex].imageUrl && (
+                                {(promotions[currentPromoIndex].images?.length > 0 || promotions[currentPromoIndex].imageUrl) && (
                                     <img
-                                        src={promotions[currentPromoIndex].imageUrl}
+                                        src={promotions[currentPromoIndex].images?.length > 0 ? promotions[currentPromoIndex].images[0] : promotions[currentPromoIndex].imageUrl}
                                         alt={promotions[currentPromoIndex].title}
                                         style={{ width: '100%', height: '120px', objectFit: 'cover', borderRadius: 'var(--radius)', marginBottom: '0.5rem' }}
                                     />
@@ -227,14 +227,14 @@ export default function RightSidebar() {
                         {ad.link ? (
                             <a href={ad.link} target="_blank" rel="noopener noreferrer">
                                 <img
-                                    src={ad.imageUrl}
+                                    src={ad.images && ad.images.length > 0 ? ad.images[0] : ad.imageUrl}
                                     alt={ad.title}
                                     style={{ width: '100%', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
                                 />
                             </a>
                         ) : (
                             <img
-                                src={ad.imageUrl}
+                                src={ad.images && ad.images.length > 0 ? ad.images[0] : ad.imageUrl}
                                 alt={ad.title}
                                 style={{ width: '100%', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
                             />

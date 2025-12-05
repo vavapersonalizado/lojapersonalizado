@@ -155,3 +155,37 @@ model Coupon {
   productId   String?   // If set, applies only to this product
   createdAt   DateTime  @default(now())
 }
+
+model Event {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  date        DateTime
+  active      Boolean  @default(true)
+  images      String[] @default([])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Ad {
+  id        String   @id @default(cuid())
+  title     String
+  link      String?
+  active    Boolean  @default(true)
+  imageUrl  String?
+  images    String[] @default([])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Promotion {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  discount    Float?
+  active      Boolean  @default(true)
+  images      String[] @default([])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+

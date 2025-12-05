@@ -29,12 +29,12 @@ export async function POST(request) {
 
     try {
         const body = await request.json();
-        const { title, imageUrl, link } = body;
+        const { title, images, link } = body;
 
         const ad = await prisma.ad.create({
             data: {
                 title,
-                imageUrl,
+                images: images || [],
                 link,
                 active: true
             }

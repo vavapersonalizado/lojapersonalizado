@@ -6,10 +6,8 @@ import ImageUpload from '@/components/ImageUpload';
 
 export default function AdminEvents() {
     const { data: session } = useSession();
-    // router removed
     const [events, setEvents] = useState([]);
-    // loading removed
-    const [formData, setFormData] = useState({ title: '', date: '', description: '', imageUrl: '' });
+    const [formData, setFormData] = useState({ title: '', date: '', description: '', images: [] });
 
     useEffect(() => {
         fetchEvents();
@@ -22,8 +20,6 @@ export default function AdminEvents() {
             setEvents(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error('Error fetching events:', error);
-        } finally {
-            // loading removed
         }
     };
 
@@ -36,7 +32,7 @@ export default function AdminEvents() {
                 body: JSON.stringify(formData)
             });
             if (res.ok) {
-                setFormData({ title: '', date: '', description: '', imageUrl: '' });
+                setFormData({ title: '', date: '', description: '', images: [] });
                 fetchEvents();
             }
         } catch (error) {
@@ -65,6 +61,20 @@ export default function AdminEvents() {
         } catch (error) {
             console.error('Error toggling event:', error);
         }
+    };
+
+    const handleImageUpload = (url) => {
+        setFormData(prev => ({
+            ...prev,
+            images: [...prev.images, url]
+        }));
+    };
+
+    const removeImage = (indexToRemove) => {
+        setFormData(prev => ({
+            ...prev,
+            images: prev.images.filter((_, index) => index !== indexToRemove)
+        }));
     };
 
     if (session?.user?.role !== 'admin') return <p>Acesso negado</p>;
@@ -98,10 +108,38 @@ export default function AdminEvents() {
                         style={{ padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
                     />
                     <div>
-                        <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Imagem do Evento (Opcional)</label>
+                        <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Imagens do Evento</label>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                            {formData.images.map((img, index) => (
+                                <div key={index} style={{ position: 'relative', width: '100px', height: '100px' }}>
+                                    <img src={img} alt={`Preview ${index}`} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'var(--radius)' }} />
+                                    <button
+                                        type="button"
+                                        onClick={() => removeImage(index)}
+                                        style={{
+                                            position: 'absolute',
+                                            top: -5,
+                                            right: -5,
+                                            background: 'red',
+                                            color: 'white',
+                                            border: 'none',
+                                            borderRadius: '50%',
+                                            width: '20px',
+                                            height: '20px',
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            fontSize: '12px'
+                                        }}
+                                    >
+                                        X
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
                         <ImageUpload
-                            onUpload={(url) => setFormData({ ...formData, imageUrl: url })}
-                            currentImage={formData.imageUrl}
+                            onUpload={handleImageUpload}
                         />
                     </div>
                     <button type="submit" className="btn btn-primary">Adicionar Evento</button>
@@ -112,8 +150,17 @@ export default function AdminEvents() {
                 {events.map(event => (
                     <div key={event.id} className="card" style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                            {event.imageUrl && (
-                                <img src={event.imageUrl} alt={event.title} style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: 'var(--radius)' }} />
+                            {event.images && event.images.length > 0 && (
+                                <div style={{ display: 'flex', gap: '0.25rem' }}>
+                                    {event.images.slice(0, 3).map((img, idx) => (
+                                        <img key={idx} src={img} alt={event.title} style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: 'var(--radius)' }} />
+                                    ))}
+                                    {event.images.length > 3 && (
+                                        <div style={{ width: '60px', height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--muted)', borderRadius: 'var(--radius)', fontSize: '0.8rem' }}>
+                                            +{event.images.length - 3}
+                                        </div>
+                                    )}
+                                </div>
                             )}
                             <div>
                                 <h4 style={{ marginBottom: '0.25rem' }}>{event.title}</h4>
