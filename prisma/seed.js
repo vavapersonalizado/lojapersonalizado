@@ -27,6 +27,28 @@ async function main() {
     });
     console.log(`✅ Admin user configured: ${admin.email}`);
 
+    const adminEmail2 = 'projetovanvava@gmail.com';
+    const admin2 = await prisma.user.upsert({
+        where: { email: adminEmail2 },
+        update: {
+            role: 'admin',
+            classification: 'Admin',
+            deserveDiscount: true,
+            discountType: 'percentage',
+            discountValue: 100
+        },
+        create: {
+            email: adminEmail2,
+            name: 'Projeto Vava',
+            role: 'admin',
+            classification: 'Admin',
+            deserveDiscount: true,
+            discountType: 'percentage',
+            discountValue: 100
+        },
+    });
+    console.log(`✅ Admin user configured: ${admin2.email}`);
+
     // 2. Create Categories
     const categories = [
         { name: 'Canecas', slug: 'canecas' },
