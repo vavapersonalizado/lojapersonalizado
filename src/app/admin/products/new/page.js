@@ -49,7 +49,11 @@ export default function NewProductPage() {
     };
 
     const handleAddImage = (url, type = 'image') => {
-        setFormData({ ...formData, images: [...formData.images, { url, type }] });
+        setFormData(prev => ({
+            ...prev,
+            images: [...prev.images, { url, type }]
+        }));
+        console.log('Image added:', url, type);
     };
 
     const handleRemoveImage = (index) => {
