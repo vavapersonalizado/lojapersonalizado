@@ -44,13 +44,18 @@ model User {
   role          String    @default("client") // client, admin
   phone         String?   // For manually registered clients
   notes         String?   // Admin notes about the client
+  
+  // Client Classification System
+  classification   String?  @default("Médio") // Admin, Amigo, Família, Fiel, Bom, Médio, Ruim
+  deserveDiscount  Boolean  @default(false)
+  discountType     String?  // "percentage" or "fixed"
+  discountValue    Float?   @default(0)
+  
   accounts      Account[]
   sessions      Session[]
   orders        Order[]
   carts         Cart[]
-  classification     String?   // VIP, Family, etc.
-  discountEligible   Boolean   @default(false)
-  discountPercentage Float     @default(0)
+
 }
 
 model VerificationToken {

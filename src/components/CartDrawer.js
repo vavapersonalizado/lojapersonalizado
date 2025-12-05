@@ -4,10 +4,42 @@ import { useCart } from '@/contexts/CartContext';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
 
+import { useState } from 'react';
+
 export default function CartDrawer({ isOpen, onClose }) {
-    const { cart, removeFromCart, updateQuantity, getCartTotal, clearCart } = useCart();
+    const { cart, removeFromCart, updateQuantity, getCartTotal, clearCart, coupon, applyCoupon, removeCoupon, getSubtotal, getDiscountAmount } = useCart();
     const router = useRouter();
     const { t, formatCurrency } = useLanguage();
+    const [couponCode, setCouponCode] = useState('');
+    const [couponError, setCouponError] = useState('');
+    const [validatingCoupon, setValidatingCoupon] = useState(false);
+
+    const handleApplyCoupon = async () => {
+        if (!couponCode) return;
+        setValidatingCoupon(true);
+        setCouponError('');
+
+        try {
+            const res = await fetch('/api/coupons/validate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code: couponCode })
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(data.error || 'Cupom inválido');
+            }
+
+            applyCoupon(data.coupon);
+            setCouponCode('');
+        } catch (err) {
+            setCouponError(err.message);
+        } finally {
+            setValidatingCoupon(false);
+        }
+    };
 
     if (!isOpen) return null;
 
@@ -181,17 +213,100 @@ export default function CartDrawer({ isOpen, onClose }) {
                     }}>
                         <div style={{
                             display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            marginBottom: '1rem',
-                            fontSize: '1.25rem',
-                            fontWeight: 'bold'
+                            flexDirection: 'column',
+                            gap: '0.5rem',
+                            marginBottom: '1rem'
                         }}>
-                            <span>{t('common.total')}:</span>
-                            <span style={{ color: 'var(--primary)' }}>
-                                {formatCurrency(getCartTotal())}
-                            </span>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1rem' }}>
+                                <span>Subtotal:</span>
+                                <span>{formatCurrency(getSubtotal())}</span>
+                            </div>
+
+                            {coupon && (
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1rem', color: 'green' }}>
+                                    <span>Desconto ({coupon.code}):</span>
+                                    <span>- {formatCurrency(getDiscountAmount())}</span>
+                                </div>
+                            )}
+
+                            <div style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                fontSize: '1.25rem',
+                                fontWeight: 'bold',
+                                marginTop: '0.5rem',
+                                paddingTop: '0.5rem',
+                                borderTop: '1px solid var(--border)'
+                            }}>
+                                <span>{t('common.total')}:</span>
+                                <span style={{ color: 'var(--primary)' }}>
+                                    {formatCurrency(getCartTotal())}
+                                </span>
+                            </div>
                         </div>
+
+                        {/* Coupon Input */}
+                        <div style={{ marginBottom: '1rem' }}>
+                            {coupon ? (
+                                <div style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    background: '#dcfce7',
+                                    padding: '0.5rem',
+                                    borderRadius: 'var(--radius)',
+                                    border: '1px solid #86efac'
+                                }}>
+                                    <span style={{ color: '#166534', fontSize: '0.9rem' }}>
+                                        Cupom <b>{coupon.code}</b> aplicado!
+                                    </span>
+                                    <button
+                                        onClick={removeCoupon}
+                                        style={{
+                                            background: 'none',
+                                            border: 'none',
+                                            color: '#166534',
+                                            cursor: 'pointer',
+                                            fontSize: '1.2rem',
+                                            padding: '0 0.5rem'
+                                        }}
+                                    >
+                                        ×
+                                    </button>
+                                </div>
+                            ) : (
+                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                    <input
+                                        type="text"
+                                        placeholder="Código do cupom"
+                                        value={couponCode}
+                                        onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                                        style={{
+                                            flex: 1,
+                                            padding: '0.5rem',
+                                            borderRadius: 'var(--radius)',
+                                            border: '1px solid var(--border)',
+                                            fontSize: '0.9rem'
+                                        }}
+                                    />
+                                    <button
+                                        onClick={handleApplyCoupon}
+                                        disabled={validatingCoupon || !couponCode}
+                                        className="btn btn-outline"
+                                        style={{ padding: '0.5rem', fontSize: '0.9rem' }}
+                                    >
+                                        {validatingCoupon ? '...' : 'Aplicar'}
+                                    </button>
+                                </div>
+                            )}
+                            {couponError && (
+                                <p style={{ color: 'red', fontSize: '0.8rem', marginTop: '0.25rem' }}>
+                                    {couponError}
+                                </p>
+                            )}
+                        </div>
+
                         <button
                             onClick={handleCheckout}
                             className="btn btn-primary"

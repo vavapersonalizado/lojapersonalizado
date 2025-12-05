@@ -8,23 +8,33 @@ const CartContext = createContext();
 export function CartProvider({ children }) {
     const { data: session } = useSession();
     const [cart, setCart] = useState([]);
+    const [coupon, setCoupon] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // Load cart from localStorage on mount
+    // Load cart and coupon from localStorage on mount
     useEffect(() => {
         const savedCart = localStorage.getItem('cart');
+        const savedCoupon = localStorage.getItem('coupon');
         if (savedCart) {
             setCart(JSON.parse(savedCart));
+        }
+        if (savedCoupon) {
+            setCoupon(JSON.parse(savedCoupon));
         }
         setLoading(false);
     }, []);
 
-    // Save cart to localStorage whenever it changes
+    // Save cart and coupon to localStorage whenever they change
     useEffect(() => {
         if (!loading) {
             localStorage.setItem('cart', JSON.stringify(cart));
+            if (coupon) {
+                localStorage.setItem('coupon', JSON.stringify(coupon));
+            } else {
+                localStorage.removeItem('coupon');
+            }
         }
-    }, [cart, loading]);
+    }, [cart, coupon, loading]);
 
     const addToCart = (product, quantity = 1) => {
         setCart(prevCart => {
@@ -61,11 +71,46 @@ export function CartProvider({ children }) {
 
     const clearCart = () => {
         setCart([]);
+        setCoupon(null);
         localStorage.removeItem('cart');
+        localStorage.removeItem('coupon');
+    };
+
+    const applyCoupon = (couponData) => {
+        setCoupon(couponData);
+    };
+
+    const removeCoupon = () => {
+        setCoupon(null);
     };
 
     const getCartTotal = () => {
+        const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+
+        if (!coupon) return subtotal;
+
+        let discountAmount = 0;
+        if (coupon.type === 'percentage') {
+            discountAmount = (subtotal * coupon.discount) / 100;
+        } else {
+            discountAmount = coupon.discount;
+        }
+
+        return Math.max(0, subtotal - discountAmount);
+    };
+
+    const getSubtotal = () => {
         return cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+    };
+
+    const getDiscountAmount = () => {
+        if (!coupon) return 0;
+        const subtotal = getSubtotal();
+        if (coupon.type === 'percentage') {
+            return (subtotal * coupon.discount) / 100;
+        } else {
+            return coupon.discount;
+        }
     };
 
     const getCartCount = () => {
@@ -76,11 +121,16 @@ export function CartProvider({ children }) {
         <CartContext.Provider
             value={{
                 cart,
+                coupon,
                 addToCart,
                 removeFromCart,
                 updateQuantity,
                 clearCart,
+                applyCoupon,
+                removeCoupon,
                 getCartTotal,
+                getSubtotal,
+                getDiscountAmount,
                 getCartCount,
                 loading
             }}

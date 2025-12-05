@@ -240,6 +240,24 @@ export default function Sidebar() {
                                 >
                                     🖼️ Galeria
                                 </Link>
+
+                                <Link
+                                    href="/admin/coupons"
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0.5rem',
+                                        padding: '0.5rem',
+                                        borderRadius: 'var(--radius)',
+                                        background: pathname === '/admin/coupons' ? 'var(--primary)' : 'transparent',
+                                        color: pathname === '/admin/coupons' ? 'var(--primary-foreground)' : 'inherit',
+                                        textDecoration: 'none',
+                                        fontSize: '0.9rem',
+                                        marginBottom: '0.5rem'
+                                    }}
+                                >
+                                    🎟️ Cupons
+                                </Link>
                             </>
                         )}
                     </>

@@ -1,21 +1,20 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
-export async function GET(request) {
-    const { searchParams } = new URL(request.url);
-    const code = searchParams.get('code');
-
-    if (!code) {
-        return NextResponse.json({ error: "Coupon code is required" }, { status: 400 });
-    }
-
+export async function POST(request) {
     try {
+        const { code } = await request.json();
+
+        if (!code) {
+            return NextResponse.json({ error: "Code is required" }, { status: 400 });
+        }
+
         const coupon = await prisma.coupon.findUnique({
-            where: { code: code.toUpperCase() }
+            where: { code }
         });
 
         if (!coupon) {
-            return NextResponse.json({ error: "Cupom não encontrado" }, { status: 404 });
+            return NextResponse.json({ error: "Cupom inválido" }, { status: 404 });
         }
 
         if (!coupon.isActive) {
@@ -27,18 +26,19 @@ export async function GET(request) {
         }
 
         if (coupon.maxUses && coupon.usedCount >= coupon.maxUses) {
-            return NextResponse.json({ error: "Cupom esgotado" }, { status: 400 });
+            return NextResponse.json({ error: "Limite de uso do cupom atingido" }, { status: 400 });
         }
 
         return NextResponse.json({
-            code: coupon.code,
-            discount: coupon.discount,
-            type: coupon.type,
-            cumulative: coupon.cumulative,
-            productId: coupon.productId
+            valid: true,
+            coupon: {
+                code: coupon.code,
+                discount: coupon.discount,
+                type: coupon.type
+            }
         });
     } catch (error) {
         console.error("Error validating coupon:", error);
-        return NextResponse.json({ error: "Erro ao validar cupom" }, { status: 500 });
+        return NextResponse.json({ error: "Error validating coupon" }, { status: 500 });
     }
 }

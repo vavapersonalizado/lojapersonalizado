@@ -61,8 +61,9 @@ export default function UsersPage() {
             notes: user.notes || '',
             role: user.role || 'client',
             classification: user.classification || '',
-            discountEligible: user.discountEligible || false,
-            discountPercentage: user.discountPercentage || 0
+            deserveDiscount: user.deserveDiscount || false,
+            discountType: user.discountType || 'percentage',
+            discountValue: user.discountValue || 0
         });
         setShowModal(true);
     };
@@ -76,8 +77,9 @@ export default function UsersPage() {
             notes: '',
             role: 'client',
             classification: '',
-            discountEligible: false,
-            discountPercentage: 0
+            deserveDiscount: false,
+            discountType: 'percentage',
+            discountValue: 0
         });
         setShowModal(true);
     };
@@ -90,7 +92,7 @@ export default function UsersPage() {
         try {
             const url = editingUser
                 ? `/api/users/${editingUser.id}`
-                : '/api/users/register';
+                : '/api/users/register'; // Note: Register might need updates too if it handles these fields, but usually register is basic. PUT handles updates.
 
             const method = editingUser ? 'PUT' : 'POST';
 
@@ -185,9 +187,11 @@ export default function UsersPage() {
                                     ) : '-'}
                                 </td>
                                 <td style={{ padding: '1rem' }}>
-                                    {user.discountEligible ? (
+                                    {user.deserveDiscount ? (
                                         <span style={{ color: 'green', fontWeight: 'bold' }}>
-                                            {user.discountPercentage}%
+                                            {user.discountType === 'fixed' ? '¥' : ''}
+                                            {user.discountValue}
+                                            {user.discountType === 'percentage' ? '%' : ''}
                                         </span>
                                     ) : '-'}
                                 </td>
@@ -322,6 +326,10 @@ export default function UsersPage() {
                                         <option value="Family">Família</option>
                                         <option value="Friend">Amigo</option>
                                         <option value="Partner">Parceiro</option>
+                                        <option value="Loyal">Fiel</option>
+                                        <option value="Good">Bom</option>
+                                        <option value="Medium">Médio</option>
+                                        <option value="Bad">Ruim</option>
                                     </select>
                                 </div>
 
@@ -329,23 +337,36 @@ export default function UsersPage() {
                                     <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', fontWeight: '500' }}>
                                         <input
                                             type="checkbox"
-                                            checked={formData.discountEligible}
-                                            onChange={(e) => setFormData({ ...formData, discountEligible: e.target.checked })}
+                                            checked={formData.deserveDiscount}
+                                            onChange={(e) => setFormData({ ...formData, deserveDiscount: e.target.checked })}
                                         />
-                                        Elegível para Desconto Automático
+                                        Elegível para Desconto
                                     </label>
 
-                                    {formData.discountEligible && (
-                                        <div>
-                                            <label style={{ fontSize: '0.9rem', display: 'block', marginBottom: '0.25rem' }}>Porcentagem (%)</label>
-                                            <input
-                                                type="number"
-                                                min="0"
-                                                max="100"
-                                                value={formData.discountPercentage}
-                                                onChange={(e) => setFormData({ ...formData, discountPercentage: e.target.value })}
-                                                style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
-                                            />
+                                    {formData.deserveDiscount && (
+                                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                            <div style={{ flex: 1 }}>
+                                                <label style={{ fontSize: '0.8rem', display: 'block', marginBottom: '0.25rem' }}>Tipo</label>
+                                                <select
+                                                    value={formData.discountType}
+                                                    onChange={(e) => setFormData({ ...formData, discountType: e.target.value })}
+                                                    style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
+                                                >
+                                                    <option value="percentage">Porcentagem (%)</option>
+                                                    <option value="fixed">Valor Fixo (¥)</option>
+                                                </select>
+                                            </div>
+                                            <div style={{ flex: 1 }}>
+                                                <label style={{ fontSize: '0.8rem', display: 'block', marginBottom: '0.25rem' }}>Valor</label>
+                                                <input
+                                                    type="number"
+                                                    min="0"
+                                                    step={formData.discountType === 'percentage' ? '1' : '0.01'}
+                                                    value={formData.discountValue}
+                                                    onChange={(e) => setFormData({ ...formData, discountValue: e.target.value })}
+                                                    style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
+                                                />
+                                            </div>
                                         </div>
                                     )}
                                 </div>

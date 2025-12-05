@@ -24,13 +24,9 @@ export async function GET() {
                 phone: true,
                 notes: true,
                 classification: true,
-                discountEligible: true,
-                discountPercentage: true,
-                createdAt: true, // Assuming createdAt exists, if not I might need to check schema. User model usually doesn't have createdAt by default in some setups unless added. Let's check schema first or just omit it for now to be safe, or add it.
-                // Checking schema from previous turns... User model in schema.prisma:
-                // model User { id, name, email, emailVerified, image, role, accounts, sessions, orders }
-                // It does NOT have createdAt. I should probably add it or just not select it.
-                // I will NOT select createdAt for now to avoid errors.
+                deserveDiscount: true,
+                discountType: true,
+                discountValue: true,
             }
         });
 
@@ -38,5 +34,39 @@ export async function GET() {
     } catch (error) {
         console.error("Error fetching users:", error);
         return NextResponse.json({ error: "Error fetching users" }, { status: 500 });
+    }
+}
+
+export async function PUT(request) {
+    const session = await getServerSession(authOptions);
+
+    if (!session || session.user.role !== 'admin') {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    try {
+        const data = await request.json();
+        const { id, classification, deserveDiscount, discountType, discountValue, notes, phone } = data;
+
+        if (!id) {
+            return NextResponse.json({ error: "User ID is required" }, { status: 400 });
+        }
+
+        const updatedUser = await prisma.user.update({
+            where: { id },
+            data: {
+                classification,
+                deserveDiscount,
+                discountType,
+                discountValue: discountValue ? parseFloat(discountValue) : 0,
+                notes,
+                phone
+            }
+        });
+
+        return NextResponse.json(updatedUser);
+    } catch (error) {
+        console.error("Error updating user:", error);
+        return NextResponse.json({ error: "Error updating user" }, { status: 500 });
     }
 }
