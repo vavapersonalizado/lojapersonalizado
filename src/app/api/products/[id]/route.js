@@ -6,6 +6,7 @@ import prisma from '@/lib/prisma';
 export async function GET(request, { params }) {
     try {
         const { id } = params;
+        console.log('Fetching product with ID:', id);
 
         const product = await prisma.product.findUnique({
             where: { id },
@@ -14,6 +15,8 @@ export async function GET(request, { params }) {
             }
         });
 
+        console.log('Product found:', product ? 'Yes' : 'No');
+
         if (!product) {
             return NextResponse.json({ error: "Product not found" }, { status: 404 });
         }
@@ -21,7 +24,11 @@ export async function GET(request, { params }) {
         return NextResponse.json(product);
     } catch (error) {
         console.error("Error fetching product:", error);
-        return NextResponse.json({ error: "Error fetching product" }, { status: 500 });
+        console.error("Error details:", error.message, error.stack);
+        return NextResponse.json({
+            error: "Error fetching product",
+            details: error.message
+        }, { status: 500 });
     }
 }
 
