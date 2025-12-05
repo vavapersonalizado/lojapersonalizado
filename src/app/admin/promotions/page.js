@@ -18,7 +18,7 @@ export default function AdminPromotions() {
         try {
             const res = await fetch('/api/promotions?admin=true');
             const data = await res.json();
-            setPromotions(data);
+            setPromotions(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error('Error fetching promotions:', error);
         } finally {
