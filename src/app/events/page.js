@@ -3,12 +3,14 @@
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { isVideo } from "@/lib/mediaUtils";
 
 export default function EventsPage() {
     const { data: session } = useSession();
     const isAdmin = session?.user?.role === 'admin';
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [selectedMedia, setSelectedMedia] = useState(null);
 
     useEffect(() => {
         const fetchEvents = async () => {
@@ -25,6 +27,14 @@ export default function EventsPage() {
 
         fetchEvents();
     }, []);
+
+    const openModal = (mediaUrl) => {
+        setSelectedMedia(mediaUrl);
+    };
+
+    const closeModal = () => {
+        setSelectedMedia(null);
+    };
 
     return (
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
@@ -68,25 +78,105 @@ export default function EventsPage() {
                                 {event.images && event.images.length > 0 && (
                                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '0.5rem' }}>
                                         {event.images.map((img, idx) => (
-                                            <img
+                                            <div
                                                 key={idx}
-                                                src={img}
-                                                alt={`${event.title} - ${idx + 1}`}
-                                                style={{
-                                                    width: '100%',
-                                                    height: '150px',
-                                                    objectFit: 'cover',
-                                                    borderRadius: 'var(--radius)',
-                                                    cursor: 'pointer'
-                                                }}
-                                                onClick={() => window.open(img, '_blank')}
-                                            />
+                                                style={{ position: 'relative', cursor: 'pointer', height: '150px', borderRadius: 'var(--radius)', overflow: 'hidden' }}
+                                                onClick={() => openModal(img)}
+                                            >
+                                                {isVideo(img) ? (
+                                                    <>
+                                                        <video
+                                                            src={img}
+                                                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                                            muted
+                                                        />
+                                                        <div style={{
+                                                            position: 'absolute',
+                                                            top: '50%',
+                                                            left: '50%',
+                                                            transform: 'translate(-50%, -50%)',
+                                                            background: 'rgba(0,0,0,0.5)',
+                                                            borderRadius: '50%',
+                                                            width: '40px',
+                                                            height: '40px',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            color: 'white',
+                                                            fontSize: '1.5rem'
+                                                        }}>
+                                                            ▶
+                                                        </div>
+                                                    </>
+                                                ) : (
+                                                    <img
+                                                        src={img}
+                                                        alt={`${event.title} - ${idx + 1}`}
+                                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                                    />
+                                                )}
+                                            </div>
                                         ))}
                                     </div>
                                 )}
                             </div>
                         </div>
                     ))}
+                </div>
+            )}
+
+            {/* Media Modal */}
+            {selectedMedia && (
+                <div
+                    style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        background: 'rgba(0,0,0,0.8)',
+                        zIndex: 1000,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '2rem'
+                    }}
+                    onClick={closeModal}
+                >
+                    <div
+                        style={{ position: 'relative', maxWidth: '90%', maxHeight: '90%' }}
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <button
+                            onClick={closeModal}
+                            style={{
+                                position: 'absolute',
+                                top: -40,
+                                right: 0,
+                                background: 'none',
+                                border: 'none',
+                                color: 'white',
+                                fontSize: '2rem',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            &times;
+                        </button>
+                        {isVideo(selectedMedia) ? (
+                            <video
+                                src={selectedMedia}
+                                controls
+                                autoPlay
+                                style={{ maxWidth: '100%', maxHeight: '80vh', borderRadius: 'var(--radius)' }}
+                            />
+                        ) : (
+                            <img
+                                src={selectedMedia}
+                                alt="Full view"
+                                style={{ maxWidth: '100%', maxHeight: '80vh', borderRadius: 'var(--radius)' }}
+                            />
+                        )}
+                    </div>
                 </div>
             )}
         </div>

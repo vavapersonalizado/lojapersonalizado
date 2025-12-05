@@ -3,15 +3,12 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import ImageUpload from '@/components/ImageUpload';
+import { isVideo } from '@/lib/mediaUtils';
 
 export default function AdminEvents() {
     const { data: session } = useSession();
     const [events, setEvents] = useState([]);
     const [formData, setFormData] = useState({ title: '', date: '', description: '', images: [] });
-
-    useEffect(() => {
-        fetchEvents();
-    }, []);
 
     const fetchEvents = async () => {
         try {
@@ -22,6 +19,10 @@ export default function AdminEvents() {
             console.error('Error fetching events:', error);
         }
     };
+
+    useEffect(() => {
+        fetchEvents();
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -113,7 +114,15 @@ export default function AdminEvents() {
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.5rem' }}>
                             {formData.images.map((img, index) => (
                                 <div key={index} style={{ position: 'relative', width: '100px', height: '100px' }}>
-                                    <img src={img} alt={`Preview ${index}`} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'var(--radius)' }} />
+                                    {isVideo(img) ? (
+                                        <video
+                                            src={img}
+                                            style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'var(--radius)' }}
+                                            muted
+                                        />
+                                    ) : (
+                                        <img src={img} alt={`Preview ${index}`} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'var(--radius)' }} />
+                                    )}
                                     <button
                                         type="button"
                                         onClick={() => removeImage(index)}
@@ -131,7 +140,8 @@ export default function AdminEvents() {
                                             display: 'flex',
                                             alignItems: 'center',
                                             justifyContent: 'center',
-                                            fontSize: '12px'
+                                            fontSize: '12px',
+                                            zIndex: 10
                                         }}
                                     >
                                         X
