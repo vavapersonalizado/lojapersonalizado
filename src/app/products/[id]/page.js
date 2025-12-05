@@ -22,17 +22,20 @@ export default function ProductPage() {
     const [adding, setAdding] = useState(false);
 
     useEffect(() => {
+        console.log('Fetching product with ID:', id);
         fetch(`/api/products/${id}`)
             .then(res => {
+                console.log('Response status:', res.status);
                 if (!res.ok) throw new Error('Product not found');
                 return res.json();
             })
             .then(data => {
+                console.log('Product data:', data);
                 setProduct(data);
                 setLoading(false);
             })
             .catch(err => {
-                console.error(err);
+                console.error('Error loading product:', err);
                 setLoading(false);
             });
     }, [id]);
