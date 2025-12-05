@@ -3,11 +3,10 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import prisma from '@/lib/prisma';
 
-export async function GET(request, { params }) {
+export async function GET(request, context) {
     try {
-        const { id } = params;
+        const { id } = await context.params;
         console.log('Fetching product with ID:', id);
-        // Force redeploy to regenerate Prisma Client
 
         const product = await prisma.product.findUnique({
             where: { id },
