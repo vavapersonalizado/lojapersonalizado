@@ -23,8 +23,8 @@ export default function ImageUpload({ onUpload, currentImage }) {
             window.cloudinary.createMediaLibrary({
                 cloud_name: cloudName,
                 api_key: apiKey,
-                multiple: false, // Single selection for this component
-                max_files: 1,
+                multiple: true, // Enable multiple selection
+                max_files: 10,
                 insert_caption: 'Selecionar',
                 default_transformations: [
                     []
@@ -35,14 +35,15 @@ export default function ImageUpload({ onUpload, currentImage }) {
             }, {
                 insertHandler: (data) => {
                     if (data.assets && data.assets.length > 0) {
-                        const asset = data.assets[0];
-                        const isVideo = asset.resource_type === 'video';
-                        const is3D = asset.format === 'glb' || asset.format === 'gltf';
-                        let type = 'image';
-                        if (isVideo) type = 'video';
-                        if (is3D) type = '3d';
+                        data.assets.forEach(asset => {
+                            const isVideo = asset.resource_type === 'video';
+                            const is3D = asset.format === 'glb' || asset.format === 'gltf';
+                            let type = 'image';
+                            if (isVideo) type = 'video';
+                            if (is3D) type = '3d';
 
-                        onUpload(asset.secure_url, type);
+                            onUpload(asset.secure_url, type);
+                        });
                     }
                 }
             }).show();
@@ -70,7 +71,7 @@ export default function ImageUpload({ onUpload, currentImage }) {
                     sources: ['local', 'url', 'camera', 'google_drive', 'dropbox'],
                     showAdvancedOptions: true,
                     cropping: true,
-                    multiple: false,
+                    multiple: true,
                     defaultSource: "local",
                     maxFiles: 10,
                     resourceType: "auto",

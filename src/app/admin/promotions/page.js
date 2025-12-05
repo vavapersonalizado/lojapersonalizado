@@ -8,7 +8,7 @@ export default function AdminPromotions() {
     const { data: session } = useSession();
     const [promotions, setPromotions] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [formData, setFormData] = useState({ title: '', description: '', imageUrl: '', discount: '' });
+    const [formData, setFormData] = useState({ title: '', description: '', images: [], discount: '' });
 
     useEffect(() => {
         fetchPromotions();
@@ -35,7 +35,7 @@ export default function AdminPromotions() {
                 body: JSON.stringify(formData)
             });
             if (res.ok) {
-                setFormData({ title: '', description: '', imageUrl: '', discount: '' });
+                setFormData({ title: '', description: '', images: [], discount: '' });
                 fetchPromotions();
             }
         } catch (error) {
@@ -64,6 +64,20 @@ export default function AdminPromotions() {
         } catch (error) {
             console.error('Error toggling promotion:', error);
         }
+    };
+
+    const handleImageUpload = (url) => {
+        setFormData(prev => ({
+            ...prev,
+            images: [...prev.images, url]
+        }));
+    };
+
+    const removeImage = (indexToRemove) => {
+        setFormData(prev => ({
+            ...prev,
+            images: prev.images.filter((_, index) => index !== indexToRemove)
+        }));
     };
 
     if (session?.user?.role !== 'admin') return <p>Acesso negado</p>;
@@ -98,10 +112,38 @@ export default function AdminPromotions() {
                     />
 
                     <div>
-                        <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Imagem da Promoção</label>
+                        <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Imagens da Promoção</label>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                            {formData.images.map((img, index) => (
+                                <div key={index} style={{ position: 'relative', width: '100px', height: '100px' }}>
+                                    <img src={img} alt={`Preview ${index}`} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'var(--radius)' }} />
+                                    <button
+                                        type="button"
+                                        onClick={() => removeImage(index)}
+                                        style={{
+                                            position: 'absolute',
+                                            top: -5,
+                                            right: -5,
+                                            background: 'red',
+                                            color: 'white',
+                                            border: 'none',
+                                            borderRadius: '50%',
+                                            width: '20px',
+                                            height: '20px',
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            fontSize: '12px'
+                                        }}
+                                    >
+                                        X
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
                         <ImageUpload
-                            onUpload={(url) => setFormData({ ...formData, imageUrl: url })}
-                            currentImage={formData.imageUrl}
+                            onUpload={handleImageUpload}
                         />
                     </div>
 
@@ -113,7 +155,18 @@ export default function AdminPromotions() {
                 {promotions.map(promo => (
                     <div key={promo.id} className="card" style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                            {promo.imageUrl && (
+                            {promo.images && promo.images.length > 0 ? (
+                                <div style={{ display: 'flex', gap: '0.25rem' }}>
+                                    {promo.images.slice(0, 3).map((img, idx) => (
+                                        <img key={idx} src={img} alt={promo.title} style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: 'var(--radius)' }} />
+                                    ))}
+                                    {promo.images.length > 3 && (
+                                        <div style={{ width: '60px', height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--muted)', borderRadius: 'var(--radius)', fontSize: '0.8rem' }}>
+                                            +{promo.images.length - 3}
+                                        </div>
+                                    )}
+                                </div>
+                            ) : promo.imageUrl && (
                                 <img src={promo.imageUrl} alt={promo.title} style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: 'var(--radius)' }} />
                             )}
                             <div>
