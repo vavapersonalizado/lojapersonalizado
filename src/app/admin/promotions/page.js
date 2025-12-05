@@ -66,10 +66,11 @@ export default function AdminPromotions() {
         }
     };
 
-    const handleImageUpload = (url) => {
+    const handleImageUpload = (urlOrUrls) => {
+        const newUrls = Array.isArray(urlOrUrls) ? urlOrUrls : [urlOrUrls];
         setFormData(prev => ({
             ...prev,
-            images: [...prev.images, url]
+            images: [...prev.images, ...newUrls]
         }));
     };
 

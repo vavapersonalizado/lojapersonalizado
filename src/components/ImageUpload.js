@@ -25,6 +25,7 @@ export default function ImageUpload({ onUpload, currentImage }) {
                 api_key: apiKey,
                 multiple: true, // Enable multiple selection
                 max_files: 10,
+                maxFiles: 10,
                 insert_caption: 'Selecionar',
                 default_transformations: [
                     []
@@ -35,15 +36,8 @@ export default function ImageUpload({ onUpload, currentImage }) {
             }, {
                 insertHandler: (data) => {
                     if (data.assets && data.assets.length > 0) {
-                        data.assets.forEach(asset => {
-                            const isVideo = asset.resource_type === 'video';
-                            const is3D = asset.format === 'glb' || asset.format === 'gltf';
-                            let type = 'image';
-                            if (isVideo) type = 'video';
-                            if (is3D) type = '3d';
-
-                            onUpload(asset.secure_url, type);
-                        });
+                        const newImages = data.assets.map(asset => asset.secure_url);
+                        onUpload(newImages);
                     }
                 }
             }).show();
