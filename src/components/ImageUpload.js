@@ -24,6 +24,7 @@ export default function ImageUpload({ onUpload }) {
                 resourceType: "auto",
                 clientAllowedFormats: ["image", "video", "glb", "gltf"],
                 maxFileSize: 50000000, // 50MB
+                googleApiKey: null, // Disable Google AI moderation
                 styles: {
                     palette: {
                         window: "#FFFFFF",
