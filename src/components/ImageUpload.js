@@ -7,6 +7,7 @@ export default function ImageUpload({ onUpload }) {
         <CldUploadWidget
             uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET}
             onSuccess={(result) => {
+                // This is called for each individual file
                 if (result.info?.secure_url) {
                     const isVideo = result.info.resource_type === 'video';
                     const is3D = result.info.format === 'glb' || result.info.format === 'gltf';
@@ -16,6 +17,10 @@ export default function ImageUpload({ onUpload }) {
 
                     onUpload(result.info.secure_url, type);
                 }
+            }}
+            onQueuesEnd={(result, { widget }) => {
+                // This is called when ALL uploads are complete
+                console.log('All uploads completed!', result);
             }}
             options={{
                 sources: ['local', 'url', 'camera'],
