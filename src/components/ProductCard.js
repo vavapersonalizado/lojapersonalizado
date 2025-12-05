@@ -46,7 +46,7 @@ export default function ProductCard({ product, isClientMode }) {
         <div className="card" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
             <div style={{ position: 'relative' }}>
                 <div style={{
-                    height: '250px',
+                    height: '180px',
                     position: 'relative',
                     background: 'var(--muted)',
                     borderRadius: 'var(--radius) var(--radius) 0 0',
@@ -129,6 +129,22 @@ export default function ProductCard({ product, isClientMode }) {
                 <Link href={`/products/${product.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                     <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', fontWeight: '600' }}>{product.name}</h3>
                 </Link>
+
+                {product.description && (
+                    <p style={{
+                        fontSize: '0.875rem',
+                        color: 'var(--muted-foreground)',
+                        marginBottom: '0.75rem',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        lineHeight: '1.4'
+                    }}>
+                        {product.description}
+                    </p>
+                )}
 
                 <div style={{ marginTop: 'auto' }}>
                     <p style={{ color: 'var(--primary)', fontWeight: 'bold', fontSize: '1.2rem', marginBottom: '0.5rem' }}>
