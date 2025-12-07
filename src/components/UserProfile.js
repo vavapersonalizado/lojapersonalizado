@@ -2,6 +2,7 @@
 
 import { useSession, signOut } from "next-auth/react";
 import { useState, useRef, useEffect } from "react";
+import Link from "next/link";
 
 export default function UserProfile() {
     const { data: session } = useSession();
@@ -78,31 +79,55 @@ export default function UserProfile() {
                     borderRadius: 'var(--radius)',
                     boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
                     minWidth: '200px',
-                    zIndex: 50
+                    zIndex: 1000,
+                    padding: '0.5rem 0'
                 }}>
-                    <div style={{ padding: '0.75rem', borderBottom: '1px solid var(--border)' }}>
-                        <div style={{ fontSize: '0.875rem', fontWeight: '500' }}>
+                    <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid var(--border)' }}>
+                        <div style={{ fontSize: '0.875rem', fontWeight: '500', color: '#000' }}>
                             {session.user.name}
                         </div>
-                        <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)' }}>
+                        <div style={{ fontSize: '0.75rem', color: '#666' }}>
                             {session.user.email}
                         </div>
                     </div>
 
+                    <Link
+                        href="/profile"
+                        onClick={() => setIsOpen(false)}
+                        style={{
+                            display: 'block',
+                            padding: '0.75rem 1rem',
+                            color: '#000',
+                            textDecoration: 'none',
+                            transition: 'background 0.2s'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = 'var(--muted)'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                    >
+                        👤 Meu Perfil
+                    </Link>
+
+                    <div style={{
+                        height: '1px',
+                        background: 'var(--border)',
+                        margin: '0.5rem 0'
+                    }} />
+
                     <button
                         onClick={() => {
-                            signOut();
                             setIsOpen(false);
+                            signOut();
                         }}
                         style={{
                             width: '100%',
-                            padding: '0.75rem',
-                            textAlign: 'left',
+                            padding: '0.75rem 1rem',
                             border: 'none',
                             background: 'transparent',
+                            color: '#dc2626',
+                            textAlign: 'left',
                             cursor: 'pointer',
-                            fontSize: '0.875rem',
-                            transition: 'background 0.2s'
+                            transition: 'background 0.2s',
+                            fontSize: '0.875rem'
                         }}
                         onMouseEnter={(e) => e.currentTarget.style.background = 'var(--muted)'}
                         onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
