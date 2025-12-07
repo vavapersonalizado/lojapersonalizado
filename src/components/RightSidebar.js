@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { isVideo } from '@/lib/mediaUtils';
@@ -24,7 +24,11 @@ export default function RightSidebar() {
 
     const [selectedMedia, setSelectedMedia] = useState(null);
 
-    const fetchData = async () => {
+    // Internal Slideshow State (for cycling images within a single item)
+    const [activeImageIndex, setActiveImageIndex] = useState(0);
+    const internalIntervalRef = useRef(null);
+
+    const fetchData = useCallback(async () => {
         try {
             const [eventsRes, promoRes, adsRes] = await Promise.all([
                 fetch(`/api/events${isAdmin ? '?admin=true' : ''}`),
@@ -42,11 +46,11 @@ export default function RightSidebar() {
         } catch (error) {
             console.error('Error fetching sidebar data:', error);
         }
-    };
+    }, [isAdmin]);
 
     useEffect(() => {
         fetchData();
-    }, [isAdmin]);
+    }, [fetchData]);
 
     // Promotion Carousel Logic
     useEffect(() => {
@@ -71,6 +75,25 @@ export default function RightSidebar() {
             if (eventIntervalRef.current) clearInterval(eventIntervalRef.current);
         };
     }, [events.length, isEventHovered]);
+
+    // Internal Slideshow Logic (cycles images of the CURRENT item)
+    useEffect(() => {
+        internalIntervalRef.current = setInterval(() => {
+            setActiveImageIndex(prev => prev + 1);
+        }, 2000); // Cycle images every 2 seconds
+
+        return () => {
+            if (internalIntervalRef.current) clearInterval(internalIntervalRef.current);
+        };
+    }, []);
+
+    const getActiveMedia = (item) => {
+        if (!item) return null;
+        if (item.images && item.images.length > 0) {
+            return item.images[activeImageIndex % item.images.length];
+        }
+        return item.imageUrl || null;
+    };
 
     const toggleItem = async (type, id, currentStatus) => {
         if (!isAdmin) return;
@@ -149,35 +172,59 @@ export default function RightSidebar() {
                                 <>
                                     {promotions[currentPromoIndex].htmlContent ? (
                                         <div
-                                            style={{ marginBottom: '0.5rem', overflow: 'hidden', borderRadius: 'var(--radius)' }}
+                                            style={{ marginBottom: '0.5rem', overflow: 'hidden', borderRadius: 'var(--radius)', maxHeight: '150px' }}
                                             dangerouslySetInnerHTML={{ __html: promotions[currentPromoIndex].htmlContent }}
                                         />
                                     ) : (
-                                        getDisplayMedia(promotions[currentPromoIndex]) && (
+                                        getActiveMedia(promotions[currentPromoIndex]) && (
                                             <div
-                                                style={{ position: 'relative', height: '120px', marginBottom: '0.5rem', cursor: 'pointer' }}
-                                                onClick={() => openModal(getDisplayMedia(promotions[currentPromoIndex]))}
+                                                style={{ position: 'relative', height: '150px', marginBottom: '0.5rem', cursor: 'pointer' }}
+                                                onClick={() => openModal(getActiveMedia(promotions[currentPromoIndex]))}
                                             >
-                                                {isVideo(getDisplayMedia(promotions[currentPromoIndex])) ? (
+                                                {isVideo(getActiveMedia(promotions[currentPromoIndex])) ? (
                                                     <video
-                                                        src={getDisplayMedia(promotions[currentPromoIndex])}
+                                                        src={getActiveMedia(promotions[currentPromoIndex])}
                                                         style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'var(--radius)' }}
                                                         muted
+                                                        autoPlay
+                                                        loop
                                                     />
                                                 ) : (
                                                     <img
-                                                        src={getDisplayMedia(promotions[currentPromoIndex])}
+                                                        src={getActiveMedia(promotions[currentPromoIndex])}
                                                         alt={promotions[currentPromoIndex].title}
                                                         style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'var(--radius)' }}
                                                     />
                                                 )}
+                                                {promotions[currentPromoIndex].images && promotions[currentPromoIndex].images.length > 1 && (
+                                                    <div style={{
+                                                        position: 'absolute',
+                                                        bottom: '5px',
+                                                        right: '5px',
+                                                        background: 'rgba(0,0,0,0.6)',
+                                                        color: 'white',
+                                                        padding: '2px 6px',
+                                                        borderRadius: '10px',
+                                                        fontSize: '0.7rem'
+                                                    }}>
+                                                        {promotions[currentPromoIndex].images.length} fotos
+                                                    </div>
+                                                )}
                                             </div>
                                         )
                                     )}
-                                    <p style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>
+                                    <p style={{ fontWeight: 'bold', marginBottom: '0.25rem' }}>
                                         {promotions[currentPromoIndex].title}
                                     </p>
-                                    <p style={{ fontSize: '0.9rem', opacity: 0.9 }}>
+                                    <p style={{
+                                        fontSize: '0.9rem',
+                                        opacity: 0.9,
+                                        display: '-webkit-box',
+                                        WebkitLineClamp: 2,
+                                        WebkitBoxOrient: 'vertical',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis'
+                                    }}>
                                         {promotions[currentPromoIndex].description}
                                     </p>
                                     {promotions[currentPromoIndex].discount && (
@@ -273,27 +320,43 @@ export default function RightSidebar() {
                                             {/* Event Image/Video Preview or HTML Content */}
                                             {events[currentEventIndex].htmlContent ? (
                                                 <div
-                                                    style={{ marginBottom: '0.5rem', overflow: 'hidden', borderRadius: 'var(--radius)' }}
+                                                    style={{ marginBottom: '0.5rem', overflow: 'hidden', borderRadius: 'var(--radius)', maxHeight: '150px' }}
                                                     dangerouslySetInnerHTML={{ __html: events[currentEventIndex].htmlContent }}
                                                 />
                                             ) : (
-                                                getDisplayMedia(events[currentEventIndex]) && (
+                                                getActiveMedia(events[currentEventIndex]) && (
                                                     <div
-                                                        style={{ position: 'relative', height: '120px', borderRadius: 'var(--radius)', overflow: 'hidden', cursor: 'pointer' }}
-                                                        onClick={() => openModal(getDisplayMedia(events[currentEventIndex]))}
+                                                        style={{ position: 'relative', height: '150px', borderRadius: 'var(--radius)', overflow: 'hidden', cursor: 'pointer' }}
+                                                        onClick={() => openModal(getActiveMedia(events[currentEventIndex]))}
                                                     >
-                                                        {isVideo(getDisplayMedia(events[currentEventIndex])) ? (
+                                                        {isVideo(getActiveMedia(events[currentEventIndex])) ? (
                                                             <video
-                                                                src={getDisplayMedia(events[currentEventIndex])}
+                                                                src={getActiveMedia(events[currentEventIndex])}
                                                                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                                                 muted
+                                                                autoPlay
+                                                                loop
                                                             />
                                                         ) : (
                                                             <img
-                                                                src={getDisplayMedia(events[currentEventIndex])}
+                                                                src={getActiveMedia(events[currentEventIndex])}
                                                                 alt={events[currentEventIndex].title}
                                                                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                                             />
+                                                        )}
+                                                        {events[currentEventIndex].images && events[currentEventIndex].images.length > 1 && (
+                                                            <div style={{
+                                                                position: 'absolute',
+                                                                bottom: '5px',
+                                                                right: '5px',
+                                                                background: 'rgba(0,0,0,0.6)',
+                                                                color: 'white',
+                                                                padding: '2px 6px',
+                                                                borderRadius: '10px',
+                                                                fontSize: '0.7rem'
+                                                            }}>
+                                                                {events[currentEventIndex].images.length} fotos
+                                                            </div>
                                                         )}
                                                     </div>
                                                 )

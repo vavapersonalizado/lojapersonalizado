@@ -37,14 +37,15 @@ export default function EventsPage() {
     };
 
     return (
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+        <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem 1rem' }}>
             <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '2rem'
+                marginBottom: '3rem',
+                textAlign: 'center',
+                borderBottom: '1px solid var(--border)',
+                paddingBottom: '2rem'
             }}>
-                <h1 style={{ fontSize: '2rem', fontWeight: 'bold' }}>Eventos</h1>
+                <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>Blog de Eventos</h1>
+                <p style={{ color: 'var(--muted-foreground)' }}>Fique por dentro das nossas novidades e eventos.</p>
             </div>
 
             {loading ? (
@@ -64,69 +65,87 @@ export default function EventsPage() {
                     </p>
                 </div>
             ) : (
-                <div style={{ display: 'grid', gap: '1.5rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4rem' }}>
                     {events.map(event => (
-                        <div key={event.id} className="card" style={{ padding: '1.5rem' }}>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                                <div>
-                                    <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>{event.title}</h3>
-                                    <p style={{ color: 'var(--primary)', fontWeight: '500', marginBottom: '1rem' }}>
-                                        📅 {new Date(event.date).toLocaleDateString()}
-                                    </p>
-                                    <p style={{ color: 'var(--muted-foreground)' }}>{event.description}</p>
-                                    {event.htmlContent && (
-                                        <div
-                                            style={{ marginTop: '1rem', overflow: 'hidden' }}
-                                            dangerouslySetInnerHTML={{ __html: event.htmlContent }}
-                                        />
-                                    )}
-                                </div>
-                                {event.images && event.images.length > 0 && (
-                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '0.5rem' }}>
-                                        {event.images.map((img, idx) => (
-                                            <div
-                                                key={idx}
-                                                style={{ position: 'relative', cursor: 'pointer', height: '150px', borderRadius: 'var(--radius)', overflow: 'hidden' }}
-                                                onClick={() => openModal(img)}
-                                            >
-                                                {isVideo(img) ? (
-                                                    <>
-                                                        <video
-                                                            src={img}
-                                                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                                            muted
-                                                        />
-                                                        <div style={{
-                                                            position: 'absolute',
-                                                            top: '50%',
-                                                            left: '50%',
-                                                            transform: 'translate(-50%, -50%)',
-                                                            background: 'rgba(0,0,0,0.5)',
-                                                            borderRadius: '50%',
-                                                            width: '40px',
-                                                            height: '40px',
-                                                            display: 'flex',
-                                                            alignItems: 'center',
-                                                            justifyContent: 'center',
-                                                            color: 'white',
-                                                            fontSize: '1.5rem'
-                                                        }}>
-                                                            ▶
-                                                        </div>
-                                                    </>
-                                                ) : (
-                                                    <img
-                                                        src={img}
-                                                        alt={`${event.title} - ${idx + 1}`}
-                                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                                    />
-                                                )}
-                                            </div>
-                                        ))}
-                                    </div>
+                        <article key={event.id} className="card" style={{
+                            padding: '2rem',
+                            border: 'none',
+                            background: 'transparent',
+                            boxShadow: 'none',
+                            borderBottom: '1px solid var(--border)',
+                            borderRadius: 0
+                        }}>
+                            <header style={{ marginBottom: '1.5rem', textAlign: 'center' }}>
+                                <h2 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '0.5rem', color: 'var(--foreground)' }}>
+                                    {event.title}
+                                </h2>
+                                <p style={{ color: 'var(--primary)', fontWeight: '500', fontSize: '0.9rem' }}>
+                                    📅 {new Date(event.date).toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                                </p>
+                            </header>
+
+                            <div style={{ fontSize: '1.1rem', lineHeight: '1.8', color: 'var(--foreground)', marginBottom: '2rem' }}>
+                                <p style={{ marginBottom: '1rem' }}>{event.description}</p>
+                                {event.htmlContent && (
+                                    <div
+                                        style={{ marginTop: '1rem', overflow: 'hidden' }}
+                                        dangerouslySetInnerHTML={{ __html: event.htmlContent }}
+                                    />
                                 )}
                             </div>
-                        </div>
+
+                            {event.images && event.images.length > 0 && (
+                                <div style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                                    gap: '1rem',
+                                    marginTop: '2rem'
+                                }}>
+                                    {event.images.map((img, idx) => (
+                                        <div
+                                            key={idx}
+                                            style={{ position: 'relative', cursor: 'pointer', height: '200px', borderRadius: 'var(--radius)', overflow: 'hidden', boxShadow: 'var(--shadow)' }}
+                                            onClick={() => openModal(img)}
+                                        >
+                                            {isVideo(img) ? (
+                                                <>
+                                                    <video
+                                                        src={img}
+                                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                                        muted
+                                                    />
+                                                    <div style={{
+                                                        position: 'absolute',
+                                                        top: '50%',
+                                                        left: '50%',
+                                                        transform: 'translate(-50%, -50%)',
+                                                        background: 'rgba(0,0,0,0.5)',
+                                                        borderRadius: '50%',
+                                                        width: '50px',
+                                                        height: '50px',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        color: 'white',
+                                                        fontSize: '1.5rem'
+                                                    }}>
+                                                        ▶
+                                                    </div>
+                                                </>
+                                            ) : (
+                                                <img
+                                                    src={img}
+                                                    alt={`${event.title} - ${idx + 1}`}
+                                                    style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.3s ease' }}
+                                                    onMouseOver={e => e.currentTarget.style.transform = 'scale(1.05)'}
+                                                    onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
+                                                />
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </article>
                     ))}
                 </div>
             )}

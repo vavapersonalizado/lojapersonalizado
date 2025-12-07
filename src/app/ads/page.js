@@ -5,23 +5,23 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { isVideo } from "@/lib/mediaUtils";
 
-export default function PromotionsPage() {
+export default function AdsPage() {
     const { data: session } = useSession();
     const isAdmin = session?.user?.role === 'admin';
-    const [promotions, setPromotions] = useState([]);
+    const [ads, setAds] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedMedia, setSelectedMedia] = useState(null);
 
     useEffect(() => {
-        fetch('/api/promotions')
+        fetch('/api/ads')
             .then(res => res.json())
             .then(data => {
-                setPromotions(Array.isArray(data) ? data : []);
+                setAds(Array.isArray(data) ? data : []);
                 setLoading(false);
             })
             .catch(err => {
                 console.error(err);
-                setPromotions([]);
+                setAds([]);
                 setLoading(false);
             });
     }, []);
@@ -42,12 +42,12 @@ export default function PromotionsPage() {
                 borderBottom: '1px solid var(--border)',
                 paddingBottom: '2rem'
             }}>
-                <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>Blog de Promoções</h1>
-                <p style={{ color: 'var(--muted-foreground)' }}>Aproveite nossas ofertas exclusivas.</p>
+                <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>Blog de Anúncios</h1>
+                <p style={{ color: 'var(--muted-foreground)' }}>Confira nossos parceiros e novidades.</p>
                 {isAdmin && (
                     <div style={{ marginTop: '1rem' }}>
-                        <Link href="/admin/promotions" className="btn btn-primary">
-                            ⚙️ Gerenciar Promoções
+                        <Link href="/admin/ads" className="btn btn-primary">
+                            ⚙️ Gerenciar Anúncios
                         </Link>
                     </div>
                 )}
@@ -55,7 +55,7 @@ export default function PromotionsPage() {
 
             {loading ? (
                 <p>Carregando...</p>
-            ) : promotions.length === 0 ? (
+            ) : ads.length === 0 ? (
                 <div style={{
                     textAlign: 'center',
                     padding: '4rem 2rem',
@@ -64,13 +64,13 @@ export default function PromotionsPage() {
                     border: '1px solid var(--border)'
                 }}>
                     <p style={{ fontSize: '1.2rem', color: 'var(--muted-foreground)' }}>
-                        Nenhuma promoção ativa no momento.
+                        Nenhum anúncio ativo no momento.
                     </p>
                 </div>
             ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4rem' }}>
-                    {promotions.map(promo => (
-                        <article key={promo.id} className="card" style={{
+                    {ads.map(ad => (
+                        <article key={ad.id} className="card" style={{
                             padding: '2rem',
                             border: 'none',
                             background: 'transparent',
@@ -81,36 +81,21 @@ export default function PromotionsPage() {
                         }}>
                             <header style={{ marginBottom: '1.5rem', textAlign: 'center' }}>
                                 <h2 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '0.5rem', color: 'var(--foreground)' }}>
-                                    {promo.title}
+                                    {ad.title}
                                 </h2>
-                                {promo.discount > 0 && (
-                                    <span style={{
-                                        background: 'var(--primary)',
-                                        color: 'white',
-                                        padding: '0.25rem 0.75rem',
-                                        borderRadius: 'var(--radius)',
-                                        fontSize: '1rem',
-                                        fontWeight: 'bold',
-                                        display: 'inline-block',
-                                        marginTop: '0.5rem'
-                                    }}>
-                                        {promo.discount}% OFF
-                                    </span>
-                                )}
                             </header>
 
                             <div style={{ fontSize: '1.1rem', lineHeight: '1.8', color: 'var(--foreground)', marginBottom: '2rem' }}>
-                                <p style={{ marginBottom: '1rem' }}>{promo.description}</p>
-                                {promo.htmlContent && (
+                                {ad.htmlContent && (
                                     <div
                                         style={{ marginTop: '1rem', overflow: 'hidden' }}
-                                        dangerouslySetInnerHTML={{ __html: promo.htmlContent }}
+                                        dangerouslySetInnerHTML={{ __html: ad.htmlContent }}
                                     />
                                 )}
                             </div>
 
                             {/* Images Grid */}
-                            {(promo.images && promo.images.length > 0) || promo.imageUrl ? (
+                            {(ad.images && ad.images.length > 0) || ad.imageUrl ? (
                                 <div style={{
                                     display: 'grid',
                                     gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
@@ -118,8 +103,8 @@ export default function PromotionsPage() {
                                     marginTop: '2rem',
                                     marginBottom: '2rem'
                                 }}>
-                                    {promo.images && promo.images.length > 0 ? (
-                                        promo.images.map((img, idx) => (
+                                    {ad.images && ad.images.length > 0 ? (
+                                        ad.images.map((img, idx) => (
                                             <div
                                                 key={idx}
                                                 style={{ position: 'relative', cursor: 'pointer', height: '200px', borderRadius: 'var(--radius)', overflow: 'hidden', boxShadow: 'var(--shadow)' }}
@@ -153,7 +138,7 @@ export default function PromotionsPage() {
                                                 ) : (
                                                     <img
                                                         src={img}
-                                                        alt={`${promo.title} - ${idx + 1}`}
+                                                        alt={`${ad.title} - ${idx + 1}`}
                                                         style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.3s ease' }}
                                                         onMouseOver={e => e.currentTarget.style.transform = 'scale(1.05)'}
                                                         onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
@@ -161,14 +146,14 @@ export default function PromotionsPage() {
                                                 )}
                                             </div>
                                         ))
-                                    ) : promo.imageUrl && (
+                                    ) : ad.imageUrl && (
                                         <div
                                             style={{ position: 'relative', cursor: 'pointer', height: '300px', borderRadius: 'var(--radius)', overflow: 'hidden', boxShadow: 'var(--shadow)' }}
-                                            onClick={() => openModal(promo.imageUrl)}
+                                            onClick={() => openModal(ad.imageUrl)}
                                         >
                                             <img
-                                                src={promo.imageUrl}
-                                                alt={promo.title}
+                                                src={ad.imageUrl}
+                                                alt={ad.title}
                                                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                             />
                                         </div>
@@ -176,71 +161,78 @@ export default function PromotionsPage() {
                                 </div>
                             ) : null}
 
-                            <div style={{ textAlign: 'center' }}>
-                                <Link href="/products" className="btn btn-primary" style={{ padding: '0.75rem 2rem', fontSize: '1.1rem' }}>
-                                    Ver Produtos Relacionados
-                                </Link>
-                            </div>
+                            {ad.link && (
+                                <div style={{ textAlign: 'center' }}>
+                                    <a
+                                        href={ad.link}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="btn btn-primary"
+                                        style={{ padding: '0.75rem 2rem', fontSize: '1.1rem' }}
+                                    >
+                                        Visitar Site
+                                    </a>
+                                </div>
+                            )}
                         </article>
                     ))}
                 </div>
             )}
 
             {/* Media Modal */}
-            {
-                selectedMedia && (
+            {selectedMedia && (
+                <div
+                    style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        background: 'rgba(0,0,0,0.8)',
+                        zIndex: 1000,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '2rem'
+                    }}
+                    onClick={closeModal}
+                >
                     <div
-                        style={{
-                            position: 'fixed',
-                            top: 0,
-                            left: 0,
-                            width: '100%',
-                            height: '100%',
-                            background: 'rgba(0,0,0,0.8)',
-                            zIndex: 1000,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            padding: '2rem'
-                        }}
-                        onClick={closeModal}
+                        style={{ position: 'relative', maxWidth: '90%', maxHeight: '90%' }}
+                        onClick={e => e.stopPropagation()}
                     >
-                        <div
-                            style={{ position: 'relative', maxWidth: '90%', maxHeight: '90%' }}
-                            onClick={e => e.stopPropagation()}
+                        <button
+                            onClick={closeModal}
+                            style={{
+                                position: 'absolute',
+                                top: -40,
+                                right: 0,
+                                background: 'none',
+                                border: 'none',
+                                color: 'white',
+                                fontSize: '2rem',
+                                cursor: 'pointer'
+                            }}
                         >
-                            <button
-                                onClick={closeModal}
-                                style={{
-                                    position: 'absolute',
-                                    top: -40,
-                                    right: 0,
-                                    background: 'none',
-                                    border: 'none',
-                                    color: 'white',
-                                    fontSize: '2rem',
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                &times;
-                            </button>
-                            {isVideo(selectedMedia) ? (
-                                <video
-                                    src={selectedMedia}
-                                    controls
-                                    autoPlay
-                                    style={{ maxWidth: '100%', maxHeight: '80vh', borderRadius: 'var(--radius)' }}
-                                />
-                            ) : (
-                                <img
-                                    src={selectedMedia}
-                                    alt="Full view"
-                                    style={{ maxWidth: '100%', maxHeight: '80vh', borderRadius: 'var(--radius)' }}
-                                />
-                            )}
-                        </div>
+                            &times;
+                        </button>
+                        {isVideo(selectedMedia) ? (
+                            <video
+                                src={selectedMedia}
+                                controls
+                                autoPlay
+                                style={{ maxWidth: '100%', maxHeight: '80vh', borderRadius: 'var(--radius)' }}
+                            />
+                        ) : (
+                            <img
+                                src={selectedMedia}
+                                alt="Full view"
+                                style={{ maxWidth: '100%', maxHeight: '80vh', borderRadius: 'var(--radius)' }}
+                            />
+                        )}
                     </div>
-                )
-            }
-        </div >
+                </div>
+            )}
+        </div>
+    );
 }
