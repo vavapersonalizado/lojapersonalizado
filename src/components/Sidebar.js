@@ -120,9 +120,10 @@ export default function Sidebar() {
     return (
         <aside className="glass" style={{
             width: isCollapsed ? '80px' : '260px',
-            background: 'linear-gradient(135deg, var(--primary), var(--secondary))',
+            background: 'rgba(0, 0, 0, 0.1)',
+            backdropFilter: 'blur(10px)',
             color: 'white',
-            borderRight: '1px solid var(--border)',
+            borderRight: '1px solid rgba(255,255,255,0.1)',
             padding: '1rem 0.5rem',
             height: '100vh',
             position: 'sticky',

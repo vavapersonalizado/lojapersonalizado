@@ -39,7 +39,9 @@ export default function Home() {
             <section style={{
                 padding: '4rem 2rem',
                 textAlign: 'center',
-                background: 'linear-gradient(135deg, var(--primary), var(--secondary))',
+                background: 'rgba(255, 255, 255, 0.1)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
                 borderRadius: 'var(--radius)',
                 color: 'white',
                 boxShadow: 'var(--shadow-lg)',

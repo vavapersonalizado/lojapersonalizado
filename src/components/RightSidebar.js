@@ -152,12 +152,13 @@ export default function RightSidebar() {
                 position: 'sticky',
                 top: 0,
                 overflowY: 'auto',
-                borderLeft: '1px solid var(--border)',
+                borderLeft: '1px solid rgba(255,255,255,0.1)',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: '2rem',
                 transition: 'width 0.3s ease',
-                background: 'linear-gradient(135deg, var(--primary), var(--secondary))',
+                background: 'rgba(0, 0, 0, 0.1)',
+                backdropFilter: 'blur(10px)',
                 color: 'white'
             }}>
                 <div style={{ display: 'flex', justifyContent: isCollapsed ? 'center' : 'flex-start' }}>
