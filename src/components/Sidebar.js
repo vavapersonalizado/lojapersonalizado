@@ -167,8 +167,8 @@ export default function Sidebar() {
                     }}>
                         <div style={{
                             fontSize: '0.75rem',
-                            color: 'var(--primary)',
-                            background: 'rgba(124, 58, 237, 0.1)',
+                            color: 'black',
+                            background: 'rgba(255, 255, 255, 0.2)',
                             padding: '0.25rem 0.5rem',
                             borderRadius: 'var(--radius)',
                             whiteSpace: 'nowrap',
@@ -183,7 +183,7 @@ export default function Sidebar() {
                             gap: '0.5rem',
                             fontSize: '0.8rem',
                             cursor: 'pointer',
-                            color: 'var(--muted-foreground)',
+                            color: 'black',
                             justifyContent: isCollapsed ? 'center' : 'flex-start'
                         }}>
                             <input
@@ -318,7 +318,7 @@ export default function Sidebar() {
                                         <div key={subIndex} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                             <Link href={`/categories/${sub.slug}`} style={{
                                                 textDecoration: 'none',
-                                                color: 'var(--muted-foreground)',
+                                                color: 'rgba(255, 255, 255, 0.8)',
                                                 fontSize: '0.9rem',
                                                 flex: 1,
                                                 padding: '0.25rem 0',
@@ -338,7 +338,7 @@ export default function Sidebar() {
                                             )}
                                         </div>
                                     )) : (
-                                        <span style={{ color: 'var(--muted-foreground)', fontSize: '0.8rem', paddingLeft: '2rem' }}>Sem categorias</span>
+                                        <span style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '0.8rem', paddingLeft: '2rem' }}>Sem categorias</span>
                                     )}
                                 </div>
                             )}

@@ -41,23 +41,24 @@ export default function Header() {
     return (
         <header style={{
             padding: '1rem 2rem',
-            borderBottom: '1px solid var(--border)',
+            borderBottom: '1px solid rgba(255,255,255,0.1)',
             display: 'grid',
             gridTemplateColumns: '1fr auto 1fr',
             alignItems: 'center',
-            background: 'var(--background)',
+            background: 'linear-gradient(135deg, var(--primary), var(--secondary))',
+            color: 'white',
             position: 'sticky',
             top: 0,
             zIndex: 10
         }}>
             {/* Esquerda: Nome da Página */}
-            <div style={{ fontSize: '1.2rem', fontWeight: '500', color: 'var(--muted-foreground)' }}>
+            <div style={{ fontSize: '1.2rem', fontWeight: '500', color: 'rgba(255,255,255,0.9)' }}>
                 {getPageName(pathname)}
             </div>
 
             {/* Centro: Nome da Loja */}
-            <Link href="/" style={{ textDecoration: 'none', color: 'inherit', justifySelf: 'center', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                <img src="/logo.jpg" alt="Logo" style={{ height: '50px', width: 'auto', borderRadius: '50%', backgroundColor: 'black', padding: '4px' }} />
+            <Link href="/" style={{ textDecoration: 'none', color: 'white', justifySelf: 'center', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <img src="/logo.jpg" alt="Logo" style={{ height: '50px', width: 'auto', borderRadius: '50%', backgroundColor: 'white', padding: '2px' }} />
                 <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', cursor: 'pointer', textAlign: 'center' }}>
                     Vanessa Yachiro Personalizados
                 </h1>
@@ -72,15 +73,16 @@ export default function Header() {
                     style={{
                         padding: '0.5rem',
                         borderRadius: 'var(--radius)',
-                        border: '1px solid var(--border)',
-                        background: 'var(--background)',
+                        border: '1px solid rgba(255,255,255,0.2)',
+                        background: 'rgba(255,255,255,0.1)',
+                        color: 'white',
                         cursor: 'pointer',
                         fontSize: '0.9rem'
                     }}
                     title="Select Language"
                 >
                     {languages.map(lang => (
-                        <option key={lang.code} value={lang.code}>
+                        <option key={lang.code} value={lang.code} style={{ color: 'black' }}>
                             {lang.flag} {lang.name}
                         </option>
                     ))}
@@ -95,7 +97,8 @@ export default function Header() {
                         border: 'none',
                         cursor: 'pointer',
                         fontSize: '1.5rem',
-                        padding: '0.5rem'
+                        padding: '0.5rem',
+                        color: 'white'
                     }}
                     title="Carrinho"
                 >

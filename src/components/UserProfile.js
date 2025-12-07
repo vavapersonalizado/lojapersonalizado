@@ -36,9 +36,10 @@ export default function UserProfile() {
                     border: 'none',
                     background: 'transparent',
                     cursor: 'pointer',
-                    transition: 'background 0.2s'
+                    transition: 'background 0.2s',
+                    color: 'white'
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.background = 'var(--muted)'}
+                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
                 onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
             >
                 {session.user.image && (
@@ -49,7 +50,7 @@ export default function UserProfile() {
                             width: '32px',
                             height: '32px',
                             borderRadius: '50%',
-                            border: isAdmin ? '2px solid var(--primary)' : '2px solid var(--border)'
+                            border: isAdmin ? '2px solid var(--accent)' : '2px solid rgba(255,255,255,0.5)'
                         }}
                     />
                 )}
@@ -58,7 +59,7 @@ export default function UserProfile() {
                         {session.user.name}
                     </div>
                     {isAdmin && (
-                        <div style={{ fontSize: '0.75rem', color: 'var(--primary)' }}>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--accent)' }}>
                             Admin
                         </div>
                     )}
