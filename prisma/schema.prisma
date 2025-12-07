@@ -177,6 +177,7 @@ model Ad {
   imageUrl  String?
   images    String[] @default([])
   htmlContent String?  // For external banners/embeds
+  expiresAt   DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

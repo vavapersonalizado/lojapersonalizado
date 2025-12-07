@@ -11,6 +11,9 @@ export default function AdminEvents() {
     const [formData, setFormData] = useState({ id: null, title: '', date: '', description: '', images: [], htmlContent: '' });
     const [isEditing, setIsEditing] = useState(false);
 
+    const [sortBy, setSortBy] = useState('date'); // 'title', 'date', 'createdAt'
+    const [sortOrder, setSortOrder] = useState('asc'); // 'asc', 'desc'
+
     useEffect(() => {
         const fetchEvents = async () => {
             try {
@@ -24,6 +27,27 @@ export default function AdminEvents() {
         fetchEvents();
     }, []);
 
+    const sortData = (data) => {
+        return [...data].sort((a, b) => {
+            let valA = a[sortBy];
+            let valB = b[sortBy];
+
+            if (sortBy === 'date' || sortBy === 'createdAt') {
+                valA = new Date(valA).getTime();
+                valB = new Date(valB).getTime();
+            } else if (typeof valA === 'string') {
+                valA = valA.toLowerCase();
+                valB = valB.toLowerCase();
+            }
+
+            if (valA < valB) return sortOrder === 'asc' ? -1 : 1;
+            if (valA > valB) return sortOrder === 'asc' ? 1 : -1;
+            return 0;
+        });
+    };
+
+    const sortedEvents = sortData(events);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -36,7 +60,12 @@ export default function AdminEvents() {
             if (res.ok) {
                 setFormData({ id: null, title: '', date: '', description: '', images: [], htmlContent: '' });
                 setIsEditing(false);
-                fetchEvents();
+                // Re-fetch logic is inside useEffect, but we can trigger it or just update local state if we refactor.
+                // For simplicity, let's just reload page or re-fetch.
+                // Ideally we should extract fetchEvents to be reusable.
+                const fetchRes = await fetch('/api/events?admin=true');
+                const fetchData = await fetchRes.json();
+                setEvents(Array.isArray(fetchData) ? fetchData : []);
             }
         } catch (error) {
             console.error('Error saving event:', error);
@@ -65,7 +94,9 @@ export default function AdminEvents() {
         if (!confirm('Tem certeza?')) return;
         try {
             await fetch(`/api/events?id=${id}`, { method: 'DELETE' });
-            fetchEvents();
+            const fetchRes = await fetch('/api/events?admin=true');
+            const fetchData = await fetchRes.json();
+            setEvents(Array.isArray(fetchData) ? fetchData : []);
         } catch (error) {
             console.error('Error deleting event:', error);
         }
@@ -78,7 +109,9 @@ export default function AdminEvents() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id, active: !currentStatus })
             });
-            fetchEvents();
+            const fetchRes = await fetch('/api/events?admin=true');
+            const fetchData = await fetchRes.json();
+            setEvents(Array.isArray(fetchData) ? fetchData : []);
         } catch (error) {
             console.error('Error toggling event:', error);
         }
@@ -192,8 +225,29 @@ export default function AdminEvents() {
                 </form>
             </div>
 
+            <div style={{ marginBottom: '1rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                <label style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>Ordenar por:</label>
+                <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    style={{ padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
+                >
+                    <option value="date">Data do Evento</option>
+                    <option value="title">Título</option>
+                    <option value="createdAt">Data de Criação</option>
+                </select>
+                <select
+                    value={sortOrder}
+                    onChange={(e) => setSortOrder(e.target.value)}
+                    style={{ padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
+                >
+                    <option value="asc">Crescente (A-Z / Antigo-Novo)</option>
+                    <option value="desc">Decrescente (Z-A / Novo-Antigo)</option>
+                </select>
+            </div>
+
             <div style={{ display: 'grid', gap: '1rem' }}>
-                {events.map(event => (
+                {sortedEvents.map(event => (
                     <div key={event.id} className="card" style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                             {event.images && event.images.length > 0 && (

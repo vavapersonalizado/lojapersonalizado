@@ -7,8 +7,11 @@ import ImageUpload from '@/components/ImageUpload';
 export default function AdminAds() {
     const { data: session } = useSession();
     const [ads, setAds] = useState([]);
-    const [formData, setFormData] = useState({ id: null, title: '', images: [], link: '', htmlContent: '' });
+    const [formData, setFormData] = useState({ id: null, title: '', images: [], link: '', htmlContent: '', expiresAt: '' });
     const [isEditing, setIsEditing] = useState(false);
+
+    const [sortBy, setSortBy] = useState('createdAt'); // 'title', 'createdAt', 'expiresAt'
+    const [sortOrder, setSortOrder] = useState('desc'); // 'asc', 'desc'
 
     useEffect(() => {
         fetchAds();
@@ -21,10 +24,29 @@ export default function AdminAds() {
             setAds(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error('Error fetching ads:', error);
-        } finally {
-            setLoading(false);
         }
     };
+
+    const sortData = (data) => {
+        return [...data].sort((a, b) => {
+            let valA = a[sortBy];
+            let valB = b[sortBy];
+
+            if (sortBy === 'createdAt' || sortBy === 'expiresAt') {
+                valA = valA ? new Date(valA).getTime() : 0;
+                valB = valB ? new Date(valB).getTime() : 0;
+            } else if (typeof valA === 'string') {
+                valA = valA.toLowerCase();
+                valB = valB.toLowerCase();
+            }
+
+            if (valA < valB) return sortOrder === 'asc' ? -1 : 1;
+            if (valA > valB) return sortOrder === 'asc' ? 1 : -1;
+            return 0;
+        });
+    };
+
+    const sortedAds = sortData(ads);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -36,7 +58,7 @@ export default function AdminAds() {
                 body: JSON.stringify(formData)
             });
             if (res.ok) {
-                setFormData({ id: null, title: '', images: [], link: '', htmlContent: '' });
+                setFormData({ id: null, title: '', images: [], link: '', htmlContent: '', expiresAt: '' });
                 setIsEditing(false);
                 fetchAds();
             }
@@ -51,14 +73,15 @@ export default function AdminAds() {
             title: ad.title,
             images: ad.images || [],
             link: ad.link || '',
-            htmlContent: ad.htmlContent || ''
+            htmlContent: ad.htmlContent || '',
+            expiresAt: ad.expiresAt ? new Date(ad.expiresAt).toISOString().split('T')[0] : ''
         });
         setIsEditing(true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const cancelEdit = () => {
-        setFormData({ id: null, title: '', images: [], link: '', htmlContent: '' });
+        setFormData({ id: null, title: '', images: [], link: '', htmlContent: '', expiresAt: '' });
         setIsEditing(false);
     };
 
@@ -124,13 +147,24 @@ export default function AdminAds() {
                         style={{ padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
                         required
                     />
-                    <input
-                        type="text"
-                        placeholder="Link de Destino (Opcional)"
-                        value={formData.link}
-                        onChange={e => setFormData({ ...formData, link: e.target.value })}
-                        style={{ padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
-                    />
+                    <div style={{ display: 'flex', gap: '1rem' }}>
+                        <input
+                            type="text"
+                            placeholder="Link de Destino (Opcional)"
+                            value={formData.link}
+                            onChange={e => setFormData({ ...formData, link: e.target.value })}
+                            style={{ padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)', flex: 1 }}
+                        />
+                        <div style={{ flex: 1 }}>
+                            <label style={{ display: 'block', fontSize: '0.8rem', marginBottom: '0.2rem', color: 'var(--muted-foreground)' }}>Validade (Opcional)</label>
+                            <input
+                                type="date"
+                                value={formData.expiresAt}
+                                onChange={e => setFormData({ ...formData, expiresAt: e.target.value })}
+                                style={{ padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)', width: '100%' }}
+                            />
+                        </div>
+                    </div>
                     <textarea
                         placeholder="Código HTML para Banner (Embed/Iframe)"
                         value={formData.htmlContent}
@@ -180,8 +214,28 @@ export default function AdminAds() {
                 </form>
             </div>
 
+            <div style={{ marginBottom: '1rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                <label style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>Ordenar por:</label>
+                <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    style={{ padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
+                >
+                    <option value="createdAt">Data de Criação</option>
+                    <option value="title">Título</option>
+                </select>
+                <select
+                    value={sortOrder}
+                    onChange={(e) => setSortOrder(e.target.value)}
+                    style={{ padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
+                >
+                    <option value="asc">Crescente (A-Z / Antigo-Novo)</option>
+                    <option value="desc">Decrescente (Z-A / Novo-Antigo)</option>
+                </select>
+            </div>
+
             <div style={{ display: 'grid', gap: '1rem' }}>
-                {ads.map(ad => (
+                {sortedAds.map(ad => (
                     <div key={ad.id} className="card" style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                             {ad.images && ad.images.length > 0 && (

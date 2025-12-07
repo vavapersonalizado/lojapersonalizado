@@ -7,12 +7,11 @@ import ImageUpload from '@/components/ImageUpload';
 export default function AdminPromotions() {
     const { data: session } = useSession();
     const [promotions, setPromotions] = useState([]);
-    const [formData, setFormData] = useState({ id: null, title: '', description: '', images: [], discount: '', htmlContent: '' });
+    const [formData, setFormData] = useState({ id: null, title: '', description: '', images: [], discount: '', htmlContent: '', expiresAt: '' });
     const [isEditing, setIsEditing] = useState(false);
 
-    useEffect(() => {
-        fetchPromotions();
-    }, []);
+    const [sortBy, setSortBy] = useState('createdAt'); // 'title', 'discount', 'createdAt'
+    const [sortOrder, setSortOrder] = useState('desc'); // 'asc', 'desc'
 
     const fetchPromotions = async () => {
         try {
@@ -21,10 +20,36 @@ export default function AdminPromotions() {
             setPromotions(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error('Error fetching promotions:', error);
-        } finally {
-            setLoading(false);
         }
     };
+
+    useEffect(() => {
+        fetchPromotions();
+    }, []);
+
+    const sortData = (data) => {
+        return [...data].sort((a, b) => {
+            let valA = a[sortBy];
+            let valB = b[sortBy];
+
+            if (sortBy === 'createdAt' || sortBy === 'expiresAt') {
+                valA = valA ? new Date(valA).getTime() : 0;
+                valB = valB ? new Date(valB).getTime() : 0;
+            } else if (sortBy === 'discount') {
+                valA = parseFloat(valA) || 0;
+                valB = parseFloat(valB) || 0;
+            } else if (typeof valA === 'string') {
+                valA = valA.toLowerCase();
+                valB = valB.toLowerCase();
+            }
+
+            if (valA < valB) return sortOrder === 'asc' ? -1 : 1;
+            if (valA > valB) return sortOrder === 'asc' ? 1 : -1;
+            return 0;
+        });
+    };
+
+    const sortedPromotions = sortData(promotions);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -36,7 +61,7 @@ export default function AdminPromotions() {
                 body: JSON.stringify(formData)
             });
             if (res.ok) {
-                setFormData({ id: null, title: '', description: '', images: [], discount: '', htmlContent: '' });
+                setFormData({ id: null, title: '', description: '', images: [], discount: '', htmlContent: '', expiresAt: '' });
                 setIsEditing(false);
                 fetchPromotions();
             }
@@ -52,14 +77,15 @@ export default function AdminPromotions() {
             description: promo.description || '',
             images: promo.images || [],
             discount: promo.discount || '',
-            htmlContent: promo.htmlContent || ''
+            htmlContent: promo.htmlContent || '',
+            expiresAt: promo.expiresAt ? new Date(promo.expiresAt).toISOString().split('T')[0] : ''
         });
         setIsEditing(true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const cancelEdit = () => {
-        setFormData({ id: null, title: '', description: '', images: [], discount: '', htmlContent: '' });
+        setFormData({ id: null, title: '', description: '', images: [], discount: '', htmlContent: '', expiresAt: '' });
         setIsEditing(false);
     };
 
@@ -131,13 +157,24 @@ export default function AdminPromotions() {
                         onChange={e => setFormData({ ...formData, description: e.target.value })}
                         style={{ padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
                     />
-                    <input
-                        type="number"
-                        placeholder="Desconto (%)"
-                        value={formData.discount}
-                        onChange={e => setFormData({ ...formData, discount: e.target.value })}
-                        style={{ padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
-                    />
+                    <div style={{ display: 'flex', gap: '1rem' }}>
+                        <input
+                            type="number"
+                            placeholder="Desconto (%)"
+                            value={formData.discount}
+                            onChange={e => setFormData({ ...formData, discount: e.target.value })}
+                            style={{ padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)', flex: 1 }}
+                        />
+                        <div style={{ flex: 1 }}>
+                            <label style={{ display: 'block', fontSize: '0.8rem', marginBottom: '0.2rem', color: 'var(--muted-foreground)' }}>Validade (Opcional)</label>
+                            <input
+                                type="date"
+                                value={formData.expiresAt}
+                                onChange={e => setFormData({ ...formData, expiresAt: e.target.value })}
+                                style={{ padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)', width: '100%' }}
+                            />
+                        </div>
+                    </div>
                     <textarea
                         placeholder="Código HTML para Banner (Embed/Iframe)"
                         value={formData.htmlContent}
@@ -187,8 +224,29 @@ export default function AdminPromotions() {
                 </form>
             </div>
 
+            <div style={{ marginBottom: '1rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                <label style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>Ordenar por:</label>
+                <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    style={{ padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
+                >
+                    <option value="createdAt">Data de Criação</option>
+                    <option value="title">Título</option>
+                    <option value="discount">Desconto</option>
+                </select>
+                <select
+                    value={sortOrder}
+                    onChange={(e) => setSortOrder(e.target.value)}
+                    style={{ padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
+                >
+                    <option value="asc">Crescente (A-Z / Antigo-Novo)</option>
+                    <option value="desc">Decrescente (Z-A / Novo-Antigo)</option>
+                </select>
+            </div>
+
             <div style={{ display: 'grid', gap: '1rem' }}>
-                {promotions.map(promo => (
+                {sortedPromotions.map(promo => (
                     <div key={promo.id} className="card" style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                             {promo.images && promo.images.length > 0 ? (

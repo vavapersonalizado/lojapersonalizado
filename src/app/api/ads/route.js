@@ -29,7 +29,7 @@ export async function POST(request) {
 
     try {
         const body = await request.json();
-        const { title, images, link, htmlContent } = body;
+        const { title, images, link, htmlContent, active, expiresAt } = body;
 
         const ad = await prisma.ad.create({
             data: {
@@ -37,7 +37,8 @@ export async function POST(request) {
                 images: images || [],
                 link,
                 htmlContent,
-                active: true
+                active: active !== undefined ? active : true,
+                expiresAt: expiresAt ? new Date(expiresAt) : null
             }
         });
 
@@ -72,7 +73,7 @@ export async function PATCH(request) {
 
     try {
         const body = await request.json();
-        const { id, active, title, images, link, htmlContent } = body;
+        const { id, active, title, images, link, htmlContent, expiresAt } = body;
 
         const updateData = {};
         if (active !== undefined) updateData.active = active;
@@ -80,6 +81,7 @@ export async function PATCH(request) {
         if (images !== undefined) updateData.images = images;
         if (link !== undefined) updateData.link = link;
         if (htmlContent !== undefined) updateData.htmlContent = htmlContent;
+        if (expiresAt !== undefined) updateData.expiresAt = expiresAt ? new Date(expiresAt) : null;
 
         const ad = await prisma.ad.update({
             where: { id },

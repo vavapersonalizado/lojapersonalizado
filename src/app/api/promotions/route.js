@@ -30,16 +30,18 @@ export async function POST(request) {
 
     try {
         const body = await request.json();
-        const { title, description, imageUrl, discount, htmlContent } = body;
+        const { title, description, imageUrl, discount, htmlContent, active, images, expiresAt } = body;
 
         const promotion = await prisma.promotion.create({
             data: {
                 title,
                 description,
-                imageUrl,
+                imageUrl, // Legacy support if needed, or remove if fully migrated to images array
+                images: images || [],
                 discount: parseFloat(discount),
                 htmlContent,
-                active: true
+                active: active !== undefined ? active : true,
+                expiresAt: expiresAt ? new Date(expiresAt) : null
             }
         });
 
@@ -76,15 +78,17 @@ export async function PATCH(request) {
 
     try {
         const body = await request.json();
-        const { id, active, title, description, imageUrl, discount, htmlContent } = body;
+        const { id, active, title, description, imageUrl, discount, htmlContent, images, expiresAt } = body;
 
         const updateData = {};
         if (active !== undefined) updateData.active = active;
         if (title !== undefined) updateData.title = title;
         if (description !== undefined) updateData.description = description;
         if (imageUrl !== undefined) updateData.imageUrl = imageUrl;
+        if (images !== undefined) updateData.images = images;
         if (discount !== undefined) updateData.discount = parseFloat(discount);
         if (htmlContent !== undefined) updateData.htmlContent = htmlContent;
+        if (expiresAt !== undefined) updateData.expiresAt = expiresAt ? new Date(expiresAt) : null;
 
         const promotion = await prisma.promotion.update({
             where: { id },

@@ -160,8 +160,8 @@ export default function RightSidebar() {
                         </h3>
 
                         <div style={{
-                            background: 'linear-gradient(135deg, var(--secondary), #ec4899)',
-                            color: 'white',
+                            background: 'var(--card)',
+                            border: '1px solid var(--border)',
                             padding: '1rem',
                             borderRadius: 'var(--radius)',
                             boxShadow: 'var(--shadow)',
@@ -172,19 +172,19 @@ export default function RightSidebar() {
                                 <>
                                     {promotions[currentPromoIndex].htmlContent ? (
                                         <div
-                                            style={{ marginBottom: '0.5rem', overflow: 'hidden', borderRadius: 'var(--radius)', maxHeight: '150px' }}
+                                            style={{ marginBottom: '0.5rem', overflow: 'hidden', borderRadius: 'var(--radius)' }}
                                             dangerouslySetInnerHTML={{ __html: promotions[currentPromoIndex].htmlContent }}
                                         />
                                     ) : (
                                         getActiveMedia(promotions[currentPromoIndex]) && (
                                             <div
-                                                style={{ position: 'relative', height: '150px', marginBottom: '0.5rem', cursor: 'pointer' }}
+                                                style={{ position: 'relative', marginBottom: '0.5rem', cursor: 'pointer' }}
                                                 onClick={() => openModal(getActiveMedia(promotions[currentPromoIndex]))}
                                             >
                                                 {isVideo(getActiveMedia(promotions[currentPromoIndex])) ? (
                                                     <video
                                                         src={getActiveMedia(promotions[currentPromoIndex])}
-                                                        style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'var(--radius)' }}
+                                                        style={{ width: '100%', borderRadius: 'var(--radius)' }}
                                                         muted
                                                         autoPlay
                                                         loop
@@ -193,7 +193,7 @@ export default function RightSidebar() {
                                                     <img
                                                         src={getActiveMedia(promotions[currentPromoIndex])}
                                                         alt={promotions[currentPromoIndex].title}
-                                                        style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'var(--radius)' }}
+                                                        style={{ width: '100%', height: 'auto', borderRadius: 'var(--radius)' }}
                                                     />
                                                 )}
                                                 {promotions[currentPromoIndex].images && promotions[currentPromoIndex].images.length > 1 && (
@@ -232,7 +232,8 @@ export default function RightSidebar() {
                                             marginTop: '0.5rem',
                                             fontWeight: 'bold',
                                             fontSize: '1.2rem',
-                                            background: 'rgba(255,255,255,0.2)',
+                                            background: 'var(--primary)',
+                                            color: 'white',
                                             padding: '0.25rem 0.5rem',
                                             borderRadius: 'var(--radius)',
                                             display: 'inline-block'
@@ -242,7 +243,7 @@ export default function RightSidebar() {
                                     )}
 
                                     {isAdmin && (
-                                        <div style={{ marginTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.3)', paddingTop: '0.5rem' }}>
+                                        <div style={{ marginTop: '1rem', borderTop: '1px solid var(--border)', paddingTop: '0.5rem' }}>
                                             <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.8rem' }}>
                                                 <input
                                                     type="checkbox"
@@ -264,7 +265,7 @@ export default function RightSidebar() {
                                             width: '6px',
                                             height: '6px',
                                             borderRadius: '50%',
-                                            background: idx === currentPromoIndex ? 'white' : 'rgba(255,255,255,0.4)'
+                                            background: idx === currentPromoIndex ? 'var(--primary)' : 'var(--muted)'
                                         }} />
                                     ))}
                                 </div>
@@ -320,19 +321,19 @@ export default function RightSidebar() {
                                             {/* Event Image/Video Preview or HTML Content */}
                                             {events[currentEventIndex].htmlContent ? (
                                                 <div
-                                                    style={{ marginBottom: '0.5rem', overflow: 'hidden', borderRadius: 'var(--radius)', maxHeight: '150px' }}
+                                                    style={{ marginBottom: '0.5rem', overflow: 'hidden', borderRadius: 'var(--radius)' }}
                                                     dangerouslySetInnerHTML={{ __html: events[currentEventIndex].htmlContent }}
                                                 />
                                             ) : (
                                                 getActiveMedia(events[currentEventIndex]) && (
                                                     <div
-                                                        style={{ position: 'relative', height: '150px', borderRadius: 'var(--radius)', overflow: 'hidden', cursor: 'pointer' }}
+                                                        style={{ position: 'relative', borderRadius: 'var(--radius)', overflow: 'hidden', cursor: 'pointer' }}
                                                         onClick={() => openModal(getActiveMedia(events[currentEventIndex]))}
                                                     >
                                                         {isVideo(getActiveMedia(events[currentEventIndex])) ? (
                                                             <video
                                                                 src={getActiveMedia(events[currentEventIndex])}
-                                                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                                                style={{ width: '100%', height: 'auto' }}
                                                                 muted
                                                                 autoPlay
                                                                 loop
@@ -341,7 +342,7 @@ export default function RightSidebar() {
                                                             <img
                                                                 src={getActiveMedia(events[currentEventIndex])}
                                                                 alt={events[currentEventIndex].title}
-                                                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                                                style={{ width: '100%', height: 'auto' }}
                                                             />
                                                         )}
                                                         {events[currentEventIndex].images && events[currentEventIndex].images.length > 1 && (
@@ -401,7 +402,7 @@ export default function RightSidebar() {
                                         {isVideo(getDisplayMedia(ad)) ? (
                                             <video
                                                 src={getDisplayMedia(ad)}
-                                                style={{ width: '100%', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
+                                                style={{ width: '100%', borderRadius: 'var(--radius)', border: '1px solid var(--border)', height: 'auto' }}
                                                 muted
                                                 autoPlay
                                                 loop
@@ -410,7 +411,7 @@ export default function RightSidebar() {
                                             <img
                                                 src={getDisplayMedia(ad)}
                                                 alt={ad.title}
-                                                style={{ width: '100%', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
+                                                style={{ width: '100%', borderRadius: 'var(--radius)', border: '1px solid var(--border)', height: 'auto' }}
                                             />
                                         )}
                                     </div>
