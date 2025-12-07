@@ -1,25 +1,13 @@
-import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 
-// GET: List all events (public or admin)
-export async function GET(request) {
-    try {
-        const { searchParams } = new URL(request.url);
-        const isAdminRequest = searchParams.get('admin') === 'true';
+const events = await prisma.event.findMany({
+    where,
+    orderBy: { date: 'asc' }
+});
 
-        const where = isAdminRequest ? {} : { active: true };
-
-        const events = await prisma.event.findMany({
-            where,
-            orderBy: { date: 'asc' }
-        });
-
-        return NextResponse.json(events);
+return NextResponse.json(events);
     } catch (error) {
-        return NextResponse.json({ error: 'Error fetching events' }, { status: 500 });
-    }
+    return NextResponse.json({ error: 'Error fetching events' }, { status: 500 });
+}
 }
 
 // POST: Create new event (Admin only)
