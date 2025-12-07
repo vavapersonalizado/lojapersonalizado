@@ -29,14 +29,22 @@ export default function ProfilePage() {
     const [prefectures, setPrefectures] = useState([]);
 
     useEffect(() => {
+        console.log('Profile useEffect:', { status, userId: session?.user?.id });
+
         if (status === 'unauthenticated') {
             router.push('/');
             return;
         }
 
-        if (status === 'authenticated' && session?.user?.id) {
-            fetchUserData();
-            fetchPrefectures();
+        if (status === 'authenticated') {
+            if (session?.user?.id) {
+                console.log('Fetching user data for:', session.user.id);
+                fetchUserData();
+                fetchPrefectures();
+            } else {
+                console.error('Session exists but no user ID');
+                setLoading(false);
+            }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [status, session?.user?.id, router]);
@@ -173,7 +181,13 @@ export default function ProfilePage() {
         }
     };
 
-    if (loading) return <div style={{ padding: '2rem', textAlign: 'center' }}>Carregando perfil...</div>;
+    if (status === 'loading') {
+        return <div style={{ padding: '2rem', textAlign: 'center' }}>Carregando perfil...</div>;
+    }
+
+    if (loading) {
+        return <div style={{ padding: '2rem', textAlign: 'center' }}>Carregando dados...</div>;
+    }
 
     return (
         <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem' }}>
