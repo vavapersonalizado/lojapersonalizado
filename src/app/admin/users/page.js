@@ -52,6 +52,82 @@ export default function UsersPage() {
         fetchUsers();
     }, [session, status, router]);
 
+    const [cities, setCities] = useState([]);
+    const [prefectures, setPrefectures] = useState([]);
+
+    useEffect(() => {
+        // Fetch prefectures on mount
+        fetch('/api/address/cities')
+            .then(res => res.json())
+            .then(data => {
+                if (Array.isArray(data)) setPrefectures(data);
+            })
+            .catch(console.error);
+    }, []);
+
+    const fetchCities = (pref) => {
+        if (!pref) {
+            setCities([]);
+            return;
+        }
+        fetch(`/api/address/cities?prefecture=${pref}`)
+            .then(res => res.json())
+            .then(data => {
+                if (Array.isArray(data)) setCities(data);
+            })
+            .catch(console.error);
+    };
+
+    const handleZipSearch = async () => {
+        if (!formData.postalCode || formData.postalCode.length < 7) {
+            alert('Digite um CEP válido (7 dígitos)');
+            return;
+        }
+
+        try {
+            const res = await fetch(`/api/address/lookup?zip=${formData.postalCode}`);
+            const data = await res.json();
+
+            if (!res.ok) {
+                alert(data.error || 'Endereço não encontrado');
+                return;
+            }
+
+            // Update form data
+            setFormData(prev => ({
+                ...prev,
+                prefecture: data.prefecture,
+                city: data.city,
+                town: data.town,
+                // Keep street/building if they typed something? Maybe overwrite.
+            }));
+
+            // Fetch cities for the new prefecture so the dropdown is correct
+            fetchCities(data.prefecture);
+
+        } catch (error) {
+            console.error('Zip search error:', error);
+            alert('Erro ao buscar endereço');
+        }
+    };
+
+    const handlePrefectureChange = (e) => {
+        const pref = e.target.value;
+        setFormData({ ...formData, prefecture: pref, city: '' }); // Reset city
+        fetchCities(pref);
+    };
+
+    const handleContactPreferenceChange = (type) => {
+        const current = formData.contactPreference || [];
+        let updated;
+        if (current.includes(type)) {
+            updated = current.filter(t => t !== type);
+        } else {
+            updated = [...current, type];
+        }
+        setFormData({ ...formData, contactPreference: updated });
+    };
+
     const handleEditClick = (user) => {
         setEditingUser(user);
         setFormData({
@@ -63,8 +139,16 @@ export default function UsersPage() {
             classification: user.classification || '',
             deserveDiscount: user.deserveDiscount || false,
             discountType: user.discountType || 'percentage',
-            discountValue: user.discountValue || 0
+            discountValue: user.discountValue || 0,
+            postalCode: user.postalCode || '',
+            prefecture: user.prefecture || '',
+            city: user.city || '',
+            town: user.town || '',
+            street: user.street || '',
+            building: user.building || '',
+            contactPreference: user.contactPreference || []
         });
+        if (user.prefecture) fetchCities(user.prefecture);
         setShowModal(true);
     };
 
@@ -79,8 +163,16 @@ export default function UsersPage() {
             classification: '',
             deserveDiscount: false,
             discountType: 'percentage',
-            discountValue: 0
+            discountValue: 0,
+            postalCode: '',
+            prefecture: '',
+            city: '',
+            town: '',
+            street: '',
+            building: '',
+            contactPreference: []
         });
+        setCities([]);
         setShowModal(true);
     };
 
@@ -92,7 +184,7 @@ export default function UsersPage() {
         try {
             const url = editingUser
                 ? `/api/users/${editingUser.id}`
-                : '/api/users/register'; // Note: Register might need updates too if it handles these fields, but usually register is basic. PUT handles updates.
+                : '/api/users/register';
 
             const method = editingUser ? 'PUT' : 'POST';
 
@@ -111,7 +203,7 @@ export default function UsersPage() {
             // Success - refresh users list and close modal
             fetchUsers();
             setShowModal(false);
-            setFormData({ name: '', email: '', phone: '', notes: '' });
+            setFormData({ name: '', email: '', phone: '', notes: '' }); // Reset basic
             setEditingUser(null);
         } catch (err) {
             setError(err.message);
@@ -145,9 +237,9 @@ export default function UsersPage() {
                     <thead>
                         <tr style={{ background: 'var(--muted)', textAlign: 'left' }}>
                             <th style={{ padding: '1rem' }}>Nome</th>
-                            <th style={{ padding: '1rem' }}>Email</th>
+                            <th style={{ padding: '1rem' }}>Contato</th>
+                            <th style={{ padding: '1rem' }}>Localização</th>
                             <th style={{ padding: '1rem' }}>Classificação</th>
-                            <th style={{ padding: '1rem' }}>Desconto</th>
                             <th style={{ padding: '1rem' }}>Função</th>
                             <th style={{ padding: '1rem' }}>Ações</th>
                         </tr>
@@ -169,10 +261,24 @@ export default function UsersPage() {
                                     )}
                                     <div>
                                         <div>{user.name || 'Sem nome'}</div>
-                                        <div style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)' }}>{user.phone}</div>
                                     </div>
                                 </td>
-                                <td style={{ padding: '1rem' }}>{user.email}</td>
+                                <td style={{ padding: '1rem' }}>
+                                    <div style={{ fontSize: '0.9rem' }}>{user.email}</div>
+                                    <div style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)' }}>{user.phone}</div>
+                                    {user.contactPreference && user.contactPreference.length > 0 && (
+                                        <div style={{ fontSize: '0.75rem', color: 'var(--primary)', marginTop: '2px' }}>
+                                            Pref: {user.contactPreference.join(', ')}
+                                        </div>
+                                    )}
+                                </td>
+                                <td style={{ padding: '1rem' }}>
+                                    {user.prefecture ? (
+                                        <div style={{ fontSize: '0.9rem' }}>
+                                            {user.prefecture}, {user.city}
+                                        </div>
+                                    ) : '-'}
+                                </td>
                                 <td style={{ padding: '1rem' }}>
                                     {user.classification ? (
                                         <span style={{
@@ -183,15 +289,6 @@ export default function UsersPage() {
                                             fontSize: '0.85rem'
                                         }}>
                                             {user.classification}
-                                        </span>
-                                    ) : '-'}
-                                </td>
-                                <td style={{ padding: '1rem' }}>
-                                    {user.deserveDiscount ? (
-                                        <span style={{ color: 'green', fontWeight: 'bold' }}>
-                                            {user.discountType === 'fixed' ? '¥' : ''}
-                                            {user.discountValue}
-                                            {user.discountType === 'percentage' ? '%' : ''}
                                         </span>
                                     ) : '-'}
                                 </td>
@@ -239,8 +336,8 @@ export default function UsersPage() {
                         background: 'var(--card)',
                         borderRadius: 'var(--radius)',
                         padding: '2rem',
-                        maxWidth: '600px',
-                        width: '90%',
+                        maxWidth: '800px',
+                        width: '95%',
                         maxHeight: '90vh',
                         overflowY: 'auto',
                         border: '1px solid var(--border)'
@@ -271,7 +368,7 @@ export default function UsersPage() {
                                     <input
                                         type="email"
                                         required
-                                        disabled={!!editingUser} // Disable email edit for existing users
+                                        disabled={!!editingUser}
                                         value={formData.email}
                                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                         style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)', opacity: editingUser ? 0.7 : 1 }}
@@ -282,10 +379,11 @@ export default function UsersPage() {
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                                 <div style={{ marginBottom: '1rem' }}>
                                     <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-                                        Telefone
+                                        Telefone *
                                     </label>
                                     <input
                                         type="tel"
+                                        required
                                         value={formData.phone}
                                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                                         style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
@@ -294,21 +392,127 @@ export default function UsersPage() {
 
                                 <div style={{ marginBottom: '1rem' }}>
                                     <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-                                        Função
+                                        Preferência de Contato
                                     </label>
-                                    <select
-                                        value={formData.role}
-                                        onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                                        style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
-                                    >
-                                        <option value="client">Cliente</option>
-                                        <option value="admin">Admin</option>
-                                    </select>
+                                    <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
+                                        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                            <input
+                                                type="checkbox"
+                                                checked={formData.contactPreference?.includes('Line')}
+                                                onChange={() => handleContactPreferenceChange('Line')}
+                                            />
+                                            LINE
+                                        </label>
+                                        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                            <input
+                                                type="checkbox"
+                                                checked={formData.contactPreference?.includes('WhatsApp')}
+                                                onChange={() => handleContactPreferenceChange('WhatsApp')}
+                                            />
+                                            WhatsApp
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
 
                             <hr style={{ margin: '1.5rem 0', border: '0', borderTop: '1px solid var(--border)' }} />
+                            <h3 style={{ fontSize: '1.1rem', fontWeight: 'bold', marginBottom: '1rem' }}>Endereço (Japão)</h3>
 
+                            <div style={{ marginBottom: '1rem' }}>
+                                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+                                    CEP (Postal Code)
+                                </label>
+                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                    <input
+                                        type="text"
+                                        placeholder="123-4567"
+                                        value={formData.postalCode}
+                                        onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
+                                        style={{ width: '150px', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
+                                    />
+                                    <button
+                                        type="button"
+                                        className="btn btn-secondary"
+                                        onClick={handleZipSearch}
+                                    >
+                                        🔍 Buscar
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                <div style={{ marginBottom: '1rem' }}>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+                                        Província (Prefecture)
+                                    </label>
+                                    <select
+                                        value={formData.prefecture}
+                                        onChange={handlePrefectureChange}
+                                        style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
+                                    >
+                                        <option value="">Selecione...</option>
+                                        {prefectures.map(p => (
+                                            <option key={p} value={p}>{p}</option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div style={{ marginBottom: '1rem' }}>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+                                        Cidade (City)
+                                    </label>
+                                    <select
+                                        value={formData.city}
+                                        onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                                        style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
+                                        disabled={!formData.prefecture}
+                                    >
+                                        <option value="">Selecione...</option>
+                                        {cities.map(c => (
+                                            <option key={c} value={c}>{c}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                <div style={{ marginBottom: '1rem' }}>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+                                        Bairro (Town)
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={formData.town}
+                                        onChange={(e) => setFormData({ ...formData, town: e.target.value })}
+                                        style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
+                                    />
+                                </div>
+                                <div style={{ marginBottom: '1rem' }}>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+                                        Rua / Chome
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={formData.street}
+                                        onChange={(e) => setFormData({ ...formData, street: e.target.value })}
+                                        style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
+                                    />
+                                </div>
+                            </div>
+
+                            <div style={{ marginBottom: '1rem' }}>
+                                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+                                    Edifício / Apartamento
+                                </label>
+                                <input
+                                    type="text"
+                                    value={formData.building}
+                                    onChange={(e) => setFormData({ ...formData, building: e.target.value })}
+                                    style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
+                                />
+                            </div>
+
+                            <hr style={{ margin: '1.5rem 0', border: '0', borderTop: '1px solid var(--border)' }} />
                             <h3 style={{ fontSize: '1.1rem', fontWeight: 'bold', marginBottom: '1rem' }}>Classificação e Descontos</h3>
 
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>

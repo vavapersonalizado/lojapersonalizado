@@ -50,6 +50,17 @@ model User {
   deserveDiscount  Boolean  @default(false)
   discountType     String?  // "percentage" or "fixed"
   discountValue    Float?   @default(0)
+
+  // Address Information (Japan - Romanji)
+  postalCode       String?
+  prefecture       String?
+  city             String?
+  town             String?
+  street           String?
+  building         String?
+
+  // Contact Preferences
+  contactPreference String[] @default([]) // ['Line', 'WhatsApp', 'Phone', 'Email']
   
   accounts      Account[]
   sessions      Session[]
