@@ -190,6 +190,7 @@ model Promotion {
   active      Boolean  @default(true)
   images      String[] @default([])
   htmlContent String?  // For external banners/embeds
+  expiresAt   DateTime?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
