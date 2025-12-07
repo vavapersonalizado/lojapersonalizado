@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useCart } from '@/contexts/CartContext';
+import { useView } from '@/contexts/ViewContext';
 import CartDrawer from './CartDrawer';
 import LoginModal from './LoginModal';
 
@@ -17,6 +18,7 @@ export default function MobileLayout({ children }) {
     const [showLoginModal, setShowLoginModal] = useState(false);
     const [showMenu, setShowMenu] = useState(false);
     const cartCount = getCartCount();
+    const { toggleViewMode } = useView();
 
     const isActive = (path) => pathname === path || pathname.startsWith(path);
 
@@ -66,6 +68,23 @@ export default function MobileLayout({ children }) {
                         padding: '2px'
                     }} />
                 </Link>
+
+                {/* View Toggle Button */}
+                <button
+                    onClick={toggleViewMode}
+                    style={{
+                        background: 'rgba(255,255,255,0.1)',
+                        border: '1px solid rgba(255,255,255,0.2)',
+                        borderRadius: 'var(--radius)',
+                        padding: '0.5rem',
+                        cursor: 'pointer',
+                        fontSize: '1.2rem',
+                        color: 'white'
+                    }}
+                    title="Mudar para versão Desktop"
+                >
+                    💻
+                </button>
 
                 {/* Cart Icon */}
                 <button

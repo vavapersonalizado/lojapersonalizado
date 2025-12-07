@@ -38,7 +38,7 @@ export default function LoginModal({ isOpen, onClose }) {
             backdropFilter: 'blur(5px)'
         }} onClick={onClose}>
             <div style={{
-                backgroundColor: 'var(--background)',
+                backgroundColor: '#ffffff',
                 padding: '2rem',
                 borderRadius: 'var(--radius)',
                 width: '90%',
@@ -58,15 +58,15 @@ export default function LoginModal({ isOpen, onClose }) {
                         border: 'none',
                         fontSize: '1.5rem',
                         cursor: 'pointer',
-                        color: 'var(--muted-foreground)'
+                        color: '#666'
                     }}
                 >
                     &times;
                 </button>
 
                 <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-                    <h2 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>Bem-vindo!</h2>
-                    <p style={{ color: 'var(--muted-foreground)' }}>
+                    <h2 style={{ fontSize: '1.5rem', marginBottom: '0.5rem', color: '#000' }}>Bem-vindo!</h2>
+                    <p style={{ color: '#666' }}>
                         Faça login para acessar sua conta, ver seus pedidos e muito mais.
                     </p>
                 </div>
@@ -96,7 +96,7 @@ export default function LoginModal({ isOpen, onClose }) {
                     Continuar com Google
                 </button>
 
-                <div style={{ marginTop: '1.5rem', textAlign: 'center', fontSize: '0.8rem', color: 'var(--muted-foreground)' }}>
+                <div style={{ marginTop: '1.5rem', textAlign: 'center', fontSize: '0.8rem', color: '#666' }}>
                     O login abrirá em uma janela popup pequena.
                 </div>
             </div>
