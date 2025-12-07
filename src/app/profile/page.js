@@ -34,12 +34,12 @@ export default function ProfilePage() {
             return;
         }
 
-        if (status === 'authenticated') {
+        if (status === 'authenticated' && session?.user?.id) {
             fetchUserData();
             fetchPrefectures();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [status, router]);
+    }, [status, session?.user?.id, router]);
 
     const fetchPrefectures = () => {
         fetch('/api/address/cities')
@@ -64,22 +64,13 @@ export default function ProfilePage() {
     };
 
     const fetchUserData = async () => {
-        try {
-            // We can use the session ID to fetch the user's specific data
-            // But we need an endpoint that returns "me" or allows fetching by ID for self.
-            // The /api/users/[id] is PUT only? No, usually GET too or we need one.
-            // Wait, /api/users is admin only list.
-            // We need a way to get "my" data.
-            // Usually /api/auth/session has some, but not all fields.
-            // Let's assume we can fetch from /api/users/${session.user.id} if we add GET support there or create /api/users/me.
-            // Since I didn't create GET in [id]/route.js, I should probably add it or use a new route.
-            // For now, let's try to fetch from a new endpoint /api/users/me or add GET to [id].
-            // I'll assume I need to add GET to [id] as well.
-            // But for this step, I'll write the fetch logic assuming the endpoint exists/works.
-            // I'll update [id]/route.js to include GET in the next step if needed.
-            // Actually, I can just render what I have in session for now, but session is stale.
-            // I'll add GET to [id]/route.js in the next turn.
+        if (!session?.user?.id) {
+            console.error('No user ID in session');
+            setLoading(false);
+            return;
+        }
 
+        try {
             const res = await fetch(`/api/users/${session.user.id}`);
             if (res.ok) {
                 const data = await res.json();
@@ -96,10 +87,12 @@ export default function ProfilePage() {
                     contactPreference: data.contactPreference || []
                 });
                 if (data.prefecture) fetchCities(data.prefecture);
+            } else {
+                console.error('Failed to fetch user data:', res.status);
             }
             setLoading(false);
         } catch (err) {
-            console.error(err);
+            console.error('Error fetching user data:', err);
             setLoading(false);
         }
     };
