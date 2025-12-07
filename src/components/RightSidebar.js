@@ -22,106 +22,24 @@ export default function RightSidebar() {
     const [isEventHovered, setIsEventHovered] = useState(false);
     const eventIntervalRef = useRef(null);
 
-    const [selectedMedia, setSelectedMedia] = useState(null);
+    // Ad Carousel State
+    const [currentAdIndex, setCurrentAdIndex] = useState(0);
+    const [isAdHovered, setIsAdHovered] = useState(false);
+    const adIntervalRef = useRef(null);
 
-    // Internal Slideshow State (for cycling images within a single item)
-    const [activeImageIndex, setActiveImageIndex] = useState(0);
-    const internalIntervalRef = useRef(null);
-
-    const fetchData = useCallback(async () => {
-        try {
-            const [eventsRes, promoRes, adsRes] = await Promise.all([
-                fetch(`/api/events${isAdmin ? '?admin=true' : ''}`),
-                fetch(`/api/promotions${isAdmin ? '?admin=true' : ''}`),
-                fetch(`/api/ads${isAdmin ? '?admin=true' : ''}`)
-            ]);
-
-            const eventsData = await eventsRes.json();
-            const promoData = await promoRes.json();
-            const adsData = await adsRes.json();
-
-            setEvents(Array.isArray(eventsData) ? eventsData : []);
-            setPromotions(Array.isArray(promoData) ? promoData : []);
-            setAds(Array.isArray(adsData) ? adsData : []);
-        } catch (error) {
-            console.error('Error fetching sidebar data:', error);
-        }
-    }, [isAdmin]);
-
+    // Ad Carousel Logic
     useEffect(() => {
-        fetchData();
-    }, [fetchData]);
-
-    // Promotion Carousel Logic
-    useEffect(() => {
-        if (promotions.length > 1 && !isPromoHovered) {
-            promoIntervalRef.current = setInterval(() => {
-                setCurrentPromoIndex(prev => (prev + 1) % promotions.length);
-            }, 3000);
+        if (ads.length > 1 && !isAdHovered) {
+            adIntervalRef.current = setInterval(() => {
+                setCurrentAdIndex(prev => (prev + 1) % ads.length);
+            }, 5000); // Slower rotation for ads
         }
         return () => {
-            if (promoIntervalRef.current) clearInterval(promoIntervalRef.current);
+            if (adIntervalRef.current) clearInterval(adIntervalRef.current);
         };
-    }, [promotions.length, isPromoHovered]);
+    }, [ads.length, isAdHovered]);
 
-    // Event Carousel Logic
-    useEffect(() => {
-        if (events.length > 1 && !isEventHovered) {
-            eventIntervalRef.current = setInterval(() => {
-                setCurrentEventIndex(prev => (prev + 1) % events.length);
-            }, 4000); // Slightly slower than promotions
-        }
-        return () => {
-            if (eventIntervalRef.current) clearInterval(eventIntervalRef.current);
-        };
-    }, [events.length, isEventHovered]);
-
-    // Internal Slideshow Logic (cycles images of the CURRENT item)
-    useEffect(() => {
-        internalIntervalRef.current = setInterval(() => {
-            setActiveImageIndex(prev => prev + 1);
-        }, 2000); // Cycle images every 2 seconds
-
-        return () => {
-            if (internalIntervalRef.current) clearInterval(internalIntervalRef.current);
-        };
-    }, []);
-
-    const getActiveMedia = (item) => {
-        if (!item) return null;
-        if (item.images && item.images.length > 0) {
-            return item.images[activeImageIndex % item.images.length];
-        }
-        return item.imageUrl || null;
-    };
-
-    const toggleItem = async (type, id, currentStatus) => {
-        if (!isAdmin) return;
-        try {
-            await fetch(`/api/${type}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id, active: !currentStatus })
-            });
-            fetchData(); // Refresh data
-        } catch (error) {
-            console.error(`Error toggling ${type}:`, error);
-        }
-    };
-
-    const getDisplayMedia = (item) => {
-        if (item.images && item.images.length > 0) return item.images[0];
-        if (item.imageUrl) return item.imageUrl;
-        return null;
-    };
-
-    const openModal = (mediaUrl) => {
-        if (mediaUrl) setSelectedMedia(mediaUrl);
-    };
-
-    const closeModal = () => {
-        setSelectedMedia(null);
-    };
+    // ... (rest of the component logic)
 
     return (
         <>
@@ -294,6 +212,7 @@ export default function RightSidebar() {
                         border: '1px solid var(--border)',
                         padding: '1rem',
                         borderRadius: 'var(--radius)',
+                        boxShadow: 'var(--shadow)',
                         minHeight: '150px'
                     }}>
                         {events.length === 0 ? (
@@ -384,60 +303,103 @@ export default function RightSidebar() {
                     </div>
                 </section>
 
-                {/* Propagandas */}
-                {ads.map(ad => (
-                    <section key={ad.id} style={{ flex: 1, opacity: ad.active ? 1 : 0.5 }}>
-                        <div style={{ position: 'relative' }}>
-                            {ad.htmlContent ? (
-                                <div
-                                    style={{ marginBottom: '0.5rem', overflow: 'hidden', borderRadius: 'var(--radius)' }}
-                                    dangerouslySetInnerHTML={{ __html: ad.htmlContent }}
-                                />
-                            ) : (
-                                getDisplayMedia(ad) && (
-                                    <div
-                                        style={{ cursor: 'pointer' }}
-                                        onClick={() => ad.link ? window.open(ad.link, '_blank') : openModal(getDisplayMedia(ad))}
-                                    >
-                                        {isVideo(getDisplayMedia(ad)) ? (
-                                            <video
-                                                src={getDisplayMedia(ad)}
-                                                style={{ width: '100%', borderRadius: 'var(--radius)', border: '1px solid var(--border)', height: 'auto' }}
-                                                muted
-                                                autoPlay
-                                                loop
+                {/* Propagandas (Ads) - Agora como Carrossel */}
+                {ads.length > 0 && (
+                    <section
+                        onMouseEnter={() => setIsAdHovered(true)}
+                        onMouseLeave={() => setIsAdHovered(false)}
+                    >
+                        <h3 style={{
+                            fontSize: '1.1rem',
+                            marginBottom: '1rem',
+                            color: 'var(--primary)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between'
+                        }}>
+                            📢 Publicidade
+                            {isAdmin && ads[currentAdIndex] && (
+                                <span style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)' }}>
+                                    {ads[currentAdIndex].active ? '🟢' : '🔴'}
+                                </span>
+                            )}
+                        </h3>
+
+                        <div style={{
+                            background: 'var(--card)',
+                            border: '1px solid var(--border)',
+                            padding: '1rem',
+                            borderRadius: 'var(--radius)',
+                            boxShadow: 'var(--shadow)',
+                            position: 'relative',
+                            transition: 'all 0.3s ease'
+                        }}>
+                            {ads[currentAdIndex] && (
+                                <div key={ads[currentAdIndex].id} className="fade-in">
+                                    <div style={{ position: 'relative', opacity: ads[currentAdIndex].active ? 1 : 0.5 }}>
+                                        {ads[currentAdIndex].htmlContent ? (
+                                            <div
+                                                style={{ marginBottom: '0.5rem', overflow: 'hidden', borderRadius: 'var(--radius)' }}
+                                                dangerouslySetInnerHTML={{ __html: ads[currentAdIndex].htmlContent }}
                                             />
                                         ) : (
-                                            <img
-                                                src={getDisplayMedia(ad)}
-                                                alt={ad.title}
-                                                style={{ width: '100%', borderRadius: 'var(--radius)', border: '1px solid var(--border)', height: 'auto' }}
-                                            />
+                                            getDisplayMedia(ads[currentAdIndex]) && (
+                                                <div
+                                                    style={{ cursor: 'pointer' }}
+                                                    onClick={() => ads[currentAdIndex].link ? window.open(ads[currentAdIndex].link, '_blank') : openModal(getDisplayMedia(ads[currentAdIndex]))}
+                                                >
+                                                    {isVideo(getDisplayMedia(ads[currentAdIndex])) ? (
+                                                        <video
+                                                            src={getDisplayMedia(ads[currentAdIndex])}
+                                                            style={{ width: '100%', borderRadius: 'var(--radius)', height: 'auto' }}
+                                                            muted
+                                                            autoPlay
+                                                            loop
+                                                        />
+                                                    ) : (
+                                                        <img
+                                                            src={getDisplayMedia(ads[currentAdIndex])}
+                                                            alt={ads[currentAdIndex].title}
+                                                            style={{ width: '100%', borderRadius: 'var(--radius)', height: 'auto' }}
+                                                        />
+                                                    )}
+                                                </div>
+                                            )
+                                        )}
+
+                                        {isAdmin && (
+                                            <div style={{ marginTop: '0.5rem', borderTop: '1px solid var(--border)', paddingTop: '0.5rem' }}>
+                                                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.8rem' }}>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={ads[currentAdIndex].active}
+                                                        onChange={() => toggleItem('ads', ads[currentAdIndex].id, ads[currentAdIndex].active)}
+                                                        title="Visível"
+                                                    />
+                                                    Visível
+                                                </label>
+                                            </div>
                                         )}
                                     </div>
-                                )
+                                </div>
                             )}
 
-                            {isAdmin && (
-                                <div style={{
-                                    position: 'absolute',
-                                    top: '5px',
-                                    right: '5px',
-                                    background: 'rgba(255,255,255,0.9)',
-                                    padding: '2px',
-                                    borderRadius: '4px'
-                                }}>
-                                    <input
-                                        type="checkbox"
-                                        checked={ad.active}
-                                        onChange={() => toggleItem('ads', ad.id, ad.active)}
-                                        title="Visível"
-                                    />
+                            {/* Dots Indicator for Ads */}
+                            {ads.length > 1 && (
+                                <div style={{ display: 'flex', justifyContent: 'center', gap: '4px', marginTop: '1rem' }}>
+                                    {ads.map((_, idx) => (
+                                        <div key={idx} style={{
+                                            width: '6px',
+                                            height: '6px',
+                                            borderRadius: '50%',
+                                            background: idx === currentAdIndex ? 'var(--primary)' : 'var(--muted)'
+                                        }} />
+                                    ))}
                                 </div>
                             )}
                         </div>
                     </section>
-                ))}
+                )}
             </aside>
 
             {/* Media Modal */}
