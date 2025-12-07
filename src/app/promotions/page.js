@@ -242,5 +242,6 @@ export default function PromotionsPage() {
                     </div>
                 )
             }
-        </div >
+        </div>
+    );
 }
