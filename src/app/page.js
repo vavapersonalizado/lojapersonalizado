@@ -102,8 +102,8 @@ export default function Home() {
                 ) : (
                     <div style={{
                         display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
-                        gap: '2rem'
+                        gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
+                        gap: '1rem'
                     }}>
                         {products.map(product => (
                             <ProductCard key={product.id} product={product} isClientMode={true} />

@@ -87,7 +87,7 @@ export default function ProductCard({ product, isClientMode }) {
         >
             <div style={{ position: 'relative' }}>
                 <div style={{
-                    height: '220px',
+                    height: '140px',
                     position: 'relative',
                     background: 'var(--muted)',
                     borderRadius: 'var(--radius) var(--radius) 0 0',
@@ -189,33 +189,33 @@ export default function ProductCard({ product, isClientMode }) {
                 )}
             </div>
 
-            <div style={{ padding: '1.25rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
+            <div style={{ padding: '0.75rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
                 <Link href={`/products/${product.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                    <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', fontWeight: '600', color: 'var(--card-foreground)' }}>{product.name}</h3>
+                    <h3 style={{ fontSize: '0.95rem', marginBottom: '0.25rem', fontWeight: '600', color: 'var(--card-foreground)' }}>{product.name}</h3>
                 </Link>
 
                 {product.description && (
                     <p style={{
-                        fontSize: '0.875rem',
+                        fontSize: '0.75rem',
                         color: 'rgba(0,0,0,0.7)',
-                        marginBottom: '0.75rem',
+                        marginBottom: '0.5rem',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                         display: '-webkit-box',
                         WebkitLineClamp: 2,
                         WebkitBoxOrient: 'vertical',
-                        lineHeight: '1.4'
+                        lineHeight: '1.3'
                     }}>
                         {product.description}
                     </p>
                 )}
 
                 <div style={{ marginTop: 'auto' }}>
-                    <p style={{ color: 'var(--primary)', fontWeight: 'bold', fontSize: '1.2rem', marginBottom: '0.5rem' }}>
+                    <p style={{ color: 'var(--primary)', fontWeight: 'bold', fontSize: '1rem', marginBottom: '0.25rem' }}>
                         {formatCurrency(product.price)}
                     </p>
                     {product.category && (
-                        <p style={{ fontSize: '0.875rem', color: 'rgba(0,0,0,0.6)', marginBottom: '1rem' }}>
+                        <p style={{ fontSize: '0.75rem', color: 'rgba(0,0,0,0.6)', marginBottom: '0.5rem' }}>
                             {product.category.name}
                         </p>
                     )}
