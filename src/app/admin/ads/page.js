@@ -13,10 +13,6 @@ export default function AdminAds() {
     const [sortBy, setSortBy] = useState('createdAt'); // 'title', 'createdAt', 'expiresAt'
     const [sortOrder, setSortOrder] = useState('desc'); // 'asc', 'desc'
 
-    useEffect(() => {
-        fetchAds();
-    }, []);
-
     const fetchAds = async () => {
         try {
             const res = await fetch('/api/ads?admin=true', { cache: 'no-store' });
@@ -26,6 +22,10 @@ export default function AdminAds() {
             console.error('Error fetching ads:', error);
         }
     };
+
+    useEffect(() => {
+        fetchAds();
+    }, []);
 
     const sortData = (data) => {
         return [...data].sort((a, b) => {
@@ -86,12 +86,24 @@ export default function AdminAds() {
     };
 
     const handleDelete = async (id) => {
-        if (!confirm('Tem certeza?')) return;
+        if (!confirm('Tem certeza que deseja excluir esta propaganda?')) return;
         try {
-            await fetch(`/api/ads?id=${id}`, { method: 'DELETE' });
-            fetchAds();
+            console.log('Deleting ad:', id);
+            const res = await fetch(`/api/ads?id=${id}`, { method: 'DELETE' });
+            const data = await res.json();
+
+            if (!res.ok) {
+                console.error('Failed to delete:', data);
+                alert(`Erro ao excluir: ${data.error || 'Erro desconhecido'}`);
+                return;
+            }
+
+            console.log('Ad deleted successfully');
+            await fetchAds();
+            alert('Propaganda excluída com sucesso!');
         } catch (error) {
             console.error('Error deleting ad:', error);
+            alert('Erro ao excluir propaganda. Verifique o console.');
         }
     };
 
