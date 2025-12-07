@@ -5,12 +5,8 @@
 export function katakanaToRomaji(katakana) {
     if (!katakana) return '';
 
-    let str = katakana;
-
-    // 1. Small Tsu (Sokuon) - double the next consonant
-    // We'll handle this by looking ahead during the main loop or replacing first.
-    // Easier to replace first if we can, but regex is tricky with "next char".
-    // Let's do it in the loop.
+    // Normalize Half-width to Full-width first
+    let str = toFullWidth(katakana);
 
     // Mapping table
     const map = {
@@ -41,7 +37,7 @@ export function katakanaToRomaji(katakana) {
         'ビャ': 'bya', 'ビュ': 'byu', 'ビョ': 'byo',
         'ピャ': 'pya', 'ピュ': 'pyu', 'ピョ': 'pyo',
         'ヴァ': 'va', 'ヴィ': 'vi', 'ヴ': 'vu', 'ヴェ': 've', 'ヴォ': 'vo',
-        'ー': '' // Long vowel mark - usually ignored or macron. Let's ignore for simple address.
+        'ー': ''
     };
 
     let result = '';
@@ -62,11 +58,6 @@ export function katakanaToRomaji(katakana) {
         // Check for Sokuon (Small Tsu)
         if (char === 'ッ') {
             if (next) {
-                // Get the romanji of the next char to find its first letter
-                // This is a bit complex because next char might be a compound.
-                // Simplified: just look at next char map or default.
-                // If next is 'k', 's', 't', 'p', etc.
-                // Let's peek ahead.
                 let nextRomaji = '';
                 // Check compound for next
                 if (str[i + 2] && ['ャ', 'ュ', 'ョ'].includes(str[i + 2])) {
@@ -86,17 +77,68 @@ export function katakanaToRomaji(katakana) {
         if (map[char]) {
             result += map[char];
         } else {
-            // Keep original if not found (e.g. numbers, spaces)
             result += char;
         }
     }
 
-    // Capitalize first letter of each word (simple heuristic)
-    // result = result.charAt(0).toUpperCase() + result.slice(1);
-
-    // Better: Capitalize standard Hepburn style (e.g. "Tokyo")
-    // For addresses, usually "Shinjuku-ku" or "Shinjuku Ku".
-    // Let's just return lowercase or capitalized?
-    // Let's Capitalize First Letter.
     return result.charAt(0).toUpperCase() + result.slice(1);
+}
+
+function toFullWidth(str) {
+    const halfMap = {
+        'ｱ': 'ア', 'ｲ': 'イ', 'ｳ': 'ウ', 'ｴ': 'エ', 'ｵ': 'オ',
+        'ｶ': 'カ', 'ｷ': 'キ', 'ｸ': 'ク', 'ｹ': 'ケ', 'ｺ': 'コ',
+        'ｻ': 'サ', 'ｼ': 'シ', 'ｽ': 'ス', 'ｾ': 'セ', 'ｿ': 'ソ',
+        'ﾀ': 'タ', 'ﾁ': 'チ', 'ﾂ': 'ツ', 'ﾃ': 'テ', 'ﾄ': 'ト',
+        'ﾅ': 'ナ', 'ﾆ': 'ニ', 'ﾇ': 'ヌ', 'ﾈ': 'ネ', 'ﾉ': 'ノ',
+        'ﾊ': 'ハ', 'ﾋ': 'ヒ', 'ﾌ': 'フ', 'ﾍ': 'ヘ', 'ﾎ': 'ホ',
+        'ﾏ': 'マ', 'ﾐ': 'ミ', 'ﾑ': 'ム', 'ﾒ': 'メ', 'ﾓ': 'モ',
+        'ﾔ': 'ヤ', 'ﾕ': 'ユ', 'ﾖ': 'ヨ',
+        'ﾗ': 'ラ', 'ﾘ': 'リ', 'ﾙ': 'ル', 'ﾚ': 'レ', 'ﾛ': 'ロ',
+        'ﾜ': 'ワ', 'ｦ': 'ヲ', 'ﾝ': 'ン',
+        'ｧ': 'ァ', 'ｨ': 'ィ', 'ｩ': 'ゥ', 'ｪ': 'ェ', 'ｫ': 'ォ',
+        'ｯ': 'ッ',
+        'ｬ': 'ャ', 'ｭ': 'ュ', 'ｮ': 'ョ',
+        'ｰ': 'ー'
+    };
+
+    const dakutenMap = {
+        'カ': 'ガ', 'キ': 'ギ', 'ク': 'グ', 'ケ': 'ゲ', 'コ': 'ゴ',
+        'サ': 'ザ', 'シ': 'ジ', 'ス': 'ズ', 'セ': 'ゼ', 'ソ': 'ゾ',
+        'タ': 'ダ', 'チ': 'ヂ', 'ツ': 'ヅ', 'テ': 'デ', 'ト': 'ド',
+        'ハ': 'バ', 'ヒ': 'ビ', 'フ': 'ブ', 'ヘ': 'ベ', 'ホ': 'ボ',
+        'ウ': 'ヴ'
+    };
+
+    const handakutenMap = {
+        'ハ': 'パ', 'ヒ': 'ピ', 'フ': 'プ', 'ヘ': 'ペ', 'ホ': 'ポ'
+    };
+
+    let res = '';
+    for (let i = 0; i < str.length; i++) {
+        const char = str[i];
+        const next = str[i + 1];
+
+        // Check dakuten/handakuten
+        if (next === 'ﾞ' || next === 'ﾟ') {
+            const base = halfMap[char] || char;
+            if (next === 'ﾞ' && dakutenMap[base]) {
+                res += dakutenMap[base];
+                i++;
+                continue;
+            }
+            if (next === 'ﾟ' && handakutenMap[base]) {
+                res += handakutenMap[base];
+                i++;
+                continue;
+            }
+        }
+
+        if (halfMap[char]) {
+            res += halfMap[char];
+        } else {
+            res += char;
+        }
+    }
+    return res;
 }
