@@ -84,7 +84,7 @@ export function katakanaToRomaji(katakana) {
     return result.charAt(0).toUpperCase() + result.slice(1);
 }
 
-function toFullWidth(str) {
+export function toFullWidth(str) {
     const halfMap = {
         'ｱ': 'ア', 'ｲ': 'イ', 'ｳ': 'ウ', 'ｴ': 'エ', 'ｵ': 'オ',
         'ｶ': 'カ', 'ｷ': 'キ', 'ｸ': 'ク', 'ｹ': 'ケ', 'ｺ': 'コ',

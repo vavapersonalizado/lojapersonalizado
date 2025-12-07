@@ -128,6 +128,12 @@ export default function UsersPage() {
         setFormData({ ...formData, contactPreference: updated });
     };
 
+    const [viewingUser, setViewingUser] = useState(null);
+
+    const handleViewClick = (user) => {
+        setViewingUser(user);
+    };
+
     const handleEditClick = (user) => {
         setEditingUser(user);
         setFormData({
@@ -237,8 +243,8 @@ export default function UsersPage() {
                     <thead>
                         <tr style={{ background: 'var(--muted)', textAlign: 'left' }}>
                             <th style={{ padding: '1rem' }}>Nome</th>
-                            <th style={{ padding: '1rem' }}>Contato</th>
-                            <th style={{ padding: '1rem' }}>Localização</th>
+                            <th style={{ padding: '1rem' }}>Email</th>
+                            <th style={{ padding: '1rem' }}>Localização (CEP)</th>
                             <th style={{ padding: '1rem' }}>Classificação</th>
                             <th style={{ padding: '1rem' }}>Função</th>
                             <th style={{ padding: '1rem' }}>Ações</th>
@@ -247,37 +253,32 @@ export default function UsersPage() {
                     <tbody>
                         {users.map(user => (
                             <tr key={user.id} style={{ borderTop: '1px solid var(--border)' }}>
-                                <td style={{ padding: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                    {user.image ? (
-                                        <img
-                                            src={user.image}
-                                            alt={user.name}
-                                            style={{ width: '32px', height: '32px', borderRadius: '50%' }}
-                                        />
-                                    ) : (
-                                        <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#ccc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                            {user.name?.[0] || '?'}
+                                <td style={{ padding: '1rem' }}>
+                                    <div
+                                        style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}
+                                        onClick={() => handleViewClick(user)}
+                                    >
+                                        {user.image ? (
+                                            <img
+                                                src={user.image}
+                                                alt={user.name}
+                                                style={{ width: '32px', height: '32px', borderRadius: '50%' }}
+                                            />
+                                        ) : (
+                                            <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#ccc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                {user.name?.[0] || '?'}
+                                            </div>
+                                        )}
+                                        <div style={{ fontWeight: '500', textDecoration: 'underline', textDecorationColor: 'var(--muted-foreground)', textUnderlineOffset: '4px' }}>
+                                            {user.name || 'Sem nome'}
                                         </div>
-                                    )}
-                                    <div>
-                                        <div>{user.name || 'Sem nome'}</div>
                                     </div>
                                 </td>
                                 <td style={{ padding: '1rem' }}>
-                                    <div style={{ fontSize: '0.9rem' }}>{user.email}</div>
-                                    <div style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)' }}>{user.phone}</div>
-                                    {user.contactPreference && user.contactPreference.length > 0 && (
-                                        <div style={{ fontSize: '0.75rem', color: 'var(--primary)', marginTop: '2px' }}>
-                                            Pref: {user.contactPreference.join(', ')}
-                                        </div>
-                                    )}
+                                    {user.email}
                                 </td>
                                 <td style={{ padding: '1rem' }}>
-                                    {user.prefecture ? (
-                                        <div style={{ fontSize: '0.9rem' }}>
-                                            {user.prefecture}, {user.city}
-                                        </div>
-                                    ) : '-'}
+                                    {user.postalCode || '-'}
                                 </td>
                                 <td style={{ padding: '1rem' }}>
                                     {user.classification ? (
@@ -317,6 +318,122 @@ export default function UsersPage() {
                     </tbody>
                 </table>
             </div>
+
+            {/* View User Modal (Read Only) */}
+            {viewingUser && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    background: 'rgba(0,0,0,0.5)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 1000
+                }}>
+                    <div style={{
+                        background: 'var(--card)',
+                        borderRadius: 'var(--radius)',
+                        padding: '2rem',
+                        maxWidth: '600px',
+                        width: '95%',
+                        maxHeight: '90vh',
+                        overflowY: 'auto',
+                        border: '1px solid var(--border)'
+                    }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                            <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>Detalhes do Cliente</h2>
+                            <button
+                                onClick={() => setViewingUser(null)}
+                                style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer' }}
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        <div style={{ display: 'grid', gap: '1rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+                                {viewingUser.image ? (
+                                    <img src={viewingUser.image} alt={viewingUser.name} style={{ width: '64px', height: '64px', borderRadius: '50%' }} />
+                                ) : (
+                                    <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: '#ccc', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem' }}>
+                                        {viewingUser.name?.[0] || '?'}
+                                    </div>
+                                )}
+                                <div>
+                                    <div style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>{viewingUser.name}</div>
+                                    <div style={{ color: 'var(--muted-foreground)' }}>{viewingUser.email}</div>
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                <div>
+                                    <label style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>Telefone</label>
+                                    <div>{viewingUser.phone || '-'}</div>
+                                </div>
+                                <div>
+                                    <label style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>Pref. Contato</label>
+                                    <div>{viewingUser.contactPreference?.join(', ') || '-'}</div>
+                                </div>
+                            </div>
+
+                            <hr style={{ border: '0', borderTop: '1px solid var(--border)' }} />
+
+                            <div>
+                                <label style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>Endereço</label>
+                                <div>
+                                    {viewingUser.postalCode && `〒${viewingUser.postalCode}`}<br />
+                                    {viewingUser.prefecture} {viewingUser.city}<br />
+                                    {viewingUser.town} {viewingUser.street}<br />
+                                    {viewingUser.building}
+                                </div>
+                            </div>
+
+                            <hr style={{ border: '0', borderTop: '1px solid var(--border)' }} />
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                <div>
+                                    <label style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>Classificação</label>
+                                    <div>{viewingUser.classification || 'Padrão'}</div>
+                                </div>
+                                <div>
+                                    <label style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>Função</label>
+                                    <div>{viewingUser.role === 'admin' ? 'Administrador' : 'Cliente'}</div>
+                                </div>
+                            </div>
+
+                            {viewingUser.deserveDiscount && (
+                                <div style={{ background: '#f0fdf4', padding: '0.5rem', borderRadius: '4px', marginTop: '0.5rem' }}>
+                                    <span style={{ color: '#166534', fontWeight: 'bold' }}>✓ Elegível para Desconto</span>
+                                    <div style={{ fontSize: '0.9rem' }}>
+                                        {viewingUser.discountType === 'percentage' ? `${viewingUser.discountValue}%` : `¥${viewingUser.discountValue}`}
+                                    </div>
+                                </div>
+                            )}
+
+                            {viewingUser.notes && (
+                                <div style={{ marginTop: '1rem' }}>
+                                    <label style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>Observações</label>
+                                    <div style={{ background: 'var(--muted)', padding: '0.5rem', borderRadius: '4px', fontSize: '0.9rem' }}>
+                                        {viewingUser.notes}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        <div style={{ marginTop: '2rem', textAlign: 'right' }}>
+                            <button
+                                className="btn btn-secondary"
+                                onClick={() => setViewingUser(null)}
+                            >
+                                Fechar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Registration/Edit Modal */}
             {showModal && (

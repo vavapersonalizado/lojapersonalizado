@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { katakanaToRomaji } from '@/utils/romaji';
+import { katakanaToRomaji, toFullWidth } from '@/utils/romaji';
+import municipalities from '@/data/municipalities.json';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,9 +23,31 @@ export async function GET(request) {
 
         const result = data.results[0];
 
-        // Convert Kana to Romanji
-        const prefecture = katakanaToRomaji(result.kana1);
-        const city = katakanaToRomaji(result.kana2);
+        // Convert Half-width Kana to Full-width for matching
+        const prefKana = toFullWidth(result.kana1);
+        const cityKana = toFullWidth(result.kana2);
+
+        // 1. Try to find exact match in municipalities.json for Prefecture and City
+        // This ensures the dropdowns will auto-select correctly
+        const match = municipalities.find(m =>
+            m.prefecture_kana === prefKana &&
+            m.name_kana === cityKana
+        );
+
+        let prefecture = '';
+        let city = '';
+
+        if (match) {
+            prefecture = match.prefecture_romaji;
+            city = match.name_romaji;
+        } else {
+            // Fallback to algorithmic conversion if not found (e.g. new merger or data mismatch)
+            prefecture = katakanaToRomaji(result.kana1);
+            city = katakanaToRomaji(result.kana2);
+        }
+
+        // Town is usually not in municipalities.json (it only goes down to City/Ward level)
+        // So we always use algorithmic conversion for Town
         const town = katakanaToRomaji(result.kana3);
 
         return NextResponse.json({
