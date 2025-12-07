@@ -48,9 +48,9 @@ export default function RightSidebar() {
     const fetchData = useCallback(async () => {
         try {
             const [eventsRes, promoRes, adsRes] = await Promise.all([
-                fetch(`/api/events${isAdmin ? '?admin=true' : ''}`),
-                fetch(`/api/promotions${isAdmin ? '?admin=true' : ''}`),
-                fetch(`/api/ads${isAdmin ? '?admin=true' : ''}`)
+                fetch(`/api/events${isAdmin ? '?admin=true' : ''}`, { cache: 'no-store' }),
+                fetch(`/api/promotions${isAdmin ? '?admin=true' : ''}`, { cache: 'no-store' }),
+                fetch(`/api/ads${isAdmin ? '?admin=true' : ''}`, { cache: 'no-store' })
             ]);
 
             const eventsData = await eventsRes.json();

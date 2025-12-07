@@ -19,7 +19,7 @@ export default function AdminAds() {
 
     const fetchAds = async () => {
         try {
-            const res = await fetch('/api/ads?admin=true');
+            const res = await fetch('/api/ads?admin=true', { cache: 'no-store' });
             const data = await res.json();
             setAds(Array.isArray(data) ? data : []);
         } catch (error) {
