@@ -150,8 +150,8 @@ export default function UsersPage() {
             prefecture: user.prefecture || '',
             city: user.city || '',
             town: user.town || '',
-            street: `${user.street || ''} ${user.building || ''}`.trim(),
-            building: '',
+            street: user.street || '',
+            building: user.building || '',
             contactPreference: user.contactPreference || []
         });
         if (user.prefecture) fetchCities(user.prefecture);
@@ -606,7 +606,7 @@ export default function UsersPage() {
                                 </div>
                                 <div style={{ marginBottom: '1rem' }}>
                                     <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-                                        Casa / Edifício - Apartamento
+                                        Rua
                                     </label>
                                     <input
                                         type="text"
@@ -615,6 +615,18 @@ export default function UsersPage() {
                                         style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
                                     />
                                 </div>
+                            </div>
+
+                            <div style={{ marginBottom: '1rem' }}>
+                                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+                                    Casa / Edifício - Apartamento
+                                </label>
+                                <input
+                                    type="text"
+                                    value={formData.building}
+                                    onChange={(e) => setFormData({ ...formData, building: e.target.value })}
+                                    style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
+                                />
                             </div>
 
                             <hr style={{ margin: '1.5rem 0', border: '0', borderTop: '1px solid var(--border)' }} />
