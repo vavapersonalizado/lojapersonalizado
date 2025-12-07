@@ -185,6 +185,97 @@ export default function MobileLayout({ children }) {
                             }} onClick={() => setShowMenu(false)}>
                                 🔥 Promoções
                             </Link>
+
+                            {/* Admin Menu Section */}
+                            {session?.user?.role === 'admin' && (
+                                <>
+                                    <div style={{
+                                        height: '1px',
+                                        background: 'rgba(255,255,255,0.3)',
+                                        margin: '1rem 0'
+                                    }} />
+                                    <div style={{
+                                        fontSize: '0.75rem',
+                                        color: 'rgba(255,255,255,0.7)',
+                                        marginBottom: '0.5rem',
+                                        paddingLeft: '0.75rem'
+                                    }}>
+                                        ⚡ ADMIN
+                                    </div>
+                                    <Link href="/admin/users" style={{
+                                        color: 'white',
+                                        textDecoration: 'none',
+                                        padding: '0.75rem',
+                                        background: isActive('/admin/users') ? 'rgba(255,255,255,0.2)' : 'transparent',
+                                        borderRadius: 'var(--radius)'
+                                    }} onClick={() => setShowMenu(false)}>
+                                        👥 Clientes
+                                    </Link>
+                                    <Link href="/admin/orders" style={{
+                                        color: 'white',
+                                        textDecoration: 'none',
+                                        padding: '0.75rem',
+                                        background: isActive('/admin/orders') ? 'rgba(255,255,255,0.2)' : 'transparent',
+                                        borderRadius: 'var(--radius)'
+                                    }} onClick={() => setShowMenu(false)}>
+                                        📦 Pedidos
+                                    </Link>
+                                    <Link href="/admin/products" style={{
+                                        color: 'white',
+                                        textDecoration: 'none',
+                                        padding: '0.75rem',
+                                        background: isActive('/admin/products') ? 'rgba(255,255,255,0.2)' : 'transparent',
+                                        borderRadius: 'var(--radius)'
+                                    }} onClick={() => setShowMenu(false)}>
+                                        🛍️ Produtos
+                                    </Link>
+                                    <Link href="/admin/galeria" style={{
+                                        color: 'white',
+                                        textDecoration: 'none',
+                                        padding: '0.75rem',
+                                        background: isActive('/admin/galeria') ? 'rgba(255,255,255,0.2)' : 'transparent',
+                                        borderRadius: 'var(--radius)'
+                                    }} onClick={() => setShowMenu(false)}>
+                                        🖼️ Galeria
+                                    </Link>
+                                    <Link href="/admin/coupons" style={{
+                                        color: 'white',
+                                        textDecoration: 'none',
+                                        padding: '0.75rem',
+                                        background: isActive('/admin/coupons') ? 'rgba(255,255,255,0.2)' : 'transparent',
+                                        borderRadius: 'var(--radius)'
+                                    }} onClick={() => setShowMenu(false)}>
+                                        🎟️ Cupons
+                                    </Link>
+                                    <Link href="/admin/events" style={{
+                                        color: 'white',
+                                        textDecoration: 'none',
+                                        padding: '0.75rem',
+                                        background: isActive('/admin/events') ? 'rgba(255,255,255,0.2)' : 'transparent',
+                                        borderRadius: 'var(--radius)'
+                                    }} onClick={() => setShowMenu(false)}>
+                                        📅 Eventos
+                                    </Link>
+                                    <Link href="/admin/ads" style={{
+                                        color: 'white',
+                                        textDecoration: 'none',
+                                        padding: '0.75rem',
+                                        background: isActive('/admin/ads') ? 'rgba(255,255,255,0.2)' : 'transparent',
+                                        borderRadius: 'var(--radius)'
+                                    }} onClick={() => setShowMenu(false)}>
+                                        📢 Propagandas
+                                    </Link>
+                                    <Link href="/admin/settings" style={{
+                                        color: 'white',
+                                        textDecoration: 'none',
+                                        padding: '0.75rem',
+                                        background: isActive('/admin/settings') ? 'rgba(255,255,255,0.2)' : 'transparent',
+                                        borderRadius: 'var(--radius)'
+                                    }} onClick={() => setShowMenu(false)}>
+                                        ⚙️ Config
+                                    </Link>
+                                </>
+                            )}
                         </nav>
                     </div>
                 </div>
