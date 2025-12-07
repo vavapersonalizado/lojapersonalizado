@@ -340,7 +340,7 @@ export default function ProfilePage() {
                             </div>
                             <div style={{ marginBottom: '1rem' }}>
                                 <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-                                    Rua / Chome
+                                    Número da Casa
                                 </label>
                                 <input
                                     type="text"
@@ -353,7 +353,7 @@ export default function ProfilePage() {
 
                         <div style={{ marginBottom: '1rem' }}>
                             <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-                                Edifício / Apartamento
+                                Edifício - Apartamento
                             </label>
                             <input
                                 type="text"
