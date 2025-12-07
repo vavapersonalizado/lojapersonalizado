@@ -219,7 +219,7 @@ export default function Sidebar() {
                                         padding: '0.5rem',
                                         borderRadius: 'var(--radius)',
                                         background: pathname === link.path ? 'rgba(255,255,255,0.2)' : 'transparent',
-                                        color: 'white',
+                                        color: 'black',
                                         textDecoration: 'none',
                                         fontSize: '0.9rem',
                                         marginBottom: '0.25rem',

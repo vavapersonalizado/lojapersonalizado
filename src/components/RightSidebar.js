@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
-import Link from 'next/link';
 import Image from 'next/image';
 import { isVideo } from '@/lib/mediaUtils';
 
@@ -158,7 +157,8 @@ export default function RightSidebar() {
                 flexDirection: 'column',
                 gap: '2rem',
                 transition: 'width 0.3s ease',
-                background: 'var(--card)'
+                background: 'linear-gradient(135deg, var(--primary), var(--secondary))',
+                color: 'white'
             }}>
                 <div style={{ display: 'flex', justifyContent: isCollapsed ? 'center' : 'flex-start' }}>
                     <button
@@ -169,7 +169,7 @@ export default function RightSidebar() {
                             cursor: 'pointer',
                             padding: '0.5rem',
                             borderRadius: 'var(--radius)',
-                            color: 'var(--muted-foreground)',
+                            color: 'white',
                             fontSize: '1.2rem'
                         }}
                     >
@@ -190,7 +190,7 @@ export default function RightSidebar() {
                                 <h3 style={{
                                     fontSize: '1.1rem',
                                     marginBottom: '1rem',
-                                    color: 'var(--primary)',
+                                    color: 'white',
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'space-between'
@@ -312,7 +312,7 @@ export default function RightSidebar() {
                                                     width: '6px',
                                                     height: '6px',
                                                     borderRadius: '50%',
-                                                    background: idx === currentPromoIndex ? 'var(--primary)' : 'var(--muted)'
+                                                    background: idx === currentPromoIndex ? 'white' : 'rgba(255,255,255,0.5)'
                                                 }} />
                                             ))}
                                         </div>
@@ -337,7 +337,7 @@ export default function RightSidebar() {
                             <h3 style={{
                                 fontSize: '1.1rem',
                                 marginBottom: '1rem',
-                                color: 'var(--primary)',
+                                color: 'white',
                                 display: 'flex',
                                 alignItems: 'center',
                                 gap: '0.5rem'
@@ -433,7 +433,7 @@ export default function RightSidebar() {
                                                         width: '6px',
                                                         height: '6px',
                                                         borderRadius: '50%',
-                                                        background: idx === currentEventIndex ? 'var(--primary)' : 'var(--muted)'
+                                                        background: idx === currentEventIndex ? 'white' : 'rgba(255,255,255,0.5)'
                                                     }} />
                                                 ))}
                                             </div>
@@ -541,7 +541,7 @@ export default function RightSidebar() {
                                                     width: '6px',
                                                     height: '6px',
                                                     borderRadius: '50%',
-                                                    background: idx === currentAdIndex ? 'var(--primary)' : 'var(--muted)'
+                                                    background: idx === currentAdIndex ? 'white' : 'rgba(255,255,255,0.5)'
                                                 }} />
                                             ))}
                                         </div>
