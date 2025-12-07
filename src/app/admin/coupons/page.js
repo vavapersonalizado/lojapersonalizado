@@ -11,6 +11,7 @@ export default function CouponsPage() {
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [formData, setFormData] = useState({
+        id: null,
         code: '',
         discount: '',
         type: 'percentage',
@@ -20,6 +21,7 @@ export default function CouponsPage() {
     });
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState('');
+    const [isEditing, setIsEditing] = useState(false);
 
     const fetchCoupons = () => {
         fetch('/api/coupons')
@@ -67,14 +69,29 @@ export default function CouponsPage() {
         }
     };
 
+    const handleEdit = (coupon) => {
+        setFormData({
+            id: coupon.id,
+            code: coupon.code,
+            discount: coupon.discount,
+            type: coupon.type,
+            maxUses: coupon.maxUses || '',
+            expiresAt: coupon.expiresAt ? new Date(coupon.expiresAt).toISOString().split('T')[0] : '',
+            isActive: coupon.isActive
+        });
+        setIsEditing(true);
+        setShowModal(true);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setSubmitting(true);
         setError('');
 
         try {
+            const method = isEditing ? 'PATCH' : 'POST';
             const res = await fetch('/api/coupons', {
-                method: 'POST',
+                method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
             });
@@ -82,12 +99,13 @@ export default function CouponsPage() {
             const data = await res.json();
 
             if (!res.ok) {
-                throw new Error(data.error || 'Failed to create coupon');
+                throw new Error(data.error || 'Failed to save coupon');
             }
 
             fetchCoupons();
             setShowModal(false);
             setFormData({
+                id: null,
                 code: '',
                 discount: '',
                 type: 'percentage',
@@ -95,11 +113,26 @@ export default function CouponsPage() {
                 expiresAt: '',
                 isActive: true
             });
+            setIsEditing(false);
         } catch (err) {
             setError(err.message);
         } finally {
             setSubmitting(false);
         }
+    };
+
+    const openNewCouponModal = () => {
+        setFormData({
+            id: null,
+            code: '',
+            discount: '',
+            type: 'percentage',
+            maxUses: '',
+            expiresAt: '',
+            isActive: true
+        });
+        setIsEditing(false);
+        setShowModal(true);
     };
 
     if (loading) return <p style={{ padding: '2rem' }}>Carregando cupons...</p>;
@@ -110,7 +143,7 @@ export default function CouponsPage() {
                 <h1 style={{ fontSize: '2rem', fontWeight: 'bold' }}>Gerenciar Cupons</h1>
                 <button
                     className="btn btn-primary"
-                    onClick={() => setShowModal(true)}
+                    onClick={openNewCouponModal}
                 >
                     ➕ Criar Cupom
                 </button>
@@ -171,7 +204,14 @@ export default function CouponsPage() {
                                             {coupon.isActive ? 'Ativo' : 'Inativo'}
                                         </span>
                                     </td>
-                                    <td style={{ padding: '1rem' }}>
+                                    <td style={{ padding: '1rem', display: 'flex', gap: '0.5rem' }}>
+                                        <button
+                                            className="btn btn-outline"
+                                            style={{ padding: '0.25rem 0.5rem', fontSize: '0.9rem' }}
+                                            onClick={() => handleEdit(coupon)}
+                                        >
+                                            ✏️ Editar
+                                        </button>
                                         <button
                                             className="btn btn-outline"
                                             style={{ padding: '0.25rem 0.5rem', fontSize: '0.9rem', color: 'red', borderColor: 'red' }}
@@ -187,7 +227,7 @@ export default function CouponsPage() {
                 </table>
             </div>
 
-            {/* Create Modal */}
+            {/* Create/Edit Modal */}
             {showModal && (
                 <div style={{
                     position: 'fixed',
@@ -210,7 +250,7 @@ export default function CouponsPage() {
                         border: '1px solid var(--border)'
                     }}>
                         <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1.5rem' }}>
-                            Criar Novo Cupom
+                            {isEditing ? 'Editar Cupom' : 'Criar Novo Cupom'}
                         </h2>
 
                         <form onSubmit={handleSubmit}>
@@ -319,7 +359,7 @@ export default function CouponsPage() {
                                     className="btn btn-primary"
                                     disabled={submitting}
                                 >
-                                    {submitting ? 'Criando...' : 'Criar Cupom'}
+                                    {submitting ? 'Salvando...' : (isEditing ? 'Salvar Alterações' : 'Criar Cupom')}
                                 </button>
                             </div>
                         </form>

@@ -91,3 +91,38 @@ export async function DELETE(request) {
         return NextResponse.json({ error: "Error deleting coupon" }, { status: 500 });
     }
 }
+
+export async function PATCH(request) {
+    const session = await getServerSession(authOptions);
+
+    if (!session || session.user.role !== 'admin') {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    try {
+        const data = await request.json();
+        const { id, code, discount, type, maxUses, expiresAt, isActive } = data;
+
+        if (!id) {
+            return NextResponse.json({ error: "ID is required" }, { status: 400 });
+        }
+
+        const updateData = {};
+        if (code !== undefined) updateData.code = code;
+        if (discount !== undefined) updateData.discount = parseFloat(discount);
+        if (type !== undefined) updateData.type = type;
+        if (maxUses !== undefined) updateData.maxUses = maxUses ? parseInt(maxUses) : null;
+        if (expiresAt !== undefined) updateData.expiresAt = expiresAt ? new Date(expiresAt) : null;
+        if (isActive !== undefined) updateData.isActive = isActive;
+
+        const coupon = await prisma.coupon.update({
+            where: { id },
+            data: updateData
+        });
+
+        return NextResponse.json(coupon);
+    } catch (error) {
+        console.error("Error updating coupon:", error);
+        return NextResponse.json({ error: "Error updating coupon" }, { status: 500 });
+    }
+}

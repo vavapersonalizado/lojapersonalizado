@@ -17,7 +17,8 @@ export default function NewProductPage() {
         description: '',
         categoryId: '',
         images: [],
-        stock: ''
+        stock: '',
+        htmlContent: ''
     });
 
     const loadCategories = () => {
@@ -195,6 +196,17 @@ export default function NewProductPage() {
                                 style={{ height: '100px' }}
                                 value={formData.description}
                                 onChange={e => setFormData({ ...formData, description: e.target.value })}
+                            />
+                        </div>
+
+                        <div>
+                            <label style={{ display: 'block', marginBottom: '0.5rem' }}>Código HTML para Banner (Embed/Iframe)</label>
+                            <textarea
+                                className="input"
+                                style={{ height: '80px', fontFamily: 'monospace', fontSize: '0.8rem' }}
+                                value={formData.htmlContent}
+                                onChange={e => setFormData({ ...formData, htmlContent: e.target.value })}
+                                placeholder="Insira o código HTML aqui..."
                             />
                         </div>
                     </div>

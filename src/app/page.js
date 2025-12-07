@@ -95,11 +95,7 @@ export default function Home() {
                 ) : products.length === 0 ? (
                     <div style={{ textAlign: 'center', padding: '4rem' }}>
                         <p style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>Nenhum produto cadastrado ainda.</p>
-                        {session && (
-                            <Link href="/admin/products/new" className="btn btn-primary">
-                                Cadastrar Primeiro Produto
-                            </Link>
-                        )}
+                        {/* Button removed as per user request */}
                     </div>
                 ) : (
                     <div style={{

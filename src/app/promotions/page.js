@@ -86,6 +86,12 @@ export default function PromotionsPage() {
                                 <p style={{ color: 'var(--muted-foreground)', marginBottom: '1rem', flex: 1 }}>
                                     {promo.description}
                                 </p>
+                                {promo.htmlContent && (
+                                    <div
+                                        style={{ marginBottom: '1rem', overflow: 'hidden' }}
+                                        dangerouslySetInnerHTML={{ __html: promo.htmlContent }}
+                                    />
+                                )}
                                 <Link href="/products" className="btn btn-outline" style={{ width: '100%', textAlign: 'center' }}>
                                     Aproveitar Oferta
                                 </Link>

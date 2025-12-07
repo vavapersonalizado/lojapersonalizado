@@ -31,7 +31,7 @@ export async function POST(request) {
 
     try {
         const body = await request.json();
-        const { title, date, description, images } = body;
+        const { title, date, description, images, htmlContent } = body;
 
         const event = await prisma.event.create({
             data: {
@@ -39,6 +39,7 @@ export async function POST(request) {
                 date: new Date(date),
                 description,
                 images: images || [],
+                htmlContent,
                 active: true
             }
         });
@@ -70,7 +71,7 @@ export async function DELETE(request) {
     }
 }
 
-// PATCH: Toggle active status (Admin only)
+// PATCH: Update event (Admin only)
 export async function PATCH(request) {
     const session = await getServerSession(authOptions);
     if (session?.user?.role !== 'admin') {
@@ -79,11 +80,19 @@ export async function PATCH(request) {
 
     try {
         const body = await request.json();
-        const { id, active } = body;
+        const { id, active, title, description, date, images, htmlContent } = body;
+
+        const updateData = {};
+        if (active !== undefined) updateData.active = active;
+        if (title !== undefined) updateData.title = title;
+        if (description !== undefined) updateData.description = description;
+        if (date !== undefined) updateData.date = new Date(date);
+        if (images !== undefined) updateData.images = images;
+        if (htmlContent !== undefined) updateData.htmlContent = htmlContent;
 
         const event = await prisma.event.update({
             where: { id },
-            data: { active }
+            data: updateData
         });
 
         return NextResponse.json(event);

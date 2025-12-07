@@ -104,6 +104,13 @@ export default function ProductPage() {
                         {product.description || 'Sem descrição.'}
                     </div>
 
+                    {product.htmlContent && (
+                        <div
+                            style={{ marginBottom: '2rem', overflow: 'hidden' }}
+                            dangerouslySetInnerHTML={{ __html: product.htmlContent }}
+                        />
+                    )}
+
                     {/* Stock Status */}
                     <div style={{ marginBottom: '2rem' }}>
                         {product.stock > 0 ? (

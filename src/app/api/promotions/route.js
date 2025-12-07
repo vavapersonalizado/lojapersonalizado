@@ -17,6 +17,7 @@ export async function GET(request) {
 
         return NextResponse.json(promotions);
     } catch (error) {
+        console.error("Error fetching promotions:", error);
         return NextResponse.json({ error: 'Error fetching promotions' }, { status: 500 });
     }
 }
@@ -29,7 +30,7 @@ export async function POST(request) {
 
     try {
         const body = await request.json();
-        const { title, description, imageUrl, discount } = body;
+        const { title, description, imageUrl, discount, htmlContent } = body;
 
         const promotion = await prisma.promotion.create({
             data: {
@@ -37,12 +38,14 @@ export async function POST(request) {
                 description,
                 imageUrl,
                 discount: parseFloat(discount),
+                htmlContent,
                 active: true
             }
         });
 
         return NextResponse.json(promotion);
     } catch (error) {
+        console.error("Error creating promotion:", error);
         return NextResponse.json({ error: 'Error creating promotion' }, { status: 500 });
     }
 }
@@ -60,6 +63,7 @@ export async function DELETE(request) {
         await prisma.promotion.delete({ where: { id } });
         return NextResponse.json({ success: true });
     } catch (error) {
+        console.error("Error deleting promotion:", error);
         return NextResponse.json({ error: 'Error deleting promotion' }, { status: 500 });
     }
 }
@@ -72,15 +76,24 @@ export async function PATCH(request) {
 
     try {
         const body = await request.json();
-        const { id, active } = body;
+        const { id, active, title, description, imageUrl, discount, htmlContent } = body;
+
+        const updateData = {};
+        if (active !== undefined) updateData.active = active;
+        if (title !== undefined) updateData.title = title;
+        if (description !== undefined) updateData.description = description;
+        if (imageUrl !== undefined) updateData.imageUrl = imageUrl;
+        if (discount !== undefined) updateData.discount = parseFloat(discount);
+        if (htmlContent !== undefined) updateData.htmlContent = htmlContent;
 
         const promotion = await prisma.promotion.update({
             where: { id },
-            data: { active }
+            data: updateData
         });
 
         return NextResponse.json(promotion);
     } catch (error) {
+        console.error("Error updating promotion:", error);
         return NextResponse.json({ error: 'Error updating promotion' }, { status: 500 });
     }
 }

@@ -74,6 +74,12 @@ export default function EventsPage() {
                                         📅 {new Date(event.date).toLocaleDateString()}
                                     </p>
                                     <p style={{ color: 'var(--muted-foreground)' }}>{event.description}</p>
+                                    {event.htmlContent && (
+                                        <div
+                                            style={{ marginTop: '1rem', overflow: 'hidden' }}
+                                            dangerouslySetInnerHTML={{ __html: event.htmlContent }}
+                                        />
+                                    )}
                                 </div>
                                 {event.images && event.images.length > 0 && (
                                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '0.5rem' }}>

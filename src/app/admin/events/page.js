@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import ImageUpload from '@/components/ImageUpload';
 import { isVideo } from '@/lib/mediaUtils';
@@ -8,37 +8,57 @@ import { isVideo } from '@/lib/mediaUtils';
 export default function AdminEvents() {
     const { data: session } = useSession();
     const [events, setEvents] = useState([]);
-    const [formData, setFormData] = useState({ title: '', date: '', description: '', images: [] });
-
-    const fetchEvents = async () => {
-        try {
-            const res = await fetch('/api/events?admin=true');
-            const data = await res.json();
-            setEvents(Array.isArray(data) ? data : []);
-        } catch (error) {
-            console.error('Error fetching events:', error);
-        }
-    };
+    const [formData, setFormData] = useState({ id: null, title: '', date: '', description: '', images: [], htmlContent: '' });
+    const [isEditing, setIsEditing] = useState(false);
 
     useEffect(() => {
+        const fetchEvents = async () => {
+            try {
+                const res = await fetch('/api/events?admin=true');
+                const data = await res.json();
+                setEvents(Array.isArray(data) ? data : []);
+            } catch (error) {
+                console.error('Error fetching events:', error);
+            }
+        };
         fetchEvents();
     }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
+            const method = isEditing ? 'PATCH' : 'POST';
             const res = await fetch('/api/events', {
-                method: 'POST',
+                method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
             });
             if (res.ok) {
-                setFormData({ title: '', date: '', description: '', images: [] });
+                setFormData({ id: null, title: '', date: '', description: '', images: [], htmlContent: '' });
+                setIsEditing(false);
                 fetchEvents();
             }
         } catch (error) {
-            console.error('Error creating event:', error);
+            console.error('Error saving event:', error);
         }
+    };
+
+    const handleEdit = (event) => {
+        setFormData({
+            id: event.id,
+            title: event.title,
+            date: new Date(event.date).toISOString().split('T')[0],
+            description: event.description || '',
+            images: event.images || [],
+            htmlContent: event.htmlContent || ''
+        });
+        setIsEditing(true);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const cancelEdit = () => {
+        setFormData({ id: null, title: '', date: '', description: '', images: [], htmlContent: '' });
+        setIsEditing(false);
     };
 
     const handleDelete = async (id) => {
@@ -86,7 +106,14 @@ export default function AdminEvents() {
             <h1 style={{ marginBottom: '2rem' }}>Gerenciar Eventos</h1>
 
             <div className="card" style={{ padding: '1.5rem', marginBottom: '2rem' }}>
-                <h3>Novo Evento</h3>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <h3>{isEditing ? 'Editar Evento' : 'Novo Evento'}</h3>
+                    {isEditing && (
+                        <button onClick={cancelEdit} className="btn btn-outline" style={{ fontSize: '0.8rem' }}>
+                            Cancelar Edição
+                        </button>
+                    )}
+                </div>
                 <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
                     <input
                         type="text"
@@ -108,6 +135,12 @@ export default function AdminEvents() {
                         value={formData.description}
                         onChange={e => setFormData({ ...formData, description: e.target.value })}
                         style={{ padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
+                    />
+                    <textarea
+                        placeholder="Código HTML para Banner (Embed/Iframe)"
+                        value={formData.htmlContent}
+                        onChange={e => setFormData({ ...formData, htmlContent: e.target.value })}
+                        style={{ padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)', fontFamily: 'monospace', fontSize: '0.8rem', minHeight: '80px' }}
                     />
                     <div>
                         <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Imagens do Evento</label>
@@ -153,7 +186,9 @@ export default function AdminEvents() {
                             onUpload={handleImageUpload}
                         />
                     </div>
-                    <button type="submit" className="btn btn-primary">Adicionar Evento</button>
+                    <button type="submit" className="btn btn-primary">
+                        {isEditing ? 'Salvar Alterações' : 'Adicionar Evento'}
+                    </button>
                 </form>
             </div>
 
@@ -189,6 +224,13 @@ export default function AdminEvents() {
                                 />
                                 Ativo
                             </label>
+                            <button
+                                onClick={() => handleEdit(event)}
+                                className="btn btn-outline"
+                                style={{ fontSize: '0.9rem', padding: '0.25rem 0.5rem' }}
+                            >
+                                ✏️ Editar
+                            </button>
                             <button onClick={() => handleDelete(event.id)} className="btn btn-outline" style={{ color: 'red', borderColor: 'red' }}>
                                 🗑️
                             </button>

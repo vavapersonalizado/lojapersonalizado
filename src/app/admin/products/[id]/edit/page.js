@@ -20,7 +20,8 @@ export default function EditProductPage() {
         description: '',
         price: '',
         stock: '',
-        categoryId: ''
+        categoryId: '',
+        htmlContent: ''
     });
 
     const [categories, setCategories] = useState([]);
@@ -52,7 +53,8 @@ export default function EditProductPage() {
                     description: data.description || '',
                     price: data.price || '',
                     stock: data.stock || '',
-                    categoryId: data.categoryId || ''
+                    categoryId: data.categoryId || '',
+                    htmlContent: data.htmlContent || ''
                 });
             }
         } catch (error) {
@@ -192,6 +194,27 @@ export default function EditProductPage() {
                             border: '1px solid var(--border)',
                             background: 'var(--background)',
                             resize: 'vertical'
+                        }}
+                    />
+                </div>
+
+                <div>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+                        Código HTML para Banner (Embed/Iframe)
+                    </label>
+                    <textarea
+                        value={formData.htmlContent}
+                        onChange={(e) => setFormData({ ...formData, htmlContent: e.target.value })}
+                        rows={3}
+                        placeholder="Insira o código HTML aqui..."
+                        style={{
+                            width: '100%',
+                            padding: '0.75rem',
+                            borderRadius: 'var(--radius)',
+                            border: '1px solid var(--border)',
+                            background: 'var(--background)',
+                            fontFamily: 'monospace',
+                            fontSize: '0.8rem'
                         }}
                     />
                 </div>

@@ -7,8 +7,8 @@ import ImageUpload from '@/components/ImageUpload';
 export default function AdminPromotions() {
     const { data: session } = useSession();
     const [promotions, setPromotions] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [formData, setFormData] = useState({ title: '', description: '', images: [], discount: '' });
+    const [formData, setFormData] = useState({ id: null, title: '', description: '', images: [], discount: '', htmlContent: '' });
+    const [isEditing, setIsEditing] = useState(false);
 
     useEffect(() => {
         fetchPromotions();
@@ -29,18 +29,38 @@ export default function AdminPromotions() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
+            const method = isEditing ? 'PATCH' : 'POST';
             const res = await fetch('/api/promotions', {
-                method: 'POST',
+                method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
             });
             if (res.ok) {
-                setFormData({ title: '', description: '', images: [], discount: '' });
+                setFormData({ id: null, title: '', description: '', images: [], discount: '', htmlContent: '' });
+                setIsEditing(false);
                 fetchPromotions();
             }
         } catch (error) {
-            console.error('Error creating promotion:', error);
+            console.error('Error saving promotion:', error);
         }
+    };
+
+    const handleEdit = (promo) => {
+        setFormData({
+            id: promo.id,
+            title: promo.title,
+            description: promo.description || '',
+            images: promo.images || [],
+            discount: promo.discount || '',
+            htmlContent: promo.htmlContent || ''
+        });
+        setIsEditing(true);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const cancelEdit = () => {
+        setFormData({ id: null, title: '', description: '', images: [], discount: '', htmlContent: '' });
+        setIsEditing(false);
     };
 
     const handleDelete = async (id) => {
@@ -88,7 +108,14 @@ export default function AdminPromotions() {
             <h1 style={{ marginBottom: '2rem' }}>Gerenciar Promoções</h1>
 
             <div className="card" style={{ padding: '1.5rem', marginBottom: '2rem' }}>
-                <h3>Nova Promoção</h3>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <h3>{isEditing ? 'Editar Promoção' : 'Nova Promoção'}</h3>
+                    {isEditing && (
+                        <button onClick={cancelEdit} className="btn btn-outline" style={{ fontSize: '0.8rem' }}>
+                            Cancelar Edição
+                        </button>
+                    )}
+                </div>
                 <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
                     <input
                         type="text"
@@ -110,6 +137,12 @@ export default function AdminPromotions() {
                         value={formData.discount}
                         onChange={e => setFormData({ ...formData, discount: e.target.value })}
                         style={{ padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
+                    />
+                    <textarea
+                        placeholder="Código HTML para Banner (Embed/Iframe)"
+                        value={formData.htmlContent}
+                        onChange={e => setFormData({ ...formData, htmlContent: e.target.value })}
+                        style={{ padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)', fontFamily: 'monospace', fontSize: '0.8rem', minHeight: '80px' }}
                     />
 
                     <div>
@@ -148,7 +181,9 @@ export default function AdminPromotions() {
                         />
                     </div>
 
-                    <button type="submit" className="btn btn-primary">Adicionar Promoção</button>
+                    <button type="submit" className="btn btn-primary">
+                        {isEditing ? 'Salvar Alterações' : 'Adicionar Promoção'}
+                    </button>
                 </form>
             </div>
 
@@ -186,6 +221,13 @@ export default function AdminPromotions() {
                                 />
                                 Ativo
                             </label>
+                            <button
+                                onClick={() => handleEdit(promo)}
+                                className="btn btn-outline"
+                                style={{ fontSize: '0.9rem', padding: '0.25rem 0.5rem' }}
+                            >
+                                ✏️ Editar
+                            </button>
                             <button onClick={() => handleDelete(promo.id)} className="btn btn-outline" style={{ color: 'red', borderColor: 'red' }}>
                                 🗑️
                             </button>

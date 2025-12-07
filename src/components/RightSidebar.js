@@ -24,10 +24,6 @@ export default function RightSidebar() {
 
     const [selectedMedia, setSelectedMedia] = useState(null);
 
-    useEffect(() => {
-        fetchData();
-    }, [isAdmin]);
-
     const fetchData = async () => {
         try {
             const [eventsRes, promoRes, adsRes] = await Promise.all([
@@ -47,6 +43,10 @@ export default function RightSidebar() {
             console.error('Error fetching sidebar data:', error);
         }
     };
+
+    useEffect(() => {
+        fetchData();
+    }, [isAdmin]);
 
     // Promotion Carousel Logic
     useEffect(() => {
@@ -147,25 +147,32 @@ export default function RightSidebar() {
                         }}>
                             {promotions[currentPromoIndex] && (
                                 <>
-                                    {getDisplayMedia(promotions[currentPromoIndex]) && (
+                                    {promotions[currentPromoIndex].htmlContent ? (
                                         <div
-                                            style={{ position: 'relative', height: '120px', marginBottom: '0.5rem', cursor: 'pointer' }}
-                                            onClick={() => openModal(getDisplayMedia(promotions[currentPromoIndex]))}
-                                        >
-                                            {isVideo(getDisplayMedia(promotions[currentPromoIndex])) ? (
-                                                <video
-                                                    src={getDisplayMedia(promotions[currentPromoIndex])}
-                                                    style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'var(--radius)' }}
-                                                    muted
-                                                />
-                                            ) : (
-                                                <img
-                                                    src={getDisplayMedia(promotions[currentPromoIndex])}
-                                                    alt={promotions[currentPromoIndex].title}
-                                                    style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'var(--radius)' }}
-                                                />
-                                            )}
-                                        </div>
+                                            style={{ marginBottom: '0.5rem', overflow: 'hidden', borderRadius: 'var(--radius)' }}
+                                            dangerouslySetInnerHTML={{ __html: promotions[currentPromoIndex].htmlContent }}
+                                        />
+                                    ) : (
+                                        getDisplayMedia(promotions[currentPromoIndex]) && (
+                                            <div
+                                                style={{ position: 'relative', height: '120px', marginBottom: '0.5rem', cursor: 'pointer' }}
+                                                onClick={() => openModal(getDisplayMedia(promotions[currentPromoIndex]))}
+                                            >
+                                                {isVideo(getDisplayMedia(promotions[currentPromoIndex])) ? (
+                                                    <video
+                                                        src={getDisplayMedia(promotions[currentPromoIndex])}
+                                                        style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'var(--radius)' }}
+                                                        muted
+                                                    />
+                                                ) : (
+                                                    <img
+                                                        src={getDisplayMedia(promotions[currentPromoIndex])}
+                                                        alt={promotions[currentPromoIndex].title}
+                                                        style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'var(--radius)' }}
+                                                    />
+                                                )}
+                                            </div>
+                                        )
                                     )}
                                     <p style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>
                                         {promotions[currentPromoIndex].title}
@@ -263,26 +270,33 @@ export default function RightSidebar() {
                                                 {new Date(events[currentEventIndex].date).toLocaleDateString()}
                                             </p>
 
-                                            {/* Event Image/Video Preview */}
-                                            {getDisplayMedia(events[currentEventIndex]) && (
+                                            {/* Event Image/Video Preview or HTML Content */}
+                                            {events[currentEventIndex].htmlContent ? (
                                                 <div
-                                                    style={{ position: 'relative', height: '120px', borderRadius: 'var(--radius)', overflow: 'hidden', cursor: 'pointer' }}
-                                                    onClick={() => openModal(getDisplayMedia(events[currentEventIndex]))}
-                                                >
-                                                    {isVideo(getDisplayMedia(events[currentEventIndex])) ? (
-                                                        <video
-                                                            src={getDisplayMedia(events[currentEventIndex])}
-                                                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                                            muted
-                                                        />
-                                                    ) : (
-                                                        <img
-                                                            src={getDisplayMedia(events[currentEventIndex])}
-                                                            alt={events[currentEventIndex].title}
-                                                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                                        />
-                                                    )}
-                                                </div>
+                                                    style={{ marginBottom: '0.5rem', overflow: 'hidden', borderRadius: 'var(--radius)' }}
+                                                    dangerouslySetInnerHTML={{ __html: events[currentEventIndex].htmlContent }}
+                                                />
+                                            ) : (
+                                                getDisplayMedia(events[currentEventIndex]) && (
+                                                    <div
+                                                        style={{ position: 'relative', height: '120px', borderRadius: 'var(--radius)', overflow: 'hidden', cursor: 'pointer' }}
+                                                        onClick={() => openModal(getDisplayMedia(events[currentEventIndex]))}
+                                                    >
+                                                        {isVideo(getDisplayMedia(events[currentEventIndex])) ? (
+                                                            <video
+                                                                src={getDisplayMedia(events[currentEventIndex])}
+                                                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                                                muted
+                                                            />
+                                                        ) : (
+                                                            <img
+                                                                src={getDisplayMedia(events[currentEventIndex])}
+                                                                alt={events[currentEventIndex].title}
+                                                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                                            />
+                                                        )}
+                                                    </div>
+                                                )
                                             )}
                                         </div>
                                     </div>
@@ -310,27 +324,34 @@ export default function RightSidebar() {
                 {ads.map(ad => (
                     <section key={ad.id} style={{ flex: 1, opacity: ad.active ? 1 : 0.5 }}>
                         <div style={{ position: 'relative' }}>
-                            {getDisplayMedia(ad) && (
+                            {ad.htmlContent ? (
                                 <div
-                                    style={{ cursor: 'pointer' }}
-                                    onClick={() => ad.link ? window.open(ad.link, '_blank') : openModal(getDisplayMedia(ad))}
-                                >
-                                    {isVideo(getDisplayMedia(ad)) ? (
-                                        <video
-                                            src={getDisplayMedia(ad)}
-                                            style={{ width: '100%', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
-                                            muted
-                                            autoPlay
-                                            loop
-                                        />
-                                    ) : (
-                                        <img
-                                            src={getDisplayMedia(ad)}
-                                            alt={ad.title}
-                                            style={{ width: '100%', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
-                                        />
-                                    )}
-                                </div>
+                                    style={{ marginBottom: '0.5rem', overflow: 'hidden', borderRadius: 'var(--radius)' }}
+                                    dangerouslySetInnerHTML={{ __html: ad.htmlContent }}
+                                />
+                            ) : (
+                                getDisplayMedia(ad) && (
+                                    <div
+                                        style={{ cursor: 'pointer' }}
+                                        onClick={() => ad.link ? window.open(ad.link, '_blank') : openModal(getDisplayMedia(ad))}
+                                    >
+                                        {isVideo(getDisplayMedia(ad)) ? (
+                                            <video
+                                                src={getDisplayMedia(ad)}
+                                                style={{ width: '100%', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
+                                                muted
+                                                autoPlay
+                                                loop
+                                            />
+                                        ) : (
+                                            <img
+                                                src={getDisplayMedia(ad)}
+                                                alt={ad.title}
+                                                style={{ width: '100%', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
+                                            />
+                                        )}
+                                    </div>
+                                )
                             )}
 
                             {isAdmin && (

@@ -29,13 +29,14 @@ export async function POST(request) {
 
     try {
         const body = await request.json();
-        const { title, images, link } = body;
+        const { title, images, link, htmlContent } = body;
 
         const ad = await prisma.ad.create({
             data: {
                 title,
                 images: images || [],
                 link,
+                htmlContent,
                 active: true
             }
         });
@@ -71,11 +72,18 @@ export async function PATCH(request) {
 
     try {
         const body = await request.json();
-        const { id, active } = body;
+        const { id, active, title, images, link, htmlContent } = body;
+
+        const updateData = {};
+        if (active !== undefined) updateData.active = active;
+        if (title !== undefined) updateData.title = title;
+        if (images !== undefined) updateData.images = images;
+        if (link !== undefined) updateData.link = link;
+        if (htmlContent !== undefined) updateData.htmlContent = htmlContent;
 
         const ad = await prisma.ad.update({
             where: { id },
-            data: { active }
+            data: updateData
         });
 
         return NextResponse.json(ad);

@@ -7,8 +7,8 @@ import ImageUpload from '@/components/ImageUpload';
 export default function AdminAds() {
     const { data: session } = useSession();
     const [ads, setAds] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [formData, setFormData] = useState({ title: '', images: [], link: '' });
+    const [formData, setFormData] = useState({ id: null, title: '', images: [], link: '', htmlContent: '' });
+    const [isEditing, setIsEditing] = useState(false);
 
     useEffect(() => {
         fetchAds();
@@ -29,18 +29,37 @@ export default function AdminAds() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
+            const method = isEditing ? 'PATCH' : 'POST';
             const res = await fetch('/api/ads', {
-                method: 'POST',
+                method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
             });
             if (res.ok) {
-                setFormData({ title: '', images: [], link: '' });
+                setFormData({ id: null, title: '', images: [], link: '', htmlContent: '' });
+                setIsEditing(false);
                 fetchAds();
             }
         } catch (error) {
-            console.error('Error creating ad:', error);
+            console.error('Error saving ad:', error);
         }
+    };
+
+    const handleEdit = (ad) => {
+        setFormData({
+            id: ad.id,
+            title: ad.title,
+            images: ad.images || [],
+            link: ad.link || '',
+            htmlContent: ad.htmlContent || ''
+        });
+        setIsEditing(true);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const cancelEdit = () => {
+        setFormData({ id: null, title: '', images: [], link: '', htmlContent: '' });
+        setIsEditing(false);
     };
 
     const handleDelete = async (id) => {
@@ -88,7 +107,14 @@ export default function AdminAds() {
             <h1 style={{ marginBottom: '2rem' }}>Gerenciar Propagandas</h1>
 
             <div className="card" style={{ padding: '1.5rem', marginBottom: '2rem' }}>
-                <h3>Nova Propaganda</h3>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <h3>{isEditing ? 'Editar Propaganda' : 'Nova Propaganda'}</h3>
+                    {isEditing && (
+                        <button onClick={cancelEdit} className="btn btn-outline" style={{ fontSize: '0.8rem' }}>
+                            Cancelar Edição
+                        </button>
+                    )}
+                </div>
                 <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
                     <input
                         type="text"
@@ -104,6 +130,12 @@ export default function AdminAds() {
                         value={formData.link}
                         onChange={e => setFormData({ ...formData, link: e.target.value })}
                         style={{ padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
+                    />
+                    <textarea
+                        placeholder="Código HTML para Banner (Embed/Iframe)"
+                        value={formData.htmlContent}
+                        onChange={e => setFormData({ ...formData, htmlContent: e.target.value })}
+                        style={{ padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)', fontFamily: 'monospace', fontSize: '0.8rem', minHeight: '80px' }}
                     />
 
                     <div>
@@ -142,7 +174,9 @@ export default function AdminAds() {
                         />
                     </div>
 
-                    <button type="submit" className="btn btn-primary">Adicionar Propaganda</button>
+                    <button type="submit" className="btn btn-primary">
+                        {isEditing ? 'Salvar Alterações' : 'Adicionar Propaganda'}
+                    </button>
                 </form>
             </div>
 
@@ -178,6 +212,13 @@ export default function AdminAds() {
                                 />
                                 Ativo
                             </label>
+                            <button
+                                onClick={() => handleEdit(ad)}
+                                className="btn btn-outline"
+                                style={{ fontSize: '0.9rem', padding: '0.25rem 0.5rem' }}
+                            >
+                                ✏️ Editar
+                            </button>
                             <button onClick={() => handleDelete(ad.id)} className="btn btn-outline" style={{ color: 'red', borderColor: 'red' }}>
                                 🗑️
                             </button>
