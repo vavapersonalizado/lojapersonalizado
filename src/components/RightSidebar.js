@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { isVideo } from '@/lib/mediaUtils';
 
 export default function RightSidebar() {
@@ -233,9 +234,12 @@ export default function RightSidebar() {
                                                                 loop
                                                             />
                                                         ) : (
-                                                            <img
+                                                            <Image
                                                                 src={getActiveMedia(promotions[currentPromoIndex])}
                                                                 alt={promotions[currentPromoIndex].title}
+                                                                width={0}
+                                                                height={0}
+                                                                sizes="100vw"
                                                                 style={{ width: '100%', height: 'auto', borderRadius: 'var(--radius)' }}
                                                             />
                                                         )}
@@ -316,208 +320,237 @@ export default function RightSidebar() {
                                 </div>
                             </>
                         )}
-                    </>
-                )}
-            </section>
+
+                    </section>
                 )}
 
-            {/* Eventos */}
-            <section
-                onMouseEnter={() => setIsEventHovered(true)}
-                onMouseLeave={() => setIsEventHovered(false)}
-                style={{ display: 'flex', flexDirection: 'column', alignItems: isCollapsed ? 'center' : 'stretch' }}
-            >
-                {isCollapsed ? (
-                    <div title="Eventos" style={{ fontSize: '1.5rem', cursor: 'pointer' }}>📅</div>
-                ) : (
-                    <>
-                        <h3 style={{
-                            fontSize: '1.1rem',
-                            marginBottom: '1rem',
-                            color: 'var(--primary)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem'
-                        }}>
-                            📅 Próximos Eventos
-                        </h3>
-                        <div style={{
-                            background: 'var(--card)',
-                            border: '1px solid var(--border)',
-                            padding: '1rem',
-                            borderRadius: 'var(--radius)',
-                            boxShadow: 'var(--shadow)',
-                            minHeight: '150px'
-                        }}>
-                            {events.length === 0 ? (
-                                <p style={{ fontSize: '0.9rem', color: 'var(--muted-foreground)' }}>Nenhum evento próximo.</p>
-                            ) : (
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                                    {events[currentEventIndex] && (
-                                        <div key={events[currentEventIndex].id} className="fade-in">
-                                            <div style={{ marginBottom: '0.5rem', opacity: events[currentEventIndex].active ? 1 : 0.5 }}>
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
-                                                    <p style={{ fontWeight: '600', fontSize: '0.95rem' }}>{events[currentEventIndex].title}</p>
-                                                    {isAdmin && (
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={events[currentEventIndex].active}
-                                                            onChange={() => toggleItem('events', events[currentEventIndex].id, events[currentEventIndex].active)}
-                                                            title="Visível"
+                {/* Eventos */}
+                <section
+                    onMouseEnter={() => setIsEventHovered(true)}
+                    onMouseLeave={() => setIsEventHovered(false)}
+                    style={{ display: 'flex', flexDirection: 'column', alignItems: isCollapsed ? 'center' : 'stretch' }}
+                >
+                    {isCollapsed ? (
+                        <div title="Eventos" style={{ fontSize: '1.5rem', cursor: 'pointer' }}>📅</div>
+                    ) : (
+                        <>
+                            <h3 style={{
+                                fontSize: '1.1rem',
+                                marginBottom: '1rem',
+                                color: 'var(--primary)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem'
+                            }}>
+                                📅 Próximos Eventos
+                            </h3>
+                            <div style={{
+                                background: 'var(--card)',
+                                border: '1px solid var(--border)',
+                                padding: '1rem',
+                                borderRadius: 'var(--radius)',
+                                boxShadow: 'var(--shadow)',
+                                minHeight: '150px'
+                            }}>
+                                {events.length === 0 ? (
+                                    <p style={{ fontSize: '0.9rem', color: 'var(--muted-foreground)' }}>Nenhum evento próximo.</p>
+                                ) : (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                        {events[currentEventIndex] && (
+                                            <div key={events[currentEventIndex].id} className="fade-in">
+                                                <div style={{ marginBottom: '0.5rem', opacity: events[currentEventIndex].active ? 1 : 0.5 }}>
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                                                        <p style={{ fontWeight: '600', fontSize: '0.95rem' }}>{events[currentEventIndex].title}</p>
+                                                        {isAdmin && (
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={events[currentEventIndex].active}
+                                                                onChange={() => toggleItem('events', events[currentEventIndex].id, events[currentEventIndex].active)}
+                                                                title="Visível"
+                                                            />
+                                                        )}
+                                                    </div>
+                                                    <p style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)', marginBottom: '0.5rem' }}>
+                                                        {new Date(events[currentEventIndex].date).toLocaleDateString()}
+                                                    </p>
+
+                                                    {/* Event Image/Video Preview or HTML Content */}
+                                                    {events[currentEventIndex].htmlContent ? (
+                                                        <div
+                                                            style={{ marginBottom: '0.5rem', overflow: 'hidden', borderRadius: 'var(--radius)' }}
+                                                            dangerouslySetInnerHTML={{ __html: events[currentEventIndex].htmlContent }}
                                                         />
+                                                    ) : (
+                                                        getActiveMedia(events[currentEventIndex]) && (
+                                                            <div
+                                                                style={{ position: 'relative', borderRadius: 'var(--radius)', overflow: 'hidden', cursor: 'pointer' }}
+                                                                onClick={() => openModal(getActiveMedia(events[currentEventIndex]))}
+                                                            >
+                                                                {isVideo(getActiveMedia(events[currentEventIndex])) ? (
+                                                                    <video
+                                                                        src={getActiveMedia(events[currentEventIndex])}
+                                                                        style={{ width: '100%', height: 'auto' }}
+                                                                        muted
+                                                                        autoPlay
+                                                                        loop
+                                                                    />
+                                                                ) : (
+                                                                    <Image
+                                                                        src={getActiveMedia(events[currentEventIndex])}
+                                                                        alt={events[currentEventIndex].title}
+                                                                        width={0}
+                                                                        height={0}
+                                                                        sizes="100vw"
+                                                                        style={{ width: '100%', height: 'auto' }}
+                                                                    />
+                                                                )}
+                                                                {events[currentEventIndex].images && events[currentEventIndex].images.length > 1 && (
+                                                                    <div style={{
+                                                                        position: 'absolute',
+                                                                        bottom: '5px',
+                                                                        right: '5px',
+                                                                        background: 'rgba(0,0,0,0.6)',
+                                                                        color: 'white',
+                                                                        padding: '2px 6px',
+                                                                        borderRadius: '10px',
+                                                                        fontSize: '0.7rem'
+                                                                    }}>
+                                                                        {events[currentEventIndex].images.length} fotos
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        )
                                                     )}
                                                 </div>
-                                                <p style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)', marginBottom: '0.5rem' }}>
-                                                    {new Date(events[currentEventIndex].date).toLocaleDateString()}
-                                                </p>
+                                            </div>
+                                        )}
 
-                                                {/* Event Image/Video Preview or HTML Content */}
-                                                {events[currentEventIndex].htmlContent ? (
+                                        {/* Dots Indicator for Events */}
+                                        {events.length > 1 && (
+                                            <div style={{ display: 'flex', justifyContent: 'center', gap: '4px', marginTop: '0.5rem' }}>
+                                                {events.map((_, idx) => (
+                                                    <div key={idx} style={{
+                                                        width: '6px',
+                                                        height: '6px',
+                                                        borderRadius: '50%',
+                                                        background: idx === currentEventIndex ? 'var(--primary)' : 'var(--muted)'
+                                                    }} />
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        </>
+                    )}
+                </section>
+
+                {/* Publicidade */}
+                {ads.length > 0 && (
+                    <section
+                        onMouseEnter={() => setIsAdHovered(true)}
+                        onMouseLeave={() => setIsAdHovered(false)}
+                        style={{ display: 'flex', flexDirection: 'column', alignItems: isCollapsed ? 'center' : 'stretch' }}
+                    >
+                        {isCollapsed ? (
+                            <div title="Publicidade" style={{ fontSize: '1.5rem', cursor: 'pointer' }}>📢</div>
+                        ) : (
+                            <>
+                                <h3 style={{
+                                    fontSize: '1.1rem',
+                                    marginBottom: '1rem',
+                                    color: 'var(--primary)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between'
+                                }}>
+                                    📢 Publicidade
+                                    {isAdmin && ads[currentAdIndex] && (
+                                        <span style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)' }}>
+                                            {ads[currentAdIndex].active ? '🟢' : '🔴'}
+                                        </span>
+                                    )}
+                                </h3>
+
+                                <div style={{
+                                    background: 'var(--card)',
+                                    border: '1px solid var(--border)',
+                                    padding: '1rem',
+                                    borderRadius: 'var(--radius)',
+                                    boxShadow: 'var(--shadow)',
+                                    position: 'relative',
+                                    transition: 'all 0.3s ease'
+                                }}>
+                                    {ads[currentAdIndex] && (
+                                        <div key={ads[currentAdIndex].id} className="fade-in">
+                                            <div style={{ position: 'relative', opacity: ads[currentAdIndex].active ? 1 : 0.5 }}>
+                                                {ads[currentAdIndex].htmlContent ? (
                                                     <div
                                                         style={{ marginBottom: '0.5rem', overflow: 'hidden', borderRadius: 'var(--radius)' }}
-                                                        dangerouslySetInnerHTML={{ __html: events[currentEventIndex].htmlContent }}
+                                                        dangerouslySetInnerHTML={{ __html: ads[currentAdIndex].htmlContent }}
                                                     />
                                                 ) : (
-                                                    getActiveMedia(events[currentEventIndex]) && (
+                                                    getDisplayMedia(ads[currentAdIndex]) && (
                                                         <div
-                                                            style={{ position: 'relative', borderRadius: 'var(--radius)', overflow: 'hidden', cursor: 'pointer' }}
-                                                            onClick={() => openModal(getActiveMedia(events[currentEventIndex]))}
+                                                            style={{ cursor: 'pointer' }}
+                                                            onClick={() => ads[currentAdIndex].link ? window.open(ads[currentAdIndex].link, '_blank') : openModal(getDisplayMedia(ads[currentAdIndex]))}
                                                         >
-                                                            {isVideo(getActiveMedia(events[currentEventIndex])) ? (
+                                                            {isVideo(getDisplayMedia(ads[currentAdIndex])) ? (
                                                                 <video
-                                                                    src={getActiveMedia(events[currentEventIndex])}
-                                                                    style={{ width: '100%', height: 'auto' }}
+                                                                    src={getDisplayMedia(ads[currentAdIndex])}
+                                                                    style={{ width: '100%', borderRadius: 'var(--radius)', height: 'auto' }}
                                                                     muted
                                                                     autoPlay
                                                                     loop
                                                                 />
                                                             ) : (
-                                                                <img
-                                                                    src={getActiveMedia(events[currentEventIndex])}
-                                                                    alt={events[currentEventIndex].title}
-                                                                    style={{ width: '100%', height: 'auto' }}
+                                                                <Image
+                                                                    src={getDisplayMedia(ads[currentAdIndex])}
+                                                                    alt={ads[currentAdIndex].title}
+                                                                    width={0}
+                                                                    height={0}
+                                                                    sizes="100vw"
+                                                                    style={{ width: '100%', borderRadius: 'var(--radius)', height: 'auto' }}
                                                                 />
-                                                            )}
-                                                            {events[currentEventIndex].images && events[currentEventIndex].images.length > 1 && (
-                                                                <div style={{
-                                                                    position: 'absolute',
-                                                                    bottom: '5px',
-                                                                    right: '5px',
-                                                                    background: 'rgba(0,0,0,0.6)',
-                                                                    color: 'white',
-                                                                    padding: '2px 6px',
-                                                                    borderRadius: '10px',
-                                                                    fontSize: '0.7rem'
-                                                                }}>
-                                                                    {events[currentEventIndex].images.length} fotos
-                                                                </div>
                                                             )}
                                                         </div>
                                                     )
+                                                )}
+
+                                                {isAdmin && (
+                                                    <div style={{ marginTop: '0.5rem', borderTop: '1px solid var(--border)', paddingTop: '0.5rem' }}>
+                                                        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.8rem' }}>
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={ads[currentAdIndex].active}
+                                                                onChange={() => toggleItem('ads', ads[currentAdIndex].id, ads[currentAdIndex].active)}
+                                                                title="Visível"
+                                                            />
+                                                            Visível
+                                                        </label>
+                                                    </div>
                                                 )}
                                             </div>
                                         </div>
                                     )}
 
-                                    {/* Dots Indicator for Events */}
-                                    {events.length > 1 && (
-                                        <div style={{ display: 'flex', justifyContent: 'center', gap: '4px', marginTop: '0.5rem' }}>
-                                            {events.map((_, idx) => (
+                                    {ads.length > 1 && (
+                                        <div style={{ display: 'flex', justifyContent: 'center', gap: '4px', marginTop: '1rem' }}>
+                                            {ads.map((_, idx) => (
                                                 <div key={idx} style={{
                                                     width: '6px',
                                                     height: '6px',
                                                     borderRadius: '50%',
-                                                    background: idx === currentEventIndex ? 'var(--primary)' : 'var(--muted)'
+                                                    background: idx === currentAdIndex ? 'var(--primary)' : 'var(--muted)'
                                                 }} />
                                             ))}
                                         </div>
                                     )}
                                 </div>
-                                justifyContent: 'space-between'
-                            }}>
-                            📢 Publicidade
-                            {isAdmin && ads[currentAdIndex] && (
-                                <span style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)' }}>
-                                    {ads[currentAdIndex].active ? '🟢' : '🔴'}
-                                </span>
-                            )}
-                        </h3>
-
-                        <div style={{
-                            background: 'var(--card)',
-                            border: '1px solid var(--border)',
-                            padding: '1rem',
-                            borderRadius: 'var(--radius)',
-                            boxShadow: 'var(--shadow)',
-                            position: 'relative',
-                            transition: 'all 0.3s ease'
-                        }}>
-                            {ads[currentAdIndex] && (
-                                <div key={ads[currentAdIndex].id} className="fade-in">
-                                    <div style={{ position: 'relative', opacity: ads[currentAdIndex].active ? 1 : 0.5 }}>
-                                        {ads[currentAdIndex].htmlContent ? (
-                                            <div
-                                                style={{ marginBottom: '0.5rem', overflow: 'hidden', borderRadius: 'var(--radius)' }}
-                                                dangerouslySetInnerHTML={{ __html: ads[currentAdIndex].htmlContent }}
-                                            />
-                                        ) : (
-                                            getDisplayMedia(ads[currentAdIndex]) && (
-                                                <div
-                                                    style={{ cursor: 'pointer' }}
-                                                    onClick={() => ads[currentAdIndex].link ? window.open(ads[currentAdIndex].link, '_blank') : openModal(getDisplayMedia(ads[currentAdIndex]))}
-                                                >
-                                                    {isVideo(getDisplayMedia(ads[currentAdIndex])) ? (
-                                                        <video
-                                                            src={getDisplayMedia(ads[currentAdIndex])}
-                                                            style={{ width: '100%', borderRadius: 'var(--radius)', height: 'auto' }}
-                                                            muted
-                                                            autoPlay
-                                                            loop
-                                                        />
-                                                    ) : (
-                                                        <img
-                                                            src={getDisplayMedia(ads[currentAdIndex])}
-                                                            alt={ads[currentAdIndex].title}
-                                                            style={{ width: '100%', borderRadius: 'var(--radius)', height: 'auto' }}
-                                                        />
-                                                    )}
-                                                </div>
-                                            )
-                                        )}
-
-                                        {isAdmin && (
-                                            <div style={{ marginTop: '0.5rem', borderTop: '1px solid var(--border)', paddingTop: '0.5rem' }}>
-                                                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.8rem' }}>
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={ads[currentAdIndex].active}
-                                                        onChange={() => toggleItem('ads', ads[currentAdIndex].id, ads[currentAdIndex].active)}
-                                                        title="Visível"
-                                                    />
-                                                    Visível
-                                                </label>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Dots Indicator for Ads */}
-                            {ads.length > 1 && (
-                                <div style={{ display: 'flex', justifyContent: 'center', gap: '4px', marginTop: '1rem' }}>
-                                    {ads.map((_, idx) => (
-                                        <div key={idx} style={{
-                                            width: '6px',
-                                            height: '6px',
-                                            borderRadius: '50%',
-                                            background: idx === currentAdIndex ? 'var(--primary)' : 'var(--muted)'
-                                        }} />
-                                    ))}
-                                </div>
-                            )}
-                        </div>
+                            </>
+                        )}
                     </section>
-                    )}
+                )}
             </aside>
 
             {/* Media Modal */}
@@ -565,10 +598,13 @@ export default function RightSidebar() {
                                 style={{ maxWidth: '100%', maxHeight: '80vh', borderRadius: 'var(--radius)' }}
                             />
                         ) : (
-                            <img
+                            <Image
                                 src={selectedMedia}
                                 alt="Full view"
-                                style={{ maxWidth: '100%', maxHeight: '80vh', borderRadius: 'var(--radius)' }}
+                                width={0}
+                                height={0}
+                                sizes="100vw"
+                                style={{ maxWidth: '100%', maxHeight: '80vh', borderRadius: 'var(--radius)', width: 'auto', height: 'auto' }}
                             />
                         )}
                     </div>
