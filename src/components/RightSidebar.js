@@ -39,7 +39,106 @@ export default function RightSidebar() {
         };
     }, [ads.length, isAdHovered]);
 
-    // ... (rest of the component logic)
+    const [selectedMedia, setSelectedMedia] = useState(null);
+
+    // Internal Slideshow State (for cycling images within a single item)
+    const [activeImageIndex, setActiveImageIndex] = useState(0);
+    const internalIntervalRef = useRef(null);
+
+    const fetchData = useCallback(async () => {
+        try {
+            const [eventsRes, promoRes, adsRes] = await Promise.all([
+                fetch(`/api/events${isAdmin ? '?admin=true' : ''}`),
+                fetch(`/api/promotions${isAdmin ? '?admin=true' : ''}`),
+                fetch(`/api/ads${isAdmin ? '?admin=true' : ''}`)
+            ]);
+
+            const eventsData = await eventsRes.json();
+            const promoData = await promoRes.json();
+            const adsData = await adsRes.json();
+
+            setEvents(Array.isArray(eventsData) ? eventsData : []);
+            setPromotions(Array.isArray(promoData) ? promoData : []);
+            setAds(Array.isArray(adsData) ? adsData : []);
+        } catch (error) {
+            console.error('Error fetching sidebar data:', error);
+        }
+    }, [isAdmin]);
+
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
+
+    // Promotion Carousel Logic
+    useEffect(() => {
+        if (promotions.length > 1 && !isPromoHovered) {
+            promoIntervalRef.current = setInterval(() => {
+                setCurrentPromoIndex(prev => (prev + 1) % promotions.length);
+            }, 3000);
+        }
+        return () => {
+            if (promoIntervalRef.current) clearInterval(promoIntervalRef.current);
+        };
+    }, [promotions.length, isPromoHovered]);
+
+    // Event Carousel Logic
+    useEffect(() => {
+        if (events.length > 1 && !isEventHovered) {
+            eventIntervalRef.current = setInterval(() => {
+                setCurrentEventIndex(prev => (prev + 1) % events.length);
+            }, 4000); // Slightly slower than promotions
+        }
+        return () => {
+            if (eventIntervalRef.current) clearInterval(eventIntervalRef.current);
+        };
+    }, [events.length, isEventHovered]);
+
+    // Internal Slideshow Logic (cycles images of the CURRENT item)
+    useEffect(() => {
+        internalIntervalRef.current = setInterval(() => {
+            setActiveImageIndex(prev => prev + 1);
+        }, 2000); // Cycle images every 2 seconds
+
+        return () => {
+            if (internalIntervalRef.current) clearInterval(internalIntervalRef.current);
+        };
+    }, []);
+
+    const getActiveMedia = (item) => {
+        if (!item) return null;
+        if (item.images && item.images.length > 0) {
+            return item.images[activeImageIndex % item.images.length];
+        }
+        return item.imageUrl || null;
+    };
+
+    const toggleItem = async (type, id, currentStatus) => {
+        if (!isAdmin) return;
+        try {
+            await fetch(`/api/${type}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id, active: !currentStatus })
+            });
+            fetchData(); // Refresh data
+        } catch (error) {
+            console.error(`Error toggling ${type}:`, error);
+        }
+    };
+
+    const getDisplayMedia = (item) => {
+        if (item.images && item.images.length > 0) return item.images[0];
+        if (item.imageUrl) return item.imageUrl;
+        return null;
+    };
+
+    const openModal = (mediaUrl) => {
+        if (mediaUrl) setSelectedMedia(mediaUrl);
+    };
+
+    const closeModal = () => {
+        setSelectedMedia(null);
+    };
 
     return (
         <>
