@@ -120,9 +120,10 @@ export default function Sidebar() {
     return (
         <aside className="glass" style={{
             width: isCollapsed ? '80px' : '260px',
-            background: 'var(--card)',
+            background: 'linear-gradient(135deg, var(--primary), var(--secondary))',
+            color: 'white',
             borderRight: '1px solid var(--border)',
-            padding: '1rem',
+            padding: '1rem 0.5rem',
             height: '100vh',
             position: 'sticky',
             top: 0,
@@ -146,7 +147,7 @@ export default function Sidebar() {
                         cursor: 'pointer',
                         padding: '0.5rem',
                         borderRadius: 'var(--radius)',
-                        color: 'var(--muted-foreground)',
+                        color: 'white',
                         margin: isCollapsed ? '0 auto' : '0'
                     }}
                 >
@@ -214,14 +215,14 @@ export default function Sidebar() {
                                     style={{
                                         display: 'flex',
                                         alignItems: 'center',
-                                        gap: '0.75rem',
-                                        padding: '0.75rem',
+                                        gap: '0.5rem',
+                                        padding: '0.5rem',
                                         borderRadius: 'var(--radius)',
-                                        background: pathname === link.path ? 'var(--primary)' : 'transparent',
-                                        color: pathname === link.path ? 'var(--primary-foreground)' : 'var(--muted-foreground)',
+                                        background: pathname === link.path ? 'rgba(255,255,255,0.2)' : 'transparent',
+                                        color: 'white',
                                         textDecoration: 'none',
                                         fontSize: '0.9rem',
-                                        marginBottom: '0.5rem',
+                                        marginBottom: '0.25rem',
                                         justifyContent: isCollapsed ? 'center' : 'flex-start',
                                         transition: 'all 0.2s ease'
                                     }}
@@ -267,10 +268,10 @@ export default function Sidebar() {
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: isCollapsed ? 'center' : 'space-between',
-                                padding: '0.75rem',
+                                padding: '0.5rem',
                                 borderRadius: 'var(--radius)',
-                                background: isActive ? 'var(--primary)' : 'transparent',
-                                color: isActive ? 'var(--primary-foreground)' : 'var(--muted-foreground)',
+                                background: isActive ? 'rgba(255,255,255,0.2)' : 'transparent',
+                                color: 'white',
                                 transition: 'all 0.2s ease',
                                 cursor: 'pointer'
                             }}>
