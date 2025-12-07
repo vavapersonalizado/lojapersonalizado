@@ -15,7 +15,7 @@ export default function AdminAds() {
 
     const fetchAds = async () => {
         try {
-            const res = await fetch('/api/ads?admin=true', { cache: 'no-store' });
+            const res = await fetch('/api/announcements?admin=true', { cache: 'no-store' });
             const data = await res.json();
             setAds(Array.isArray(data) ? data : []);
         } catch (error) {
@@ -52,7 +52,7 @@ export default function AdminAds() {
         e.preventDefault();
         try {
             const method = isEditing ? 'PATCH' : 'POST';
-            const res = await fetch('/api/ads', {
+            const res = await fetch('/api/announcements', {
                 method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
@@ -89,7 +89,7 @@ export default function AdminAds() {
         if (!confirm('Tem certeza que deseja excluir esta propaganda?')) return;
         try {
             console.log('Deleting ad:', id);
-            const res = await fetch(`/api/ads?id=${id}`, { method: 'DELETE' });
+            const res = await fetch(`/api/announcements?id=${id}`, { method: 'DELETE' });
             const data = await res.json();
 
             if (!res.ok) {
@@ -109,7 +109,7 @@ export default function AdminAds() {
 
     const toggleActive = async (id, currentStatus) => {
         try {
-            await fetch('/api/ads', {
+            await fetch('/api/announcements', {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id, active: !currentStatus })

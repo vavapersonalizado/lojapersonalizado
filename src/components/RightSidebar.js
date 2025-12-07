@@ -50,7 +50,7 @@ export default function RightSidebar() {
             const [eventsRes, promoRes, adsRes] = await Promise.all([
                 fetch(`/api/events${isAdmin ? '?admin=true' : ''}`, { cache: 'no-store' }),
                 fetch(`/api/promotions${isAdmin ? '?admin=true' : ''}`, { cache: 'no-store' }),
-                fetch(`/api/ads${isAdmin ? '?admin=true' : ''}`, { cache: 'no-store' })
+                fetch(`/api/announcements${isAdmin ? '?admin=true' : ''}`, { cache: 'no-store' })
             ]);
 
             const eventsData = await eventsRes.json();
@@ -115,7 +115,8 @@ export default function RightSidebar() {
     const toggleItem = async (type, id, currentStatus) => {
         if (!isAdmin) return;
         try {
-            await fetch(`/api/${type}`, {
+            const endpoint = type === 'ads' ? 'announcements' : type;
+            await fetch(`/api/${endpoint}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id, active: !currentStatus })
