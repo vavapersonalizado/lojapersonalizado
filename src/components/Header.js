@@ -9,6 +9,7 @@ import { useState } from 'react';
 import CartDrawer from './CartDrawer';
 import LoginModal from './LoginModal';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useView } from '@/contexts/ViewContext';
 
 export default function Header() {
     const { data: session } = useSession();
@@ -18,6 +19,7 @@ export default function Header() {
     const [showLoginModal, setShowLoginModal] = useState(false);
     const cartCount = getCartCount();
     const { language, changeLanguage, t } = useLanguage();
+    const { viewMode, toggleViewMode } = useView();
 
     const languages = [
         { code: 'pt', flag: '🇧🇷', name: 'Português' },
@@ -88,6 +90,26 @@ export default function Header() {
                         </option>
                     ))}
                 </select>
+
+                {/* View Mode Toggle */}
+                <button
+                    onClick={toggleViewMode}
+                    style={{
+                        background: 'rgba(255,255,255,0.1)',
+                        border: '1px solid rgba(255,255,255,0.2)',
+                        borderRadius: 'var(--radius)',
+                        padding: '0.5rem',
+                        cursor: 'pointer',
+                        fontSize: '1.2rem',
+                        color: 'white',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.25rem'
+                    }}
+                    title={viewMode === 'mobile' ? 'Mudar para versão Desktop' : 'Mudar para versão Mobile'}
+                >
+                    {viewMode === 'mobile' ? '💻' : '📱'}
+                </button>
 
                 {/* Cart Icon */}
                 <button
