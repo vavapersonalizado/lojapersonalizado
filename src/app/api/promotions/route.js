@@ -38,7 +38,7 @@ export async function POST(request) {
                 description,
                 imageUrl, // Legacy support if needed, or remove if fully migrated to images array
                 images: images || [],
-                discount: discount ? parseFloat(discount) : null,
+                discount: (discount && !isNaN(parseFloat(discount))) ? parseFloat(discount) : null,
                 htmlContent,
                 active: active !== undefined ? active : true,
                 expiresAt: expiresAt ? new Date(expiresAt) : null
@@ -86,7 +86,7 @@ export async function PATCH(request) {
         if (description !== undefined) updateData.description = description;
         if (imageUrl !== undefined) updateData.imageUrl = imageUrl;
         if (images !== undefined) updateData.images = images;
-        if (discount !== undefined) updateData.discount = discount ? parseFloat(discount) : null;
+        if (discount !== undefined) updateData.discount = (discount && !isNaN(parseFloat(discount))) ? parseFloat(discount) : null;
         if (htmlContent !== undefined) updateData.htmlContent = htmlContent;
         if (expiresAt !== undefined) updateData.expiresAt = expiresAt ? new Date(expiresAt) : null;
 
