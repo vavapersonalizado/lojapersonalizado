@@ -91,8 +91,8 @@ export default function ProfilePage() {
                     prefecture: data.prefecture || '',
                     city: data.city || '',
                     town: data.town || '',
-                    street: data.street || '',
-                    building: data.building || '',
+                    street: `${data.street || ''} ${data.building || ''}`.trim(),
+                    building: '',
                     contactPreference: data.contactPreference || []
                 });
                 if (data.prefecture) fetchCities(data.prefecture);
@@ -340,7 +340,7 @@ export default function ProfilePage() {
                             </div>
                             <div style={{ marginBottom: '1rem' }}>
                                 <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-                                    Número da Casa
+                                    Casa / Edifício - Apartamento
                                 </label>
                                 <input
                                     type="text"
@@ -349,18 +349,6 @@ export default function ProfilePage() {
                                     style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
                                 />
                             </div>
-                        </div>
-
-                        <div style={{ marginBottom: '1rem' }}>
-                            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-                                Edifício - Apartamento
-                            </label>
-                            <input
-                                type="text"
-                                value={formData.building}
-                                onChange={(e) => setFormData({ ...formData, building: e.target.value })}
-                                style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
-                            />
                         </div>
                     </div>
 
