@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { useSession } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useCart } from '@/contexts/CartContext';
@@ -17,6 +17,7 @@ export default function MobileLayout({ children }) {
     const [showCart, setShowCart] = useState(false);
     const [showLoginModal, setShowLoginModal] = useState(false);
     const [showMenu, setShowMenu] = useState(false);
+    const [showProfileMenu, setShowProfileMenu] = useState(false);
     const cartCount = getCartCount();
     const { toggleViewMode } = useView();
 
@@ -368,24 +369,40 @@ export default function MobileLayout({ children }) {
                 </button>
 
                 {session ? (
-                    <button
-                        onClick={() => router.push('/profile')}
-                        style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            gap: '0.25rem',
-                            color: isActive('/profile') ? 'var(--accent)' : 'white',
-                            background: 'none',
-                            border: 'none',
-                            fontSize: '0.75rem',
-                            padding: '0.5rem',
-                            cursor: 'pointer'
-                        }}
-                    >
-                        <span style={{ fontSize: '1.5rem' }}>👤</span>
-                        Perfil
-                    </button>
+                    <div style={{ position: 'relative' }}>
+                        <button
+                            onClick={() => setShowProfileMenu(!showProfileMenu)}
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                gap: '0.25rem',
+                                color: isActive('/profile') ? 'var(--accent)' : 'white',
+                                background: 'none',
+                                border: 'none',
+                                fontSize: '0.75rem',
+                                padding: '0.5rem',
+                                cursor: 'pointer',
+                                position: 'relative'
+                            }}
+                        >
+                            {session.user.image ? (
+                                <img
+                                    src={session.user.image}
+                                    alt="Profile"
+                                    style={{
+                                        width: '24px',
+                                        height: '24px',
+                                        borderRadius: '50%',
+                                        border: session.user.role === 'admin' ? '2px solid var(--accent)' : '2px solid rgba(255,255,255,0.5)'
+                                    }}
+                                />
+                            ) : (
+                                <span style={{ fontSize: '1.5rem' }}>👤</span>
+                            )}
+                            {session.user.name?.split(' ')[0] || 'Perfil'}
+                        </button>
+                    </div>
                 ) : (
                     <button
                         onClick={() => setShowLoginModal(true)}
@@ -407,6 +424,75 @@ export default function MobileLayout({ children }) {
                     </button>
                 )}
             </nav>
+
+            {/* Profile Menu Popup */}
+            {showProfileMenu && session && (
+                <div
+                    style={{
+                        position: 'fixed',
+                        bottom: '80px',
+                        right: '10px',
+                        background: 'white',
+                        borderRadius: 'var(--radius)',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                        minWidth: '200px',
+                        zIndex: 100,
+                        overflow: 'hidden'
+                    }}
+                >
+                    <div style={{ padding: '1rem', borderBottom: '1px solid var(--border)' }}>
+                        <div style={{ fontWeight: '600', color: '#000', marginBottom: '0.25rem' }}>
+                            {session.user.name}
+                        </div>
+                        <div style={{ fontSize: '0.875rem', color: '#666' }}>
+                            {session.user.email}
+                        </div>
+                    </div>
+                    <button
+                        onClick={() => {
+                            setShowProfileMenu(false);
+                            router.push('/profile');
+                        }}
+                        style={{
+                            width: '100%',
+                            padding: '0.75rem 1rem',
+                            border: 'none',
+                            background: 'none',
+                            textAlign: 'left',
+                            cursor: 'pointer',
+                            fontSize: '0.9rem',
+                            color: '#000',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem'
+                        }}
+                    >
+                        👤 Meu Perfil
+                    </button>
+                    <button
+                        onClick={() => {
+                            setShowProfileMenu(false);
+                            signOut();
+                        }}
+                        style={{
+                            width: '100%',
+                            padding: '0.75rem 1rem',
+                            border: 'none',
+                            background: 'none',
+                            textAlign: 'left',
+                            cursor: 'pointer',
+                            fontSize: '0.9rem',
+                            color: '#c00',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            borderTop: '1px solid var(--border)'
+                        }}
+                    >
+                        🚪 Sair
+                    </button>
+                </div>
+            )}
 
             {/* Cart Drawer */}
             <CartDrawer isOpen={showCart} onClose={() => setShowCart(false)} />
