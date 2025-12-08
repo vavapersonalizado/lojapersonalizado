@@ -1,51 +1,8 @@
 "use client";
 
 import { CldUploadWidget } from 'next-cloudinary';
-import { useEffect } from 'react';
 
 export default function ImageUpload({ onUpload, currentImage }) {
-    useEffect(() => {
-        // Load Cloudinary Media Library script
-        if (!document.getElementById('cloudinary-media-library')) {
-            const script = document.createElement('script');
-            script.id = 'cloudinary-media-library';
-            script.src = 'https://media-library.cloudinary.com/global/all.js';
-            script.async = true;
-            document.body.appendChild(script);
-        }
-    }, []);
-
-    const openMediaLibrary = () => {
-        if (window.cloudinary) {
-            const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-            const apiKey = process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY;
-
-            window.cloudinary.createMediaLibrary({
-                cloud_name: cloudName,
-                api_key: apiKey,
-                multiple: true,
-                max_files: 10,
-                maxFiles: 10,
-                insert_caption: 'Selecionar',
-                default_transformations: [
-                    []
-                ],
-                button_class: "myBtn",
-                inline_container: null,
-                z_index: 9999
-            }, {
-                insertHandler: (data) => {
-                    if (data.assets && data.assets.length > 0) {
-                        const newImages = data.assets.map(asset => asset.secure_url);
-                        onUpload(newImages);
-                    }
-                }
-            }).show();
-        } else {
-            alert('Aguarde o carregamento da biblioteca de mídia...');
-        }
-    };
-
     return (
         <div style={{ width: '100%' }}>
             <CldUploadWidget
@@ -166,17 +123,6 @@ export default function ImageUpload({ onUpload, currentImage }) {
                     );
                 }}
             </CldUploadWidget>
-
-            {!currentImage && (
-                <button
-                    type="button"
-                    onClick={openMediaLibrary}
-                    className="btn btn-outline"
-                    style={{ marginTop: '1rem', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
-                >
-                    🖼️ Selecionar da Galeria (Cloudinary)
-                </button>
-            )}
         </div>
     );
 }
