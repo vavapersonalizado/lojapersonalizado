@@ -266,6 +266,15 @@ export default function MobileLayout({ children }) {
                                     }} onClick={() => setShowMenu(false)}>
                                         📢 Propagandas
                                     </Link>
+                                    <Link href="/admin/analytics" style={{
+                                        color: 'white',
+                                        textDecoration: 'none',
+                                        padding: '0.75rem',
+                                        background: isActive('/admin/analytics') ? 'rgba(255,255,255,0.2)' : 'transparent',
+                                        borderRadius: 'var(--radius)'
+                                    }} onClick={() => setShowMenu(false)}>
+                                        📊 Analytics
+                                    </Link>
                                     <Link href="/admin/settings" style={{
                                         color: 'white',
                                         textDecoration: 'none',

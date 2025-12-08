@@ -180,6 +180,35 @@ model Event {
   updatedAt   DateTime @updatedAt
 }
 
+model Settings {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Analytics {
+  id            String   @id @default(cuid())
+  type          String   // 'product', 'event', 'promotion', 'ad', 'coupon', 'page'
+  itemId        String   // ID do item rastreado
+  itemName      String   // Nome/título do item
+  itemCode      String?  // Código (produtos, cupons)
+  views         Int      @default(0)
+  uses          Int      @default(0) // Para cupons
+  createdAt     DateTime @default(now())
+  lastViewedAt  DateTime @updatedAt
+  
+  // Métricas extras
+  deviceType    String?  // 'desktop', 'mobile'
+  referrer      String?  // De onde veio
+  
+  @@index([type])
+  @@index([itemId])
+  @@index([createdAt])
+  @@index([type, itemId])
+}
+
 model Ad {
   id        String   @id @default(cuid())
   title     String

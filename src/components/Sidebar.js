@@ -208,6 +208,7 @@ export default function Sidebar() {
                                 { name: 'Eventos', path: '/admin/events', icon: '📅' },
                                 // Promoções moved to main menu
                                 { name: 'Propagandas', path: '/admin/ads', icon: '📢' },
+                                { name: 'Analytics', path: '/admin/analytics', icon: '📊' },
                                 { name: 'Config', path: '/admin/settings', icon: '⚙️' }
                             ].map(link => (
                                 <Link
