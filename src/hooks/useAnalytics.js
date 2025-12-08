@@ -1,10 +1,18 @@
 "use client";
 
-import { useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 
 export function useAnalytics() {
+    const { data: session } = useSession();
+
     const trackView = async (type, itemId, itemName, itemCode = null) => {
         try {
+            // Não rastrear visualizações de admins
+            if (session?.user?.role === 'admin') {
+                console.log('Skipping analytics tracking for admin user');
+                return;
+            }
+
             // Detectar tipo de dispositivo
             const deviceType = window.innerWidth < 768 ? 'mobile' : 'desktop';
 
@@ -31,6 +39,12 @@ export function useAnalytics() {
 
     const trackUse = async (type, itemId, itemName, itemCode = null) => {
         try {
+            // Não rastrear usos de admins
+            if (session?.user?.role === 'admin') {
+                console.log('Skipping analytics tracking for admin user');
+                return;
+            }
+
             const deviceType = window.innerWidth < 768 ? 'mobile' : 'desktop';
 
             await fetch('/api/analytics/track', {
