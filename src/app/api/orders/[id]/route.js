@@ -13,16 +13,27 @@ export async function PATCH(request, { params }) {
     try {
         const { id } = await params;
         const body = await request.json();
-        const { status } = body;
+        const { status, contactedAt } = body;
 
         const validStatuses = ['pending', 'processing', 'completed', 'cancelled'];
-        if (!validStatuses.includes(status)) {
+        if (status && !validStatuses.includes(status)) {
             return NextResponse.json({ error: "Invalid status" }, { status: 400 });
+        }
+
+        const dataToUpdate = {};
+        if (status) {
+            dataToUpdate.status = status;
+            if (status === 'completed') {
+                dataToUpdate.completedAt = new Date();
+            }
+        }
+        if (contactedAt !== undefined) {
+            dataToUpdate.contactedAt = contactedAt ? new Date(contactedAt) : null;
         }
 
         const order = await prisma.order.update({
             where: { id },
-            data: { status },
+            data: dataToUpdate,
             include: {
                 items: true,
                 user: {

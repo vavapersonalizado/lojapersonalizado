@@ -111,6 +111,8 @@ model Order {
   finalTotal   Float
   couponCode   String?
   status       String      @default("pending") // pending, processing, completed, cancelled
+  contactedAt  DateTime?   // When seller contacted client
+  completedAt  DateTime?   // When order was finished
   createdAt    DateTime    @default(now())
   items        OrderItem[]
 }
@@ -123,6 +125,7 @@ model OrderItem {
   name      String
   price     Float
   quantity  Int
+  ready     Boolean @default(false) // Is item separated/ready?
 }
 
 model SiteSettings {
