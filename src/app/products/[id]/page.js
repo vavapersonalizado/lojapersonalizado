@@ -158,7 +158,7 @@ export default function ProductPage() {
                                 className="btn btn-primary"
                                 style={{ flex: 1, padding: '1rem', fontSize: '1.1rem' }}
                             >
-                                {adding ? 'Adicionando...' : t('product.add_to_cart') || 'Adicionar ao Carrinho'}
+                                {adding ? 'Adicionando...' : t('common.add_to_cart') || 'Adicionar ao Carrinho'}
                             </button>
                         </div>
                     )}
