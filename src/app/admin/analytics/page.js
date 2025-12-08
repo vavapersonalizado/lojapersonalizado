@@ -11,6 +11,8 @@ export default function AnalyticsPage() {
     const [summary, setSummary] = useState(null);
     const [top10, setTop10] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [editingId, setEditingId] = useState(null);
+    const [editValue, setEditValue] = useState('');
 
     // Filtros
     const [typeFilter, setTypeFilter] = useState('');
@@ -62,13 +64,41 @@ export default function AnalyticsPage() {
         }
     };
 
+    const handleEdit = (item) => {
+        setEditingId(item.id);
+        setEditValue(item.editedViews !== null ? item.editedViews.toString() : item.views.toString());
+    };
+
+    const handleSave = async (id) => {
+        try {
+            const res = await fetch(`/api/analytics/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ editedViews: parseInt(editValue) })
+            });
+
+            if (res.ok) {
+                setEditingId(null);
+                fetchAnalytics();
+            }
+        } catch (error) {
+            console.error('Error updating analytics:', error);
+        }
+    };
+
+    const handleCancel = () => {
+        setEditingId(null);
+        setEditValue('');
+    };
+
     const exportCSV = () => {
-        const headers = ['Nome', 'Código', 'Tipo', 'Visualizações', 'Usos', 'Criado Em', 'Última Visualização'];
+        const headers = ['Nome', 'Código', 'Tipo', 'Visualizações Originais', 'Visualizações Editadas', 'Usos', 'Criado Em', 'Última Visualização'];
         const rows = analytics.map(item => [
             item.itemName,
             item.itemCode || '-',
             item.type,
             item.views,
+            item.editedViews || item.views,
             item.uses,
             new Date(item.createdAt).toLocaleDateString('pt-BR'),
             new Date(item.lastViewedAt).toLocaleDateString('pt-BR')
@@ -247,14 +277,16 @@ export default function AnalyticsPage() {
                             <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: '#000' }}>Nome</th>
                             <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: '#000' }}>Código</th>
                             <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: '#000' }}>Tipo</th>
-                            <th style={{ padding: '1rem', textAlign: 'center', fontWeight: '600', color: '#000' }}>Visualizações</th>
+                            <th style={{ padding: '1rem', textAlign: 'center', fontWeight: '600', color: '#000' }}>Views Originais</th>
+                            <th style={{ padding: '1rem', textAlign: 'center', fontWeight: '600', color: '#000' }}>Views Editadas</th>
                             <th style={{ padding: '1rem', textAlign: 'center', fontWeight: '600', color: '#000' }}>Usos</th>
                             <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: '#000' }}>Criado Em</th>
                             <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: '#000' }}>Última Visualização</th>
+                            <th style={{ padding: '1rem', textAlign: 'center', fontWeight: '600', color: '#000' }}>Ações</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {analytics.map((item, index) => (
+                        {analytics.map((item) => (
                             <tr key={item.id} style={{ borderBottom: '1px solid var(--border)' }}>
                                 <td style={{ padding: '1rem', color: '#000' }}>{item.itemName}</td>
                                 <td style={{ padding: '1rem', color: '#666' }}>{item.itemCode || '-'}</td>
@@ -274,13 +306,61 @@ export default function AnalyticsPage() {
                                         {item.type === 'page' && '📄 Página'}
                                     </span>
                                 </td>
-                                <td style={{ padding: '1rem', textAlign: 'center', fontWeight: '600', color: '#000' }}>{item.views}</td>
+                                <td style={{ padding: '1rem', textAlign: 'center', fontWeight: '600', color: '#666' }}>{item.views}</td>
+                                <td style={{ padding: '1rem', textAlign: 'center' }}>
+                                    {editingId === item.id ? (
+                                        <input
+                                            type="number"
+                                            value={editValue}
+                                            onChange={(e) => setEditValue(e.target.value)}
+                                            style={{
+                                                width: '80px',
+                                                padding: '0.25rem',
+                                                border: '1px solid var(--border)',
+                                                borderRadius: 'var(--radius)',
+                                                textAlign: 'center'
+                                            }}
+                                        />
+                                    ) : (
+                                        <span style={{ fontWeight: '600', color: '#000' }}>
+                                            {item.editedViews !== null ? item.editedViews : item.views}
+                                        </span>
+                                    )}
+                                </td>
                                 <td style={{ padding: '1rem', textAlign: 'center', fontWeight: '600', color: '#000' }}>{item.uses}</td>
                                 <td style={{ padding: '1rem', color: '#666' }}>
                                     {new Date(item.createdAt).toLocaleDateString('pt-BR')}
                                 </td>
                                 <td style={{ padding: '1rem', color: '#666' }}>
                                     {new Date(item.lastViewedAt).toLocaleDateString('pt-BR')}
+                                </td>
+                                <td style={{ padding: '1rem', textAlign: 'center' }}>
+                                    {editingId === item.id ? (
+                                        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
+                                            <button
+                                                onClick={() => handleSave(item.id)}
+                                                className="btn btn-primary"
+                                                style={{ padding: '0.25rem 0.75rem', fontSize: '0.875rem' }}
+                                            >
+                                                ✓
+                                            </button>
+                                            <button
+                                                onClick={handleCancel}
+                                                className="btn btn-outline"
+                                                style={{ padding: '0.25rem 0.75rem', fontSize: '0.875rem' }}
+                                            >
+                                                ✕
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <button
+                                            onClick={() => handleEdit(item)}
+                                            className="btn btn-outline"
+                                            style={{ padding: '0.25rem 0.75rem', fontSize: '0.875rem' }}
+                                        >
+                                            ✏️ Editar
+                                        </button>
+                                    )}
                                 </td>
                             </tr>
                         ))}

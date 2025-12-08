@@ -194,7 +194,8 @@ model Analytics {
   itemId        String   // ID do item rastreado
   itemName      String   // Nome/título do item
   itemCode      String?  // Código (produtos, cupons)
-  views         Int      @default(0)
+  views         Int      @default(0) // Visualizações originais (auto)
+  editedViews   Int?     // Visualizações editadas manualmente
   uses          Int      @default(0) // Para cupons
   createdAt     DateTime @default(now())
   lastViewedAt  DateTime @updatedAt
