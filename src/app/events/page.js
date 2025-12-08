@@ -1,7 +1,7 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { isVideo } from "@/lib/mediaUtils";
 import { useAnalytics } from "@/hooks/useAnalytics";
@@ -13,6 +13,7 @@ export default function EventsPage() {
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedMedia, setSelectedMedia] = useState(null);
+    const hasTracked = useRef(false);
 
     useEffect(() => {
         const fetchEvents = async () => {
@@ -21,9 +22,10 @@ export default function EventsPage() {
                 const data = await res.json();
                 setEvents(Array.isArray(data) ? data : []);
 
-                // Track page view
-                if (data.length > 0) {
+                // Track page view only once
+                if (data.length > 0 && !hasTracked.current) {
                     trackView('page', 'events-page', 'Página de Eventos');
+                    hasTracked.current = true;
                 }
             } catch (error) {
                 console.error('Error fetching events:', error);
@@ -33,7 +35,7 @@ export default function EventsPage() {
         };
 
         fetchEvents();
-    }, [trackView]);
+    }, []); // Removed trackView from dependencies
 
     const openModal = (mediaUrl) => {
         setSelectedMedia(mediaUrl);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { useCart } from '@/contexts/CartContext';
@@ -22,6 +22,7 @@ export default function ProductPage() {
     const [loading, setLoading] = useState(true);
     const [quantity, setQuantity] = useState(1);
     const [adding, setAdding] = useState(false);
+    const hasTracked = useRef(false);
 
     useEffect(() => {
         console.log('Fetching product with ID:', id);
@@ -36,14 +37,17 @@ export default function ProductPage() {
                 setProduct(data);
                 setLoading(false);
 
-                // Track product view
-                trackView('product', data.id, data.name, data.sku);
+                // Track product view only once
+                if (!hasTracked.current) {
+                    trackView('product', data.id, data.name, data.sku);
+                    hasTracked.current = true;
+                }
             })
             .catch(err => {
                 console.error('Error loading product:', err);
                 setLoading(false);
             });
-    }, [id, trackView]);
+    }, [id]); // Removed trackView from dependencies
 
     const handleAddToCart = () => {
         setAdding(true);
