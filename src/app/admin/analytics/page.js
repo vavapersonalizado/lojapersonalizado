@@ -71,18 +71,34 @@ export default function AnalyticsPage() {
 
     const handleSave = async (id) => {
         try {
+            if (editValue === '' || editValue === null) {
+                alert('Por favor, insira um valor válido.');
+                return;
+            }
+
+            const newValue = parseInt(editValue);
+            if (isNaN(newValue)) {
+                alert('O valor deve ser um número.');
+                return;
+            }
+
+            // Show saving state (optional: could add a local loading state)
             const res = await fetch(`/api/analytics/${id}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ editedViews: parseInt(editValue) })
+                body: JSON.stringify({ editedViews: newValue })
             });
 
             if (res.ok) {
                 setEditingId(null);
                 fetchAnalytics();
+            } else {
+                const data = await res.json();
+                alert(`Erro ao salvar: ${data.error || 'Erro desconhecido'}`);
             }
         } catch (error) {
             console.error('Error updating analytics:', error);
+            alert('Erro ao conectar com o servidor.');
         }
     };
 
