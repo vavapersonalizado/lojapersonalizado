@@ -108,12 +108,14 @@ export default function AnalyticsPage() {
     };
 
     const exportCSV = () => {
-        const headers = ['Nome', 'Código', 'Tipo', 'Visualizações Originais', 'Visualizações Editadas', 'Usos', 'Criado Em', 'Última Visualização'];
+        const headers = ['Nome', 'Código', 'Tipo', 'Visualizações Originais', 'Views (7 dias)', 'Views (30 dias)', 'Visualizações Editadas', 'Usos', 'Criado Em', 'Última Visualização'];
         const rows = analytics.map(item => [
             item.itemName,
             item.itemCode || '-',
             item.type,
             item.views,
+            item.weeklyViews || 0,
+            item.monthlyViews || 0,
             item.editedViews || item.views,
             item.uses,
             new Date(item.createdAt).toLocaleDateString('pt-BR'),
@@ -294,6 +296,8 @@ export default function AnalyticsPage() {
                             <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: '#000' }}>Código</th>
                             <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: '#000' }}>Tipo</th>
                             <th style={{ padding: '1rem', textAlign: 'center', fontWeight: '600', color: '#000' }}>Views Originais</th>
+                            <th style={{ padding: '1rem', textAlign: 'center', fontWeight: '600', color: '#000' }}>7 Dias</th>
+                            <th style={{ padding: '1rem', textAlign: 'center', fontWeight: '600', color: '#000' }}>30 Dias</th>
                             <th style={{ padding: '1rem', textAlign: 'center', fontWeight: '600', color: '#000' }}>Views Editadas</th>
                             <th style={{ padding: '1rem', textAlign: 'center', fontWeight: '600', color: '#000' }}>Usos</th>
                             <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: '#000' }}>Criado Em</th>
@@ -323,6 +327,8 @@ export default function AnalyticsPage() {
                                     </span>
                                 </td>
                                 <td style={{ padding: '1rem', textAlign: 'center', fontWeight: '600', color: '#666' }}>{item.views}</td>
+                                <td style={{ padding: '1rem', textAlign: 'center', color: '#666' }}>{item.weeklyViews || 0}</td>
+                                <td style={{ padding: '1rem', textAlign: 'center', color: '#666' }}>{item.monthlyViews || 0}</td>
                                 <td style={{ padding: '1rem', textAlign: 'center' }}>
                                     {editingId === item.id ? (
                                         <input

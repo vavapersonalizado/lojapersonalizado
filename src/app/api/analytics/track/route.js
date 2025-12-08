@@ -23,7 +23,7 @@ export async function POST(request) {
         });
 
         if (existing) {
-            // Atualizar registro existente
+            // Atualizar registro existente e registrar evento
             const updated = await prisma.analytics.update({
                 where: { id: existing.id },
                 data: {
@@ -31,12 +31,17 @@ export async function POST(request) {
                     uses: incrementUse ? existing.uses + 1 : existing.uses,
                     lastViewedAt: new Date(),
                     deviceType: deviceType || existing.deviceType,
-                    referrer: referrer || existing.referrer
+                    referrer: referrer || existing.referrer,
+                    events: {
+                        create: {
+                            type: incrementUse ? 'use' : 'view'
+                        }
+                    }
                 }
             });
             return NextResponse.json(updated);
         } else {
-            // Criar novo registro
+            // Criar novo registro e registrar evento
             const analytics = await prisma.analytics.create({
                 data: {
                     type,
@@ -46,7 +51,12 @@ export async function POST(request) {
                     views: incrementUse ? 0 : 1,
                     uses: incrementUse ? 1 : 0,
                     deviceType: deviceType || null,
-                    referrer: referrer || null
+                    referrer: referrer || null,
+                    events: {
+                        create: {
+                            type: incrementUse ? 'use' : 'view'
+                        }
+                    }
                 }
             });
             return NextResponse.json(analytics);

@@ -36,6 +36,48 @@ export async function GET(request) {
             take: limit
         });
 
+        // Buscar eventos dos últimos 30 dias para os itens retornados
+        const analyticsIds = analytics.map(a => a.id);
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+        const events = await prisma.analyticsEvent.findMany({
+            where: {
+                analyticsId: { in: analyticsIds },
+                createdAt: { gte: thirtyDaysAgo },
+                type: 'view' // Apenas visualizações
+            },
+            select: {
+                analyticsId: true,
+                createdAt: true
+            }
+        });
+
+        // Calcular stats por item
+        const statsMap = events.reduce((acc, event) => {
+            if (!acc[event.analyticsId]) {
+                acc[event.analyticsId] = { weekly: 0, monthly: 0 };
+            }
+
+            const eventDate = new Date(event.createdAt);
+            if (eventDate >= sevenDaysAgo) {
+                acc[event.analyticsId].weekly++;
+            }
+            acc[event.analyticsId].monthly++;
+
+            return acc;
+        }, {});
+
+        // Anexar stats aos itens
+        const analyticsWithStats = analytics.map(item => ({
+            ...item,
+            weeklyViews: statsMap[item.id]?.weekly || 0,
+            monthlyViews: statsMap[item.id]?.monthly || 0
+        }));
+
         // Estatísticas gerais
         const totalViews = analytics.reduce((sum, item) => sum + item.views, 0);
         const totalUses = analytics.reduce((sum, item) => sum + item.uses, 0);
@@ -52,12 +94,12 @@ export async function GET(request) {
         }, {});
 
         // Top 10 mais visualizados
-        const top10 = [...analytics]
+        const top10 = [...analyticsWithStats]
             .sort((a, b) => b.views - a.views)
             .slice(0, 10);
 
         return NextResponse.json({
-            analytics,
+            analytics: analyticsWithStats,
             summary: {
                 totalViews,
                 totalUses,

@@ -204,10 +204,23 @@ model Analytics {
   deviceType    String?  // 'desktop', 'mobile'
   referrer      String?  // De onde veio
   
+  events        AnalyticsEvent[] // Histórico de visualizações
+
   @@index([type])
   @@index([itemId])
   @@index([createdAt])
   @@index([type, itemId])
+}
+
+model AnalyticsEvent {
+  id          String    @id @default(cuid())
+  analyticsId String
+  analytics   Analytics @relation(fields: [analyticsId], references: [id], onDelete: Cascade)
+  type        String    // 'view', 'use'
+  createdAt   DateTime  @default(now())
+  
+  @@index([analyticsId])
+  @@index([createdAt])
 }
 
 model Ad {
