@@ -249,3 +249,13 @@ model Promotion {
   updatedAt   DateTime @updatedAt
 }
 
+
+model Partner {
+  id        String   @id @default(cuid())
+  name      String
+  logo      String?
+  link      String?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

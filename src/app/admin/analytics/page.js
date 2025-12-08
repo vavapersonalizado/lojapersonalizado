@@ -9,14 +9,13 @@ export default function AnalyticsPage() {
     const router = useRouter();
     const [analytics, setAnalytics] = useState([]);
     const [summary, setSummary] = useState(null);
-    const [top10, setTop10] = useState([]);
     const [loading, setLoading] = useState(true);
     const [editingId, setEditingId] = useState(null);
     const [editValue, setEditValue] = useState('');
+    const [sectionOrder, setSectionOrder] = useState([]);
+    const [collapsedSections, setCollapsedSections] = useState({});
 
     // Filtros
-    const [typeFilter, setTypeFilter] = useState('');
-    const [sortBy, setSortBy] = useState('views');
     const [dateRange, setDateRange] = useState('all');
 
     useEffect(() => {
@@ -26,27 +25,32 @@ export default function AnalyticsPage() {
         }
 
         if (status === 'authenticated' && session?.user?.role === 'admin') {
-            fetchAnalytics();
+            fetchData();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [status, session, typeFilter, sortBy, dateRange]);
+    }, [status, session, dateRange]);
 
-    const fetchAnalytics = async () => {
+    const fetchData = async () => {
         setLoading(true);
         try {
-            const params = new URLSearchParams();
-            if (typeFilter) params.append('type', typeFilter);
-            params.append('sortBy', sortBy);
+            // Fetch settings for order
+            const settingsRes = await fetch('/api/settings');
+            const settingsData = await settingsRes.json();
+            if (settingsData.order) {
+                setSectionOrder(settingsData.order);
+            } else {
+                // Default order
+                setSectionOrder(['page', 'event', 'product', 'promotion', 'ad', 'partner', 'coupon']);
+            }
 
-            // Calcular datas baseado no range
+            // Fetch analytics
+            const params = new URLSearchParams();
             if (dateRange !== 'all') {
                 const endDate = new Date();
                 const startDate = new Date();
-
                 if (dateRange === 'week') startDate.setDate(startDate.getDate() - 7);
                 else if (dateRange === 'month') startDate.setMonth(startDate.getMonth() - 1);
                 else if (dateRange === 'year') startDate.setFullYear(startDate.getFullYear() - 1);
-
                 params.append('startDate', startDate.toISOString());
                 params.append('endDate', endDate.toISOString());
             }
@@ -56,9 +60,8 @@ export default function AnalyticsPage() {
 
             setAnalytics(data.analytics || []);
             setSummary(data.summary || {});
-            setTop10(data.top10 || []);
         } catch (error) {
-            console.error('Failed to fetch analytics:', error);
+            console.error('Failed to fetch data:', error);
         } finally {
             setLoading(false);
         }
@@ -82,7 +85,6 @@ export default function AnalyticsPage() {
                 return;
             }
 
-            // Show saving state (optional: could add a local loading state)
             const res = await fetch(`/api/analytics/${id}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
@@ -91,7 +93,7 @@ export default function AnalyticsPage() {
 
             if (res.ok) {
                 setEditingId(null);
-                fetchAnalytics();
+                fetchData(); // Refresh data
             } else {
                 const data = await res.json();
                 console.error('Save error data:', data);
@@ -101,6 +103,11 @@ export default function AnalyticsPage() {
             console.error('Error updating analytics:', error);
             alert('Erro ao conectar com o servidor. Verifique o console para mais detalhes.');
         }
+    };
+
+    const handleCancel = () => {
+        setEditingId(null);
+        setEditValue('');
     };
 
     const handleDebug = async () => {
@@ -113,9 +120,35 @@ export default function AnalyticsPage() {
         }
     };
 
-    const handleCancel = () => {
-        setEditingId(null);
-        setEditValue('');
+    const toggleSection = (type) => {
+        setCollapsedSections(prev => ({
+            ...prev,
+            [type]: !prev[type]
+        }));
+    };
+
+    const moveSection = async (index, direction) => {
+        const newOrder = [...sectionOrder];
+        if (direction === 'up' && index > 0) {
+            [newOrder[index], newOrder[index - 1]] = [newOrder[index - 1], newOrder[index]];
+        } else if (direction === 'down' && index < newOrder.length - 1) {
+            [newOrder[index], newOrder[index + 1]] = [newOrder[index + 1], newOrder[index]];
+        } else {
+            return;
+        }
+
+        setSectionOrder(newOrder);
+
+        // Save new order
+        try {
+            await fetch('/api/settings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ order: newOrder })
+            });
+        } catch (error) {
+            console.error('Failed to save order:', error);
+        }
     };
 
     const exportCSV = () => {
@@ -129,8 +162,8 @@ export default function AnalyticsPage() {
             item.monthlyViews || 0,
             item.editedViews || item.views,
             item.uses,
-            new Date(item.createdAt).toLocaleDateString('pt-BR'),
-            new Date(item.lastViewedAt).toLocaleDateString('pt-BR')
+            new Date(item.createdAt).toLocaleDateString(),
+            new Date(item.lastViewedAt).toLocaleString()
         ]);
 
         const csvContent = [
@@ -138,84 +171,66 @@ export default function AnalyticsPage() {
             ...rows.map(row => row.join(','))
         ].join('\n');
 
-        const blob = new Blob([csvContent], { type: 'text/csv' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `analytics_${new Date().toISOString().split('T')[0]}.csv`;
-        a.click();
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `analytics_export_${new Date().toISOString().split('T')[0]}.csv`;
+        link.click();
     };
 
-    if (status === 'loading' || loading) {
-        return <div style={{ padding: '2rem', textAlign: 'center' }}>Carregando...</div>;
-    }
+    // Group analytics by type
+    const groupedAnalytics = analytics.reduce((acc, item) => {
+        const type = item.type || 'other';
+        if (!acc[type]) acc[type] = [];
+        acc[type].push(item);
+        return acc;
+    }, {});
 
-    if (!session || session.user.role !== 'admin') {
-        return <div style={{ padding: '2rem', textAlign: 'center' }}>Acesso negado</div>;
-    }
+    const typeLabels = {
+        product: 'Produtos',
+        event: 'Eventos',
+        promotion: 'Promoções',
+        ad: 'Propagandas',
+        coupon: 'Cupons',
+        page: 'Páginas',
+        partner: 'Parceiros',
+        other: 'Outros'
+    };
+
+    if (loading) return <p style={{ textAlign: 'center', padding: '2rem' }}>Carregando...</p>;
 
     return (
-        <div style={{ padding: '2rem' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-                <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: '#000' }}>📊 Painel de Analytics</h1>
-                <button onClick={exportCSV} className="btn btn-primary">
-                    📥 Exportar CSV
-                </button>
+                <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: '#000' }}>Analytics</h1>
+                <div style={{ display: 'flex', gap: '1rem' }}>
+                    <button
+                        onClick={handleDebug}
+                        className="btn btn-outline"
+                        style={{ padding: '0.5rem 1rem' }}
+                    >
+                        🛠️ Debug DB
+                    </button>
+                    <button onClick={exportCSV} className="btn btn-primary">Exportar CSV</button>
+                </div>
             </div>
 
-            {/* Resumo */}
+            {/* Resumo Cards */}
             {summary && (
-                <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                    gap: '1rem',
-                    marginBottom: '2rem'
-                }}>
-                    <div className="glass" style={{ padding: '1.5rem', borderRadius: 'var(--radius)' }}>
-                        <div style={{ fontSize: '0.875rem', color: '#666', marginBottom: '0.5rem' }}>Total de Visualizações</div>
-                        <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#000' }}>{summary.totalViews?.toLocaleString()}</div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
+                    <div className="card" style={{ textAlign: 'center' }}>
+                        <h3>Total Visualizações</h3>
+                        <p style={{ fontSize: '2rem', fontWeight: 'bold' }}>{summary.totalViews}</p>
                     </div>
-                    <div className="glass" style={{ padding: '1.5rem', borderRadius: 'var(--radius)' }}>
-                        <div style={{ fontSize: '0.875rem', color: '#666', marginBottom: '0.5rem' }}>Total de Usos</div>
-                        <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#000' }}>{summary.totalUses?.toLocaleString()}</div>
-                    </div>
-                    <div className="glass" style={{ padding: '1.5rem', borderRadius: 'var(--radius)' }}>
-                        <div style={{ fontSize: '0.875rem', color: '#666', marginBottom: '0.5rem' }}>Total de Itens</div>
-                        <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#000' }}>{summary.totalItems?.toLocaleString()}</div>
+                    <div className="card" style={{ textAlign: 'center' }}>
+                        <h3>Total Usos (Cupons)</h3>
+                        <p style={{ fontSize: '2rem', fontWeight: 'bold' }}>{summary.totalUses}</p>
                     </div>
                 </div>
             )}
 
             {/* Filtros */}
-            <div style={{
-                display: 'flex',
-                gap: '1rem',
-                marginBottom: '2rem',
-                flexWrap: 'wrap',
-                background: 'white',
-                padding: '1rem',
-                borderRadius: 'var(--radius)',
-                border: '1px solid var(--border)'
-            }}>
-                <div>
-                    <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: '500', color: '#000' }}>
-                        Tipo
-                    </label>
-                    <select
-                        value={typeFilter}
-                        onChange={(e) => setTypeFilter(e.target.value)}
-                        style={{ padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
-                    >
-                        <option value="">Todos</option>
-                        <option value="product">Produtos</option>
-                        <option value="event">Eventos</option>
-                        <option value="promotion">Promoções</option>
-                        <option value="ad">Propagandas</option>
-                        <option value="coupon">Cupons</option>
-                        <option value="page">Páginas</option>
-                    </select>
-                </div>
-
+            <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
                 <div>
                     <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: '500', color: '#000' }}>
                         Período
@@ -231,180 +246,129 @@ export default function AnalyticsPage() {
                         <option value="year">Último Ano</option>
                     </select>
                 </div>
-
-                <div>
-                    <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: '500', color: '#000' }}>
-                        Ordenar por
-                    </label>
-                    <select
-                        value={sortBy}
-                        onChange={(e) => setSortBy(e.target.value)}
-                        style={{ padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
-                    >
-                        <option value="views">Visualizações</option>
-                        <option value="uses">Usos</option>
-                        <option value="createdAt">Data de Criação</option>
-                        <option value="lastViewedAt">Última Visualização</option>
-                    </select>
-                </div>
             </div>
 
-            {/* Top 10 */}
-            {top10.length > 0 && (
-                <div style={{ marginBottom: '2rem' }}>
-                    <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem', color: '#000' }}>🏆 Top 10 Mais Visualizados</h2>
-                    <div style={{
-                        background: 'white',
-                        borderRadius: 'var(--radius)',
-                        border: '1px solid var(--border)',
-                        overflow: 'hidden'
-                    }}>
-                        {top10.map((item, index) => (
+            {/* Sections */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                {sectionOrder.map((type, index) => {
+                    const items = groupedAnalytics[type] || [];
+                    // Show section if it has items OR if it's in the order list (so user can reorder empty sections too, or maybe not?)
+                    // Let's show only if items exist to avoid clutter, but then user can't reorder empty sections.
+                    // User asked to "choose order of lists".
+                    // Let's show all sections defined in order, even if empty, so they can be reordered?
+                    // Or maybe just show if items exist.
+                    if (items.length === 0) return null;
+
+                    const isCollapsed = collapsedSections[type];
+
+                    return (
+                        <div key={type} className="card" style={{ padding: '0', overflow: 'hidden' }}>
                             <div
-                                key={item.id}
                                 style={{
+                                    padding: '1rem',
                                     display: 'flex',
                                     justifyContent: 'space-between',
-                                    padding: '1rem',
-                                    borderBottom: index < top10.length - 1 ? '1px solid var(--border)' : 'none'
+                                    alignItems: 'center',
+                                    background: '#f5f5f5',
+                                    borderBottom: isCollapsed ? 'none' : '1px solid var(--border)',
+                                    cursor: 'pointer'
                                 }}
+                                onClick={() => toggleSection(type)}
                             >
-                                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                                    <span style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#666' }}>#{index + 1}</span>
-                                    <div>
-                                        <div style={{ fontWeight: '500', color: '#000' }}>{item.itemName}</div>
-                                        <div style={{ fontSize: '0.875rem', color: '#666' }}>
-                                            {item.type === 'product' && '🛍️ Produto'}
-                                            {item.type === 'event' && '📅 Evento'}
-                                            {item.type === 'promotion' && '🎁 Promoção'}
-                                            {item.type === 'ad' && '📢 Propaganda'}
-                                            {item.type === 'coupon' && '🎟️ Cupom'}
-                                            {item.itemCode && ` • ${item.itemCode}`}
-                                        </div>
-                                    </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                    <span style={{
+                                        transform: isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)',
+                                        transition: 'transform 0.2s',
+                                        display: 'inline-block',
+                                        width: '20px',
+                                        textAlign: 'center'
+                                    }}>▼</span>
+                                    <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '600' }}>{typeLabels[type] || type} ({items.length})</h2>
                                 </div>
-                                <div style={{ textAlign: 'right' }}>
-                                    <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#000' }}>{item.views}</div>
-                                    <div style={{ fontSize: '0.875rem', color: '#666' }}>visualizações</div>
+                                <div style={{ display: 'flex', gap: '0.5rem' }} onClick={(e) => e.stopPropagation()}>
+                                    <button
+                                        onClick={() => moveSection(index, 'up')}
+                                        disabled={index === 0}
+                                        className="btn btn-outline"
+                                        style={{ padding: '0.25rem 0.5rem', opacity: index === 0 ? 0.3 : 1 }}
+                                        title="Mover para cima"
+                                    >
+                                        ⬆️
+                                    </button>
+                                    <button
+                                        onClick={() => moveSection(index, 'down')}
+                                        disabled={index === sectionOrder.length - 1}
+                                        className="btn btn-outline"
+                                        style={{ padding: '0.25rem 0.5rem', opacity: index === sectionOrder.length - 1 ? 0.3 : 1 }}
+                                        title="Mover para baixo"
+                                    >
+                                        ⬇️
+                                    </button>
                                 </div>
                             </div>
-                        ))}
-                    </div>
-                </div>
-            )}
 
-            {/* Tabela de Dados */}
-            <div style={{
-                background: 'white',
-                borderRadius: 'var(--radius)',
-                border: '1px solid var(--border)',
-                overflow: 'auto'
-            }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                    <thead>
-                        <tr style={{ background: 'var(--muted)', borderBottom: '2px solid var(--border)' }}>
-                            <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: '#000' }}>Nome</th>
-                            <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: '#000' }}>Código</th>
-                            <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: '#000' }}>Tipo</th>
-                            <th style={{ padding: '1rem', textAlign: 'center', fontWeight: '600', color: '#000' }}>Views Originais</th>
-                            <th style={{ padding: '1rem', textAlign: 'center', fontWeight: '600', color: '#000' }}>7 Dias</th>
-                            <th style={{ padding: '1rem', textAlign: 'center', fontWeight: '600', color: '#000' }}>30 Dias</th>
-                            <th style={{ padding: '1rem', textAlign: 'center', fontWeight: '600', color: '#000' }}>Views Editadas</th>
-                            <th style={{ padding: '1rem', textAlign: 'center', fontWeight: '600', color: '#000' }}>Usos</th>
-                            <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: '#000' }}>Criado Em</th>
-                            <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: '#000' }}>Última Visualização</th>
-                            <th style={{ padding: '1rem', textAlign: 'center', fontWeight: '600', color: '#000' }}>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {analytics.map((item) => (
-                            <tr key={item.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                                <td style={{ padding: '1rem', color: '#000' }}>{item.itemName}</td>
-                                <td style={{ padding: '1rem', color: '#666' }}>{item.itemCode || '-'}</td>
-                                <td style={{ padding: '1rem' }}>
-                                    <span style={{
-                                        padding: '0.25rem 0.5rem',
-                                        borderRadius: '0.25rem',
-                                        fontSize: '0.875rem',
-                                        background: 'var(--muted)',
-                                        color: '#000'
-                                    }}>
-                                        {item.type === 'product' && '🛍️ Produto'}
-                                        {item.type === 'event' && '📅 Evento'}
-                                        {item.type === 'promotion' && '🎁 Promoção'}
-                                        {item.type === 'ad' && '📢 Propaganda'}
-                                        {item.type === 'coupon' && '🎟️ Cupom'}
-                                        {item.type === 'page' && '📄 Página'}
-                                    </span>
-                                </td>
-                                <td style={{ padding: '1rem', textAlign: 'center', fontWeight: '600', color: '#666' }}>{item.views}</td>
-                                <td style={{ padding: '1rem', textAlign: 'center', color: '#666' }}>{item.weeklyViews || 0}</td>
-                                <td style={{ padding: '1rem', textAlign: 'center', color: '#666' }}>{item.monthlyViews || 0}</td>
-                                <td style={{ padding: '1rem', textAlign: 'center' }}>
-                                    {editingId === item.id ? (
-                                        <input
-                                            type="number"
-                                            value={editValue}
-                                            onChange={(e) => setEditValue(e.target.value)}
-                                            style={{
-                                                width: '80px',
-                                                padding: '0.25rem',
-                                                border: '1px solid var(--border)',
-                                                borderRadius: 'var(--radius)',
-                                                textAlign: 'center'
-                                            }}
-                                        />
-                                    ) : (
-                                        <span style={{ fontWeight: '600', color: '#000' }}>
-                                            {item.editedViews !== null ? item.editedViews : item.views}
-                                        </span>
-                                    )}
-                                </td>
-                                <td style={{ padding: '1rem', textAlign: 'center', fontWeight: '600', color: '#000' }}>{item.uses}</td>
-                                <td style={{ padding: '1rem', color: '#666' }}>
-                                    {new Date(item.createdAt).toLocaleDateString('pt-BR')}
-                                </td>
-                                <td style={{ padding: '1rem', color: '#666' }}>
-                                    {new Date(item.lastViewedAt).toLocaleDateString('pt-BR')}
-                                </td>
-                                <td style={{ padding: '1rem', textAlign: 'center' }}>
-                                    {editingId === item.id ? (
-                                        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
-                                            <button
-                                                onClick={() => handleSave(item.id)}
-                                                className="btn btn-primary"
-                                                style={{ padding: '0.25rem 0.75rem', fontSize: '0.875rem' }}
-                                            >
-                                                ✓
-                                            </button>
-                                            <button
-                                                onClick={handleCancel}
-                                                className="btn btn-outline"
-                                                style={{ padding: '0.25rem 0.75rem', fontSize: '0.875rem' }}
-                                            >
-                                                ✕
-                                            </button>
-                                        </div>
-                                    ) : (
-                                        <button
-                                            onClick={() => handleEdit(item)}
-                                            className="btn btn-outline"
-                                            style={{ padding: '0.25rem 0.75rem', fontSize: '0.875rem' }}
-                                        >
-                                            ✏️ Editar
-                                        </button>
-                                    )}
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-
-                {analytics.length === 0 && (
-                    <div style={{ padding: '3rem', textAlign: 'center', color: '#666' }}>
-                        Nenhum dado de analytics encontrado
-                    </div>
-                )}
+                            {!isCollapsed && (
+                                <div style={{ overflowX: 'auto' }}>
+                                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                        <thead>
+                                            <tr style={{ borderBottom: '1px solid var(--border)', background: '#fff' }}>
+                                                <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600' }}>Nome</th>
+                                                <th style={{ padding: '1rem', textAlign: 'center', fontWeight: '600' }}>Views Originais</th>
+                                                <th style={{ padding: '1rem', textAlign: 'center', fontWeight: '600' }}>7 Dias</th>
+                                                <th style={{ padding: '1rem', textAlign: 'center', fontWeight: '600' }}>30 Dias</th>
+                                                <th style={{ padding: '1rem', textAlign: 'center', fontWeight: '600' }}>Views Editadas</th>
+                                                <th style={{ padding: '1rem', textAlign: 'center', fontWeight: '600' }}>Ações</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {items.map((item) => (
+                                                <tr key={item.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                                                    <td style={{ padding: '1rem' }}>
+                                                        <div style={{ fontWeight: '500', color: '#000' }}>{item.itemName}</div>
+                                                        {item.itemCode && <div style={{ fontSize: '0.875rem', color: 'var(--muted-foreground)' }}>Ref: {item.itemCode}</div>}
+                                                    </td>
+                                                    <td style={{ padding: '1rem', textAlign: 'center', color: '#666' }}>
+                                                        {item.views}
+                                                    </td>
+                                                    <td style={{ padding: '1rem', textAlign: 'center', color: '#666' }}>
+                                                        {item.weeklyViews || 0}
+                                                    </td>
+                                                    <td style={{ padding: '1rem', textAlign: 'center', color: '#666' }}>
+                                                        {item.monthlyViews || 0}
+                                                    </td>
+                                                    <td style={{ padding: '1rem', textAlign: 'center' }}>
+                                                        {editingId === item.id ? (
+                                                            <input
+                                                                type="number"
+                                                                value={editValue}
+                                                                onChange={(e) => setEditValue(e.target.value)}
+                                                                style={{ width: '80px', padding: '0.25rem', border: '1px solid var(--border)', borderRadius: '4px' }}
+                                                            />
+                                                        ) : (
+                                                            <span style={{ fontWeight: '600', color: '#000' }}>
+                                                                {item.editedViews !== null ? item.editedViews : item.views}
+                                                            </span>
+                                                        )}
+                                                    </td>
+                                                    <td style={{ padding: '1rem', textAlign: 'center' }}>
+                                                        {editingId === item.id ? (
+                                                            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
+                                                                <button onClick={() => handleSave(item.id)} className="btn btn-primary" style={{ padding: '0.25rem 0.5rem', fontSize: '0.875rem' }}>Salvar</button>
+                                                                <button onClick={handleCancel} className="btn btn-outline" style={{ padding: '0.25rem 0.5rem', fontSize: '0.875rem' }}>Cancelar</button>
+                                                            </div>
+                                                        ) : (
+                                                            <button onClick={() => handleEdit(item)} className="btn btn-outline" style={{ padding: '0.25rem 0.5rem', fontSize: '0.875rem' }}>Editar</button>
+                                                        )}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
+                        </div>
+                    );
+                })}
             </div>
         </div>
     );
