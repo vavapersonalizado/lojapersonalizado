@@ -1,9 +1,8 @@
 "use client";
 
-import { useSession } from 'next-auth/react';
+import { getSession } from 'next-auth/react';
 
 export function useAnalytics() {
-    const { data: session } = useSession();
 
     const trackView = async (type, itemId, itemName, itemCode = null) => {
         try {
@@ -12,6 +11,9 @@ export function useAnalytics() {
                 console.log('Skipping analytics tracking on localhost');
                 return;
             }
+
+            // Obter sessão atualizada para verificar admin
+            const session = await getSession();
 
             // Não rastrear visualizações de admins
             if (session?.user?.role === 'admin') {
@@ -50,6 +52,9 @@ export function useAnalytics() {
                 console.log('Skipping analytics tracking on localhost');
                 return;
             }
+
+            // Obter sessão atualizada para verificar admin
+            const session = await getSession();
 
             // Não rastrear usos de admins
             if (session?.user?.role === 'admin') {
