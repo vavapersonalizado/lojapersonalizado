@@ -133,6 +133,7 @@ model SiteSettings {
   showProducts   Boolean @default(true)
   showCategories Boolean @default(true)
   showEvents     Boolean @default(true)
+  showPromotions Boolean @default(true)
   showPartners   Boolean @default(true)
   showSponsors   Boolean @default(true)
 }

@@ -362,14 +362,6 @@ export default function RightSidebar() {
                                                 <div style={{ marginBottom: '0.5rem', opacity: events[currentEventIndex].active ? 1 : 0.5 }}>
                                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
                                                         <p style={{ fontWeight: '600', fontSize: '0.95rem' }}>{events[currentEventIndex].title}</p>
-                                                        {isAdmin && (
-                                                            <input
-                                                                type="checkbox"
-                                                                checked={events[currentEventIndex].active}
-                                                                onChange={() => toggleItem('events', events[currentEventIndex].id, events[currentEventIndex].active)}
-                                                                title="Visível"
-                                                            />
-                                                        )}
                                                     </div>
                                                     <p style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)', marginBottom: '0.5rem' }}>
                                                         {new Date(events[currentEventIndex].date).toLocaleDateString()}
@@ -421,6 +413,19 @@ export default function RightSidebar() {
                                                                 )}
                                                             </div>
                                                         )
+                                                    )}
+
+                                                    {isAdmin && (
+                                                        <div style={{ marginTop: '1rem', borderTop: '1px solid var(--border)', paddingTop: '0.5rem' }}>
+                                                            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.8rem' }}>
+                                                                <input
+                                                                    type="checkbox"
+                                                                    checked={events[currentEventIndex].active}
+                                                                    onChange={() => toggleItem('events', events[currentEventIndex].id, events[currentEventIndex].active)}
+                                                                />
+                                                                Visível
+                                                            </label>
+                                                        </div>
                                                     )}
                                                 </div>
                                             </div>
