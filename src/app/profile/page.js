@@ -383,7 +383,15 @@ export default function ProfilePage() {
                         </div>
                     )}
 
-                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
+                        <button
+                            type="button"
+                            onClick={() => router.push('/')}
+                            className="btn btn-outline"
+                            style={{ padding: '0.75rem 2rem', fontSize: '1rem' }}
+                        >
+                            Cancelar
+                        </button>
                         <button
                             type="submit"
                             className="btn btn-primary"
