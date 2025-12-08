@@ -37,7 +37,7 @@ export default function Home() {
             {/* Hero */}
             {/* Hero */}
             <section style={{
-                padding: '4rem 2rem',
+                padding: '2rem 1rem',
                 textAlign: 'center',
                 background: 'rgba(255, 255, 255, 0.1)',
                 backdropFilter: 'blur(10px)',
@@ -51,22 +51,12 @@ export default function Home() {
                 <div style={{ position: 'relative', zIndex: 1 }}>
                     <p style={{
                         fontSize: '1.5rem',
-                        marginBottom: '1rem',
+                        marginBottom: '0',
                         opacity: 0.9,
                         fontFamily: 'Outfit, sans-serif'
                     }}>
                         Encontre os melhores personalizados com a melhor qualidade.
                     </p>
-                    <button className="btn" style={{
-                        background: 'var(--accent)',
-                        color: 'var(--accent-foreground)',
-                        fontSize: '1.1rem',
-                        padding: '0.75rem 2rem',
-                        marginTop: '1rem',
-                        boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
-                    }}>
-                        Ver Produtos ✨
-                    </button>
                 </div>
 
                 {/* Decorative Circles */}

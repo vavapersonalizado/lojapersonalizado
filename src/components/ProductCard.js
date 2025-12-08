@@ -117,12 +117,27 @@ export default function ProductCard({ product, isClientMode }) {
                     ) : (
                         <Link href={`/products/${product.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block', width: '100%', height: '100%' }}>
                             {mediaUrl ? (
-                                <div style={{
-                                    width: '100%',
-                                    height: '100%',
-                                    background: `url(${mediaUrl}) center/cover`,
-                                    transition: 'background-image 0.3s ease'
-                                }} />
+                                mediaUrl.match(/\.(mp4|webm|ogg)$/i) ? (
+                                    <video
+                                        src={mediaUrl}
+                                        style={{
+                                            width: '100%',
+                                            height: '100%',
+                                            objectFit: 'cover'
+                                        }}
+                                        muted
+                                        loop
+                                        playsInline
+                                        autoPlay
+                                    />
+                                ) : (
+                                    <div style={{
+                                        width: '100%',
+                                        height: '100%',
+                                        background: `url(${mediaUrl}) center/cover`,
+                                        transition: 'background-image 0.3s ease'
+                                    }} />
+                                )
                             ) : (
                                 <div style={{
                                     width: '100%',
