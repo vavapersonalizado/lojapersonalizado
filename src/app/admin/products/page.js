@@ -107,11 +107,23 @@ export default function AdminProductsPage() {
                                 <tr key={product.id} style={{ borderBottom: '1px solid var(--border)' }}>
                                     <td style={{ padding: '1rem' }}>
                                         {product.images?.[0] ? (
-                                            <img
-                                                src={product.images[0]}
-                                                alt={product.name}
-                                                style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '4px' }}
-                                            />
+                                            product.images[0].match(/\.(mp4|webm|ogg)$/i) ? (
+                                                <video
+                                                    src={product.images[0]}
+                                                    style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '4px' }}
+                                                    muted
+                                                    loop
+                                                    playsInline
+                                                    onMouseOver={e => e.target.play()}
+                                                    onMouseOut={e => e.target.pause()}
+                                                />
+                                            ) : (
+                                                <img
+                                                    src={product.images[0]}
+                                                    alt={product.name}
+                                                    style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '4px' }}
+                                                />
+                                            )
                                         ) : (
                                             <div style={{ width: '60px', height: '60px', background: 'var(--muted)', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                                 📦

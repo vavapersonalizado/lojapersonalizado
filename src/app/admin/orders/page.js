@@ -105,7 +105,7 @@ export default function OrdersPage() {
     if (loading) return <p style={{ padding: '2rem', textAlign: 'center' }}>Carregando pedidos...</p>;
 
     return (
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem', color: 'black' }}>
             <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '2rem' }}>
                 📦 Gerenciar Pedidos
             </h1>

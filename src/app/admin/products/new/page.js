@@ -99,13 +99,30 @@ export default function NewProductPage() {
 
                         <div>
                             <label style={{ display: 'block', marginBottom: '0.5rem' }}>Código (SKU)</label>
-                            <input
-                                type="text"
-                                className="input"
-                                value={formData.sku}
-                                onChange={e => setFormData({ ...formData, sku: e.target.value })}
-                                placeholder="Ex: PROD-001"
-                            />
+                            <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                <input
+                                    type="text"
+                                    className="input"
+                                    value={formData.sku}
+                                    onChange={e => setFormData({ ...formData, sku: e.target.value })}
+                                    placeholder="Ex: 12345678"
+                                    style={{ flex: 1 }}
+                                />
+                                <button
+                                    type="button"
+                                    className="btn btn-outline"
+                                    onClick={async () => {
+                                        const res = await fetch('/api/products/sku');
+                                        if (res.ok) {
+                                            const data = await res.json();
+                                            setFormData(prev => ({ ...prev, sku: data.sku }));
+                                        }
+                                    }}
+                                    style={{ whiteSpace: 'nowrap' }}
+                                >
+                                    Gerar Código
+                                </button>
+                            </div>
                         </div>
 
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
