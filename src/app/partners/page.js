@@ -3,7 +3,7 @@
 import { useSession } from "next-auth/react";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import useAnalytics from "@/hooks/useAnalytics";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 export default function PartnersPage() {
     const { data: session } = useSession();
