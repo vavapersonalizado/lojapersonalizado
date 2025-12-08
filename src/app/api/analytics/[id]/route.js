@@ -16,6 +16,8 @@ export async function PATCH(request, { params }) {
         const body = await request.json();
         const { editedViews } = body;
 
+        console.log('Updating analytics:', { id, editedViews });
+
         if (editedViews === undefined || editedViews === null) {
             return NextResponse.json(
                 { error: 'editedViews is required' },
@@ -23,16 +25,26 @@ export async function PATCH(request, { params }) {
             );
         }
 
+        const viewsValue = parseInt(editedViews);
+        if (isNaN(viewsValue)) {
+            return NextResponse.json(
+                { error: 'editedViews must be a valid number' },
+                { status: 400 }
+            );
+        }
+
         const updated = await prisma.analytics.update({
             where: { id },
-            data: { editedViews: parseInt(editedViews) }
+            data: { editedViews: viewsValue }
         });
 
+        console.log('Analytics updated successfully:', updated);
         return NextResponse.json(updated);
     } catch (error) {
         console.error('Error updating analytics:', error);
+        console.error('Error details:', error.message, error.stack);
         return NextResponse.json(
-            { error: 'Failed to update analytics' },
+            { error: 'Failed to update analytics', details: error.message },
             { status: 500 }
         );
     }
