@@ -1,57 +1,36 @@
 import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
+    const session = await getServerSession(authOptions);
+
+    if (!session || session.user.role !== 'admin') {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     try {
-        // 1. Check if we can connect and count promotions
-        const count = await prisma.promotion.count();
-
-        // 2. Check if we can select the new field 'expiresAt'
-        // If the field doesn't exist in the Prisma Client, this might throw or return undefined depending on how it's called,
-        // but usually Prisma Client validation happens at runtime.
-        // Let's try to find one promotion and see its keys.
-        const sample = await prisma.promotion.findFirst();
-
-        // 3. Try to create a dummy promotion with the new field to test write capability and schema sync
-        const testTitle = "DEBUG_TEST_" + Date.now();
-        let createResult = "Not attempted";
-        let deleteResult = "Not attempted";
-
+        const analyticsCount = await prisma.analytics.count();
+        // Check if AnalyticsEvent table exists and is accessible
+        let eventsCount = 'Unknown';
         try {
-            const created = await prisma.promotion.create({
-                data: {
-                    title: testTitle,
-                    expiresAt: new Date(), // This is the critical test
-                    active: false
-                }
-            });
-            createResult = "Success: " + created.id;
-
-            // Cleanup
-            await prisma.promotion.delete({ where: { id: created.id } });
-            deleteResult = "Success";
-        } catch (writeError) {
-            createResult = "Failed: " + writeError.message;
+            eventsCount = await prisma.analyticsEvent.count();
+        } catch (e) {
+            eventsCount = `Error: ${e.message}`;
         }
 
         return NextResponse.json({
-            status: "Online",
-            promotionCount: count,
-            sampleKeys: sample ? Object.keys(sample) : "No promotions found",
-            writeTest: {
-                create: createResult,
-                cleanup: deleteResult
-            },
-            env: {
-                nodeEnv: process.env.NODE_ENV,
-                // Don't expose full connection string for security, just check if it exists
-                hasDatabaseUrl: !!process.env.POSTGRES_PRISMA_URL
-            }
+            status: 'ok',
+            analyticsCount,
+            eventsCount,
+            env: process.env.NODE_ENV
         });
-
     } catch (error) {
         return NextResponse.json({
-            status: "Error",
+            status: 'error',
             message: error.message,
             stack: error.stack
         }, { status: 500 });

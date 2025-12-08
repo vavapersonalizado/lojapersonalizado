@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
+import { revalidatePath } from 'next/cache';
 
 // PATCH /api/analytics/[id] - Editar visualizações
 export async function PATCH(request, { params }) {
@@ -39,6 +40,7 @@ export async function PATCH(request, { params }) {
         });
 
         console.log('Analytics updated successfully:', updated);
+        revalidatePath('/admin/analytics');
         return NextResponse.json(updated);
     } catch (error) {
         console.error('Error updating analytics:', error);

@@ -94,11 +94,22 @@ export default function AnalyticsPage() {
                 fetchAnalytics();
             } else {
                 const data = await res.json();
-                alert(`Erro ao salvar: ${data.error || 'Erro desconhecido'}`);
+                console.error('Save error data:', data);
+                alert(`Erro ao salvar: ${data.error || 'Erro desconhecido'}\nDetalhes: ${data.details || 'Sem detalhes técnicos'}`);
             }
         } catch (error) {
             console.error('Error updating analytics:', error);
-            alert('Erro ao conectar com o servidor.');
+            alert('Erro ao conectar com o servidor. Verifique o console para mais detalhes.');
+        }
+    };
+
+    const handleDebug = async () => {
+        try {
+            const res = await fetch('/api/debug-db');
+            const data = await res.json();
+            alert(`Status do DB:\nAnalytics: ${data.analyticsCount}\nEvents: ${data.eventsCount}\nEnv: ${data.env}`);
+        } catch (error) {
+            alert('Erro ao testar DB: ' + error.message);
         }
     };
 
