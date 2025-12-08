@@ -116,7 +116,7 @@ export default function ImageUpload({ onUpload, currentImage }) {
                                 <p style={{ fontSize: '0.8rem', opacity: 0.8 }}>(Imagens, Vídeos ou 3D .glb)</p>
                                 <p style={{ fontSize: '0.75rem', opacity: 0.7, marginTop: '0.5rem' }}>
                                     💡 Selecione várias imagens de uma vez!<br />
-                                    Aguarde todos os uploads terminarem antes de clicar em "Done"
+                                    Aguarde todos os uploads terminarem antes de clicar em &quot;Done&quot;
                                 </p>
                             </div>
                         </div>
