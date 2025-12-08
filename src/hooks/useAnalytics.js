@@ -7,6 +7,12 @@ export function useAnalytics() {
 
     const trackView = async (type, itemId, itemName, itemCode = null) => {
         try {
+            // Não rastrear em localhost (desenvolvimento)
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                console.log('Skipping analytics tracking on localhost');
+                return;
+            }
+
             // Não rastrear visualizações de admins
             if (session?.user?.role === 'admin') {
                 console.log('Skipping analytics tracking for admin user');
@@ -39,6 +45,12 @@ export function useAnalytics() {
 
     const trackUse = async (type, itemId, itemName, itemCode = null) => {
         try {
+            // Não rastrear em localhost (desenvolvimento)
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                console.log('Skipping analytics tracking on localhost');
+                return;
+            }
+
             // Não rastrear usos de admins
             if (session?.user?.role === 'admin') {
                 console.log('Skipping analytics tracking for admin user');
