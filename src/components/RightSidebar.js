@@ -11,7 +11,40 @@ export default function RightSidebar() {
 
     const [events, setEvents] = useState([]);
     const [promotions, setPromotions] = useState([]);
+    const [ads, setAds] = useState([]);
     const [showEvents, setShowEvents] = useState(true);
+
+    const [currentPromoIndex, setCurrentPromoIndex] = useState(0);
+    const [isPromoHovered, setIsPromoHovered] = useState(false);
+    const promoIntervalRef = useRef(null);
+
+    // Event Carousel State
+    const [currentEventIndex, setCurrentEventIndex] = useState(0);
+    const [isEventHovered, setIsEventHovered] = useState(false);
+    const eventIntervalRef = useRef(null);
+
+    // Ad Carousel State
+    const [currentAdIndex, setCurrentAdIndex] = useState(0);
+    const [isAdHovered, setIsAdHovered] = useState(false);
+    const adIntervalRef = useRef(null);
+
+    // Ad Carousel Logic
+    useEffect(() => {
+        if (ads.length > 1 && !isAdHovered) {
+            adIntervalRef.current = setInterval(() => {
+                setCurrentAdIndex(prev => (prev + 1) % ads.length);
+            }, 5000); // Slower rotation for ads
+        }
+        return () => {
+            if (adIntervalRef.current) clearInterval(adIntervalRef.current);
+        };
+    }, [ads.length, isAdHovered]);
+
+    const [selectedMedia, setSelectedMedia] = useState(null);
+
+    // Internal Slideshow State (for cycling images within a single item)
+    const [activeImageIndex, setActiveImageIndex] = useState(0);
+    const internalIntervalRef = useRef(null);
 
     const fetchData = useCallback(async () => {
         try {
@@ -363,130 +396,144 @@ export default function RightSidebar() {
                                 )}
 
                                 {/* Eventos */}
-                                <section
-                                    onMouseEnter={() => setIsEventHovered(true)}
-                                    onMouseLeave={() => setIsEventHovered(false)}
-                                    style={{ display: 'flex', flexDirection: 'column', alignItems: isCollapsed ? 'center' : 'stretch' }}
-                                >
-                                    {isCollapsed ? (
-                                        <div title="Eventos" style={{ fontSize: '1.5rem', cursor: 'pointer' }}>📅</div>
-                                    ) : (
-                                        <>
-                                            <h3 style={{
-                                                fontSize: '1.1rem',
-                                                marginBottom: '1rem',
-                                                color: 'white',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                gap: '0.5rem'
-                                            }}>
-                                                📅 Próximos Eventos
-                                            </h3>
-                                            <div style={{
-                                                background: 'var(--card)',
-                                                border: '1px solid var(--border)',
-                                                padding: '1rem',
-                                                borderRadius: 'var(--radius)',
-                                                boxShadow: 'var(--shadow)',
-                                                minHeight: '150px'
-                                            }}>
-                                                {events.length === 0 ? (
-                                                    <p style={{ fontSize: '0.9rem', color: 'var(--muted-foreground)' }}>Nenhum evento próximo.</p>
-                                                ) : (
-                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                                                        {events[currentEventIndex] && (
-                                                            <div key={events[currentEventIndex].id} className="fade-in">
-                                                                <div style={{ marginBottom: '0.5rem', opacity: events[currentEventIndex].active ? 1 : 0.5 }}>
-                                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
-                                                                        <p style={{ fontWeight: '600', fontSize: '0.95rem' }}>{events[currentEventIndex].title}</p>
-                                                                    </div>
-                                                                    <p style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)', marginBottom: '0.5rem' }}>
-                                                                        {new Date(events[currentEventIndex].date).toLocaleDateString()}
-                                                                    </p>
-
-                                                                    {/* Event Image/Video Preview or HTML Content */}
-                                                                    {events[currentEventIndex].htmlContent ? (
-                                                                        <div
-                                                                            style={{ marginBottom: '0.5rem', overflow: 'hidden', borderRadius: 'var(--radius)' }}
-                                                                            dangerouslySetInnerHTML={{ __html: events[currentEventIndex].htmlContent }}
-                                                                        />
-                                                                    ) : (
-                                                                        getActiveMedia(events[currentEventIndex]) && (
-                                                                            <div
-                                                                                style={{ position: 'relative', borderRadius: 'var(--radius)', overflow: 'hidden', cursor: 'pointer' }}
-                                                                                onClick={() => openModal(getActiveMedia(events[currentEventIndex]))}
-                                                                            >
-                                                                                {isVideo(getActiveMedia(events[currentEventIndex])) ? (
-                                                                                    <video
-                                                                                        src={getActiveMedia(events[currentEventIndex])}
-                                                                                        style={{ width: '100%', height: 'auto' }}
-                                                                                        muted
-                                                                                        autoPlay
-                                                                                        loop
-                                                                                    />
-                                                                                ) : (
-                                                                                    <Image
-                                                                                        src={getActiveMedia(events[currentEventIndex])}
-                                                                                        alt={events[currentEventIndex].title}
-                                                                                        width={0}
-                                                                                        height={0}
-                                                                                        sizes="100vw"
-                                                                                        style={{ width: '100%', height: 'auto' }}
-                                                                                    />
-                                                                                )}
-                                                                                {events[currentEventIndex].images && events[currentEventIndex].images.length > 1 && (
-                                                                                    <div style={{
-                                                                                        position: 'absolute',
-                                                                                        bottom: '5px',
-                                                                                        right: '5px',
-                                                                                        background: 'rgba(0,0,0,0.6)',
-                                                                                        color: 'white',
-                                                                                        padding: '2px 6px',
-                                                                                        borderRadius: '10px',
-                                                                                        fontSize: '0.7rem'
-                                                                                    }}>
-                                                                                        {events[currentEventIndex].images.length} fotos
-                                                                                    </div>
-                                                                                )}
-                                                                            </div>
-                                                                        )
-                                                                    )}
-
-                                                                    {isAdmin && (
-                                                                        <div style={{ marginTop: '1rem', borderTop: '1px solid var(--border)', paddingTop: '0.5rem' }}>
-                                                                            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.8rem' }}>
-                                                                                <input
-                                                                                    type="checkbox"
-                                                                                    checked={events[currentEventIndex].active}
-                                                                                    onChange={() => toggleItem('events', events[currentEventIndex].id, events[currentEventIndex].active)}
-                                                                                />
-                                                                                Visível
-                                                                            </label>
-                                                                        </div>
-                                                                    )}
-                                                                </div>
-                                                            </div>
-                                                        )}
-
-                                                        {/* Dots Indicator for Events */}
-                                                        {events.length > 1 && (
-                                                            <div style={{ display: 'flex', justifyContent: 'center', gap: '4px', marginTop: '0.5rem' }}>
-                                                                {events.map((_, idx) => (
-                                                                    <div key={idx} style={{
-                                                                        width: '6px',
-                                                                        height: '6px',
-                                                                        borderRadius: '50%',
-                                                                        background: idx === currentEventIndex ? 'white' : 'rgba(255,255,255,0.5)'
-                                                                    }} />
-                                                                ))}
-                                                            </div>
-                                                        )}
+                                {(isAdmin || showEvents) && (
+                                    <section
+                                        onMouseEnter={() => setIsEventHovered(true)}
+                                        onMouseLeave={() => setIsEventHovered(false)}
+                                        style={{ display: 'flex', flexDirection: 'column', alignItems: isCollapsed ? 'center' : 'stretch' }}
+                                    >
+                                        {isCollapsed ? (
+                                            <div title="Eventos" style={{ fontSize: '1.5rem', cursor: 'pointer' }}>📅</div>
+                                        ) : (
+                                            <>
+                                                <h3 style={{
+                                                    fontSize: '1.1rem',
+                                                    marginBottom: '1rem',
+                                                    color: 'white',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'space-between'
+                                                }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                                        📅 Próximos Eventos
                                                     </div>
-                                                )}
-                                            </div>
-                                        </>
-                                    )}
-                                </section>
+                                                    {isAdmin && (
+                                                        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 'normal' }}>
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={showEvents}
+                                                                onChange={() => toggleGlobalSetting('showEvents', showEvents)}
+                                                            />
+                                                            Seção Visível
+                                                        </label>
+                                                    )}
+                                                </h3>
+                                                <div style={{
+                                                    background: 'var(--card)',
+                                                    border: '1px solid var(--border)',
+                                                    padding: '1rem',
+                                                    borderRadius: 'var(--radius)',
+                                                    boxShadow: 'var(--shadow)',
+                                                    minHeight: '150px'
+                                                }}>
+                                                    {events.length === 0 ? (
+                                                        <p style={{ fontSize: '0.9rem', color: 'var(--muted-foreground)' }}>Nenhum evento próximo.</p>
+                                                    ) : (
+                                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                                            {events[currentEventIndex] && (
+                                                                <div key={events[currentEventIndex].id} className="fade-in">
+                                                                    <div style={{ marginBottom: '0.5rem', opacity: events[currentEventIndex].active ? 1 : 0.5 }}>
+                                                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                                                                            <p style={{ fontWeight: '600', fontSize: '0.95rem' }}>{events[currentEventIndex].title}</p>
+                                                                        </div>
+                                                                        <p style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)', marginBottom: '0.5rem' }}>
+                                                                            {new Date(events[currentEventIndex].date).toLocaleDateString()}
+                                                                        </p>
+
+                                                                        {/* Event Image/Video Preview or HTML Content */}
+                                                                        {events[currentEventIndex].htmlContent ? (
+                                                                            <div
+                                                                                style={{ marginBottom: '0.5rem', overflow: 'hidden', borderRadius: 'var(--radius)' }}
+                                                                                dangerouslySetInnerHTML={{ __html: events[currentEventIndex].htmlContent }}
+                                                                            />
+                                                                        ) : (
+                                                                            getActiveMedia(events[currentEventIndex]) && (
+                                                                                <div
+                                                                                    style={{ position: 'relative', borderRadius: 'var(--radius)', overflow: 'hidden', cursor: 'pointer' }}
+                                                                                    onClick={() => openModal(getActiveMedia(events[currentEventIndex]))}
+                                                                                >
+                                                                                    {isVideo(getActiveMedia(events[currentEventIndex])) ? (
+                                                                                        <video
+                                                                                            src={getActiveMedia(events[currentEventIndex])}
+                                                                                            style={{ width: '100%', height: 'auto' }}
+                                                                                            muted
+                                                                                            autoPlay
+                                                                                            loop
+                                                                                        />
+                                                                                    ) : (
+                                                                                        <Image
+                                                                                            src={getActiveMedia(events[currentEventIndex])}
+                                                                                            alt={events[currentEventIndex].title}
+                                                                                            width={0}
+                                                                                            height={0}
+                                                                                            sizes="100vw"
+                                                                                            style={{ width: '100%', height: 'auto' }}
+                                                                                        />
+                                                                                    )}
+                                                                                    {events[currentEventIndex].images && events[currentEventIndex].images.length > 1 && (
+                                                                                        <div style={{
+                                                                                            position: 'absolute',
+                                                                                            bottom: '5px',
+                                                                                            right: '5px',
+                                                                                            background: 'rgba(0,0,0,0.6)',
+                                                                                            color: 'white',
+                                                                                            padding: '2px 6px',
+                                                                                            borderRadius: '10px',
+                                                                                            fontSize: '0.7rem'
+                                                                                        }}>
+                                                                                            {events[currentEventIndex].images.length} fotos
+                                                                                        </div>
+                                                                                    )}
+                                                                                </div>
+                                                                            )
+                                                                        )}
+
+                                                                        {isAdmin && (
+                                                                            <div style={{ marginTop: '1rem', borderTop: '1px solid var(--border)', paddingTop: '0.5rem' }}>
+                                                                                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.8rem' }}>
+                                                                                    <input
+                                                                                        type="checkbox"
+                                                                                        checked={events[currentEventIndex].active}
+                                                                                        onChange={() => toggleItem('events', events[currentEventIndex].id, events[currentEventIndex].active)}
+                                                                                    />
+                                                                                    Visível
+                                                                                </label>
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                            )}
+
+                                                            {/* Dots Indicator for Events */}
+                                                            {events.length > 1 && (
+                                                                <div style={{ display: 'flex', justifyContent: 'center', gap: '4px', marginTop: '0.5rem' }}>
+                                                                    {events.map((_, idx) => (
+                                                                        <div key={idx} style={{
+                                                                            width: '6px',
+                                                                            height: '6px',
+                                                                            borderRadius: '50%',
+                                                                            background: idx === currentEventIndex ? 'white' : 'rgba(255,255,255,0.5)'
+                                                                        }} />
+                                                                    ))}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </>
+                                        )}
+                                    </section>
+                                )}
 
                                 {/* Publicidade */}
                                 {ads.length > 0 && (
