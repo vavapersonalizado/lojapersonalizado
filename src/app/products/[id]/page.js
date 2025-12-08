@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { useCart } from '@/contexts/CartContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAnalytics } from '@/hooks/useAnalytics';
 import Breadcrumbs from '@/components/Breadcrumbs';
 import ProductGallery from '@/components/ProductGallery';
 
@@ -15,6 +16,7 @@ export default function ProductPage() {
     const isAdmin = session?.user?.role === 'admin';
     const { addToCart } = useCart();
     const { t, formatCurrency } = useLanguage();
+    const { trackView } = useAnalytics();
 
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -33,12 +35,15 @@ export default function ProductPage() {
                 console.log('Product data:', data);
                 setProduct(data);
                 setLoading(false);
+
+                // Track product view
+                trackView('product', data.id, data.name, data.sku);
             })
             .catch(err => {
                 console.error('Error loading product:', err);
                 setLoading(false);
             });
-    }, [id]);
+    }, [id, trackView]);
 
     const handleAddToCart = () => {
         setAdding(true);

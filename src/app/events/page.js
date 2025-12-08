@@ -4,10 +4,12 @@ import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { isVideo } from "@/lib/mediaUtils";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 export default function EventsPage() {
     const { data: session } = useSession();
     const isAdmin = session?.user?.role === 'admin';
+    const { trackView } = useAnalytics();
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedMedia, setSelectedMedia] = useState(null);
@@ -18,6 +20,11 @@ export default function EventsPage() {
                 const res = await fetch('/api/events');
                 const data = await res.json();
                 setEvents(Array.isArray(data) ? data : []);
+
+                // Track page view
+                if (data.length > 0) {
+                    trackView('page', 'events-page', 'Página de Eventos');
+                }
             } catch (error) {
                 console.error('Error fetching events:', error);
             } finally {
@@ -26,7 +33,7 @@ export default function EventsPage() {
         };
 
         fetchEvents();
-    }, []);
+    }, [trackView]);
 
     const openModal = (mediaUrl) => {
         setSelectedMedia(mediaUrl);
