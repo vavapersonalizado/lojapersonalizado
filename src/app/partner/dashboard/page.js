@@ -4,12 +4,12 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 
 export default function PartnerDashboard() {
-    const { data: session } = useSession();
+    const { data: session, status } = useSession();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (session) {
+        if (status === 'authenticated' && session) {
             fetch('/api/partner/stats')
                 .then(res => res.json())
                 .then(data => {
@@ -20,10 +20,13 @@ export default function PartnerDashboard() {
                     console.error(err);
                     setLoading(false);
                 });
+        } else if (status === 'unauthenticated') {
+            setLoading(false);
         }
-    }, [session]);
+    }, [session, status]);
 
-    if (loading) return <div>Carregando dados...</div>;
+    if (status === 'loading' || loading) return <div>Carregando dados...</div>;
+    if (status === 'unauthenticated') return <div>Você precisa estar logado como parceiro.</div>;
     if (!data || data.error) return <div>Erro ao carregar dashboard. Você tem certeza que é um parceiro?</div>;
 
     const { partner, stats } = data;
