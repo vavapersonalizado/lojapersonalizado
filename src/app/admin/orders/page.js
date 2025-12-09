@@ -263,9 +263,30 @@ export default function OrdersPage() {
                                                     borderRadius: 'var(--radius)',
                                                     border: item.ready ? '1px solid green' : '1px solid transparent'
                                                 }}>
-                                                    <div>
-                                                        <span style={{ fontWeight: 'bold' }}>{item.name}</span>
-                                                        <span style={{ marginLeft: '1rem', color: 'var(--muted-foreground)' }}>x{item.quantity}</span>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                                        {item.customization?.preview && (
+                                                            <div style={{ width: '50px', height: '50px', border: '1px solid #ddd', borderRadius: '4px', overflow: 'hidden' }}>
+                                                                <img
+                                                                    src={item.customization.preview}
+                                                                    alt="Customization"
+                                                                    style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                                                                    onClick={() => {
+                                                                        const w = window.open("");
+                                                                        w.document.write('<img src="' + item.customization.preview + '" style="max-width: 100%"/>');
+                                                                    }}
+                                                                    title="Clique para ampliar"
+                                                                />
+                                                            </div>
+                                                        )}
+                                                        <div>
+                                                            <span style={{ fontWeight: 'bold' }}>{item.name}</span>
+                                                            <span style={{ marginLeft: '1rem', color: 'var(--muted-foreground)' }}>x{item.quantity}</span>
+                                                            {item.customization && (
+                                                                <div style={{ fontSize: '0.8rem', color: 'var(--primary)', marginTop: '0.25rem' }}>
+                                                                    🎨 Produto Personalizado
+                                                                </div>
+                                                            )}
+                                                        </div>
                                                     </div>
                                                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                                                         <span>R$ {(item.price * item.quantity).toFixed(2)}</span>

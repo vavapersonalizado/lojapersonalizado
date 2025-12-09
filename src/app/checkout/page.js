@@ -9,7 +9,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 export default function CheckoutPage() {
     const { data: session, status } = useSession();
     const router = useRouter();
-    const { cart, getCartTotal, clearCart } = useCart();
+    const { cart, getCartTotal, clearCart, coupon, applyCoupon, availableCoupons } = useCart();
     const { t, formatCurrency } = useLanguage();
 
     const [couponCode, setCouponCode] = useState('');
@@ -55,8 +55,16 @@ export default function CheckoutPage() {
         }
     }, [status, cart, router, orderSuccess, session]);
 
-    const validateCoupon = async () => {
-        if (!couponCode.trim()) return;
+    useEffect(() => {
+        if (coupon) {
+            setCouponData(coupon);
+            setCouponCode(coupon.code);
+        }
+    }, [coupon]);
+
+    const validateCoupon = async (codeOverride = null) => {
+        const codeToUse = codeOverride || couponCode;
+        if (!codeToUse.trim()) return;
 
         setValidatingCoupon(true);
         setCouponError('');
@@ -66,7 +74,7 @@ export default function CheckoutPage() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    code: couponCode,
+                    code: codeToUse,
                     cartItems: cart
                 })
             });
@@ -74,6 +82,8 @@ export default function CheckoutPage() {
 
             if (res.ok) {
                 setCouponData(data.coupon);
+                applyCoupon(data.coupon); // Sync with context
+                setCouponCode(data.coupon.code); // Ensure code matches applied coupon
                 setCouponError('');
             } else {
                 setCouponError(data.error || t('checkout.coupon_invalid'));
@@ -176,7 +186,8 @@ export default function CheckoutPage() {
                         productId: item.id,
                         name: item.name,
                         price: item.price,
-                        quantity: item.quantity
+                        quantity: item.quantity,
+                        customization: item.customization || null
                     })),
                     couponCode: couponData ? couponCode : null,
                     discount: totals.totalDiscount,
@@ -335,13 +346,48 @@ export default function CheckoutPage() {
                         }}
                     />
                     <button
-                        onClick={validateCoupon}
+                        onClick={() => validateCoupon()}
                         className="btn btn-outline"
                         disabled={validatingCoupon || !couponCode.trim()}
                     >
                         {validatingCoupon ? t('checkout.validating') : t('checkout.apply')}
                     </button>
                 </div>
+
+                {/* Available Coupons List */}
+                {availableCoupons && availableCoupons.length > 0 && !couponData && (
+                    <div style={{ marginTop: '1rem' }}>
+                        <p style={{ fontSize: '0.9rem', color: 'var(--muted-foreground)', marginBottom: '0.5rem' }}>
+                            Cupons disponíveis para você:
+                        </p>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                            {availableCoupons.map(c => (
+                                <button
+                                    key={c.id}
+                                    onClick={() => validateCoupon(c.code)}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0.5rem',
+                                        padding: '0.5rem 1rem',
+                                        background: '#f0fdf4',
+                                        border: '1px dashed #86efac',
+                                        borderRadius: '4px',
+                                        cursor: 'pointer',
+                                        color: '#166534',
+                                        fontSize: '0.9rem'
+                                    }}
+                                >
+                                    <strong>{c.code}</strong>
+                                    <span>
+                                        {c.type === 'percentage' ? `${c.discount}% OFF` : `R$ ${c.discount} OFF`}
+                                    </span>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
                 {couponError && (
                     <p style={{ color: 'red', fontSize: '0.9rem', marginTop: '0.5rem' }}>
                         {couponError}
@@ -349,7 +395,7 @@ export default function CheckoutPage() {
                 )}
                 {couponData && (
                     <p style={{ color: 'green', fontSize: '0.9rem', marginTop: '0.5rem' }}>
-                        ✓ {t('checkout.coupon_applied')}
+                        ✓ {t('checkout.coupon_applied')} ({couponData.code})
                     </p>
                 )}
             </div>

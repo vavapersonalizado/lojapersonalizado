@@ -18,7 +18,8 @@ export default function NewProductPage() {
         categoryId: '',
         images: [],
         stock: '',
-        htmlContent: ''
+        htmlContent: '',
+        isCustomizable: false
     });
 
     const loadCategories = () => {
@@ -225,6 +226,20 @@ export default function NewProductPage() {
                                 onChange={e => setFormData({ ...formData, htmlContent: e.target.value })}
                                 placeholder="Insira o código HTML aqui..."
                             />
+                        </div>
+
+                        <div style={{ marginTop: '1rem' }}>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                                <input
+                                    type="checkbox"
+                                    checked={formData.isCustomizable}
+                                    onChange={e => setFormData({ ...formData, isCustomizable: e.target.checked })}
+                                />
+                                <span style={{ fontWeight: 'bold' }}>🎨 Produto Personalizável</span>
+                            </label>
+                            <p style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)', marginLeft: '1.5rem' }}>
+                                Se marcado, o cliente poderá adicionar fotos, textos e adesivos a este produto.
+                            </p>
                         </div>
                     </div>
 

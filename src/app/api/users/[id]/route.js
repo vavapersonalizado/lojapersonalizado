@@ -32,7 +32,8 @@ export async function GET(request, context) {
                 town: true,
                 street: true,
                 building: true,
-                contactPreference: true
+                contactPreference: true,
+                birthDate: true
             }
         });
 
@@ -61,8 +62,9 @@ export async function PUT(request, context) {
 
         // Fields allowed for everyone (including self)
         const {
-            name, phone, notes,
-            postalCode, prefecture, city, town, street, building, contactPreference
+            name, phone,
+            postalCode, prefecture, city, town, street, building, contactPreference,
+            birthDate
         } = body;
 
         // Fields allowed only for admin
@@ -82,9 +84,6 @@ export async function PUT(request, context) {
         const dataToUpdate = {
             name,
             phone,
-            notes, // Maybe restrict notes to admin only? User usually doesn't write notes about themselves. Let's keep it for now or restrict.
-            // Actually, notes in schema says "// Admin notes about the client". So user shouldn't edit it.
-            // Let's move notes to adminFields.
             postalCode,
             prefecture,
             city,
@@ -92,6 +91,7 @@ export async function PUT(request, context) {
             street,
             building,
             contactPreference,
+            birthDate: birthDate ? new Date(birthDate) : undefined,
             ...adminFields
         };
 

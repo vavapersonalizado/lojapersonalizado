@@ -32,7 +32,8 @@ export async function POST(request) {
                         productId: item.productId,
                         name: item.name,
                         price: item.price,
-                        quantity: item.quantity
+                        quantity: item.quantity,
+                        customization: item.customization || null
                     }))
                 }
             },

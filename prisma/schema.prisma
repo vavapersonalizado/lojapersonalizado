@@ -50,6 +50,7 @@ model User {
   deserveDiscount  Boolean  @default(false)
   discountType     String?  // "percentage" or "fixed"
   discountValue    Float?   @default(0)
+  birthDate        DateTime?
 
   // Address Information (Japan - Romanji)
   postalCode       String?
@@ -67,7 +68,7 @@ model User {
   orders        Order[]
   carts         Cart[]
   coupons       Coupon[]
-
+  partner       Partner?
 }
 
 model VerificationToken {
@@ -96,6 +97,7 @@ model Product {
   stock       Int        @default(0)
   images      String[]   @default([])
   visible     Boolean    @default(true) // Show to clients
+  isCustomizable Boolean @default(false) // Can be customized by user
   htmlContent String?    // For external banners/embeds
   categoryId  String
   category    Category   @relation(fields: [categoryId], references: [id])
@@ -128,6 +130,7 @@ model OrderItem {
   price     Float
   quantity  Int
   ready     Boolean @default(false) // Is item separated/ready?
+  customization Json? // Stores customization data (image, text, stickers)
 }
 
 model SiteSettings {
@@ -156,6 +159,7 @@ model CartItem {
   productId String
   product   Product @relation(fields: [productId], references: [id])
   quantity  Int     @default(1)
+  customization Json? // Stores customization data (image, text, stickers)
 
   @@unique([cartId, productId])
 }
@@ -260,6 +264,10 @@ model Ad {
   images    String[] @default([])
   htmlContent String?  // For external banners/embeds
   expiresAt   DateTime?
+  
+  partnerId   String?
+  partner     Partner? @relation(fields: [partnerId], references: [id])
+  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -273,6 +281,10 @@ model Promotion {
   images      String[] @default([])
   htmlContent String?  // For external banners/embeds
   expiresAt   DateTime?
+  
+  partnerId   String?
+  partner     Partner? @relation(fields: [partnerId], references: [id])
+  
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -284,6 +296,13 @@ model Partner {
   logo      String?
   link      String?
   active    Boolean  @default(true)
+  
+  userId    String?  @unique
+  user      User?    @relation(fields: [userId], references: [id])
+  
+  ads       Ad[]
+  promotions Promotion[]
+  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

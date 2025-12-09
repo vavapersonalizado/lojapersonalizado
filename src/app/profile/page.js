@@ -22,7 +22,8 @@ export default function ProfilePage() {
         town: '',
         street: '',
         building: '',
-        contactPreference: []
+        contactPreference: [],
+        birthDate: ''
     });
 
     const [cities, setCities] = useState([]);
@@ -109,7 +110,8 @@ export default function ProfilePage() {
                     town: data.town || '',
                     street: data.street || '',
                     building: data.building || '',
-                    contactPreference: data.contactPreference || []
+                    contactPreference: data.contactPreference || [],
+                    birthDate: data.birthDate ? new Date(data.birthDate).toISOString().split('T')[0] : ''
                 });
                 if (data.prefecture) fetchCities(data.prefecture);
             } else {
@@ -309,6 +311,18 @@ export default function ProfilePage() {
 
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                             <div style={{ marginBottom: '1rem' }}>
+                                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: '#000' }}>
+                                    Data de Nascimento
+                                </label>
+                                <input
+                                    type="date"
+                                    value={formData.birthDate}
+                                    onChange={(e) => setFormData({ ...formData, birthDate: e.target.value })}
+                                    style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
+                                />
+                            </div>
+
+                            <div style={{ marginBottom: '1rem' }}>
                                 <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
                                     Telefone *
                                 </label>
@@ -320,163 +334,162 @@ export default function ProfilePage() {
                                     style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
                                 />
                             </div>
+                        </div>
+
+                        <div style={{ marginBottom: '1rem' }}>
+                            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+                                Preferência de Contato
+                            </label>
+                            <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
+                                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                    <input
+                                        type="checkbox"
+                                        checked={formData.contactPreference?.includes('Line')}
+                                        onChange={() => handleContactPreferenceChange('Line')}
+                                    />
+                                    LINE
+                                </label>
+                                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                    <input
+                                        type="checkbox"
+                                        checked={formData.contactPreference?.includes('WhatsApp')}
+                                        onChange={() => handleContactPreferenceChange('WhatsApp')}
+                                    />
+                                    WhatsApp
+                                </label>
+                            </div>
+                        </div>
+
+                        <div style={{ marginBottom: '1.5rem' }}>
+                            <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '1rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.5rem', color: '#000' }}>
+                                Endereço (Japão)
+                            </h3>
 
                             <div style={{ marginBottom: '1rem' }}>
                                 <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-                                    Preferência de Contato
+                                    CEP (Postal Code) - Auto Preenchimento
                                 </label>
-                                <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
-                                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                        <input
-                                            type="checkbox"
-                                            checked={formData.contactPreference?.includes('Line')}
-                                            onChange={() => handleContactPreferenceChange('Line')}
-                                        />
-                                        LINE
-                                    </label>
-                                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                        <input
-                                            type="checkbox"
-                                            checked={formData.contactPreference?.includes('WhatsApp')}
-                                            onChange={() => handleContactPreferenceChange('WhatsApp')}
-                                        />
-                                        WhatsApp
-                                    </label>
+                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                    <input
+                                        type="text"
+                                        placeholder="123-4567"
+                                        value={formData.postalCode}
+                                        onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
+                                        style={{ width: '150px', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
+                                    />
+                                    <button
+                                        type="button"
+                                        className="btn btn-secondary"
+                                        onClick={handleZipSearch}
+                                    >
+                                        🔍 Buscar
+                                    </button>
                                 </div>
                             </div>
-                        </div>
-                    </div>
 
-                    <div style={{ marginBottom: '1.5rem' }}>
-                        <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '1rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.5rem', color: '#000' }}>
-                            Endereço (Japão)
-                        </h3>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                <div style={{ marginBottom: '1rem' }}>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+                                        Província (Prefecture)
+                                    </label>
+                                    <select
+                                        value={formData.prefecture}
+                                        onChange={handlePrefectureChange}
+                                        style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
+                                    >
+                                        <option value="">Selecione...</option>
+                                        {prefectures.map(p => (
+                                            <option key={p} value={p}>{p}</option>
+                                        ))}
+                                    </select>
+                                </div>
 
-                        <div style={{ marginBottom: '1rem' }}>
-                            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-                                CEP (Postal Code) - Auto Preenchimento
-                            </label>
-                            <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                <input
-                                    type="text"
-                                    placeholder="123-4567"
-                                    value={formData.postalCode}
-                                    onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
-                                    style={{ width: '150px', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
-                                />
-                                <button
-                                    type="button"
-                                    className="btn btn-secondary"
-                                    onClick={handleZipSearch}
-                                >
-                                    🔍 Buscar
-                                </button>
-                            </div>
-                        </div>
-
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                            <div style={{ marginBottom: '1rem' }}>
-                                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-                                    Província (Prefecture)
-                                </label>
-                                <select
-                                    value={formData.prefecture}
-                                    onChange={handlePrefectureChange}
-                                    style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
-                                >
-                                    <option value="">Selecione...</option>
-                                    {prefectures.map(p => (
-                                        <option key={p} value={p}>{p}</option>
-                                    ))}
-                                </select>
+                                <div style={{ marginBottom: '1rem' }}>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+                                        Cidade (City)
+                                    </label>
+                                    <select
+                                        value={formData.city}
+                                        onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                                        style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
+                                        disabled={!formData.prefecture}
+                                    >
+                                        <option value="">Selecione...</option>
+                                        {cities.map(c => (
+                                            <option key={c} value={c}>{c}</option>
+                                        ))}
+                                    </select>
+                                </div>
                             </div>
 
-                            <div style={{ marginBottom: '1rem' }}>
-                                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-                                    Cidade (City)
-                                </label>
-                                <select
-                                    value={formData.city}
-                                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                                    style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
-                                    disabled={!formData.prefecture}
-                                >
-                                    <option value="">Selecione...</option>
-                                    {cities.map(c => (
-                                        <option key={c} value={c}>{c}</option>
-                                    ))}
-                                </select>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                <div style={{ marginBottom: '1rem' }}>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+                                        Bairro (Town)
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={formData.town}
+                                        onChange={(e) => setFormData({ ...formData, town: e.target.value })}
+                                        style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
+                                    />
+                                </div>
+                                <div style={{ marginBottom: '1rem' }}>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+                                        Rua
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={formData.street}
+                                        onChange={(e) => setFormData({ ...formData, street: e.target.value })}
+                                        style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
+                                    />
+                                </div>
                             </div>
-                        </div>
 
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                             <div style={{ marginBottom: '1rem' }}>
                                 <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-                                    Bairro (Town)
+                                    Casa / Edifício - Apartamento
                                 </label>
                                 <input
                                     type="text"
-                                    value={formData.town}
-                                    onChange={(e) => setFormData({ ...formData, town: e.target.value })}
-                                    style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
-                                />
-                            </div>
-                            <div style={{ marginBottom: '1rem' }}>
-                                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-                                    Rua
-                                </label>
-                                <input
-                                    type="text"
-                                    value={formData.street}
-                                    onChange={(e) => setFormData({ ...formData, street: e.target.value })}
+                                    value={formData.building}
+                                    onChange={(e) => setFormData({ ...formData, building: e.target.value })}
                                     style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
                                 />
                             </div>
                         </div>
 
-                        <div style={{ marginBottom: '1rem' }}>
-                            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-                                Casa / Edifício - Apartamento
-                            </label>
-                            <input
-                                type="text"
-                                value={formData.building}
-                                onChange={(e) => setFormData({ ...formData, building: e.target.value })}
-                                style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
-                            />
-                        </div>
-                    </div>
+                        {error && (
+                            <div style={{ padding: '0.75rem', background: '#fee', color: '#c00', borderRadius: 'var(--radius)', marginBottom: '1rem', fontSize: '0.9rem' }}>
+                                {error}
+                            </div>
+                        )}
 
-                    {error && (
-                        <div style={{ padding: '0.75rem', background: '#fee', color: '#c00', borderRadius: 'var(--radius)', marginBottom: '1rem', fontSize: '0.9rem' }}>
-                            {error}
-                        </div>
-                    )}
+                        {success && (
+                            <div style={{ padding: '0.75rem', background: '#e6fffa', color: '#047857', borderRadius: 'var(--radius)', marginBottom: '1rem', fontSize: '0.9rem' }}>
+                                {success}
+                            </div>
+                        )}
 
-                    {success && (
-                        <div style={{ padding: '0.75rem', background: '#e6fffa', color: '#047857', borderRadius: 'var(--radius)', marginBottom: '1rem', fontSize: '0.9rem' }}>
-                            {success}
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
+                            <button
+                                type="button"
+                                onClick={() => router.push('/')}
+                                className="btn btn-outline"
+                                style={{ padding: '0.75rem 2rem', fontSize: '1rem' }}
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                type="submit"
+                                className="btn btn-primary"
+                                disabled={submitting}
+                                style={{ padding: '0.75rem 2rem', fontSize: '1rem' }}
+                            >
+                                {submitting ? 'Salvando...' : 'Salvar Alterações'}
+                            </button>
                         </div>
-                    )}
-
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
-                        <button
-                            type="button"
-                            onClick={() => router.push('/')}
-                            className="btn btn-outline"
-                            style={{ padding: '0.75rem 2rem', fontSize: '1rem' }}
-                        >
-                            Cancelar
-                        </button>
-                        <button
-                            type="submit"
-                            className="btn btn-primary"
-                            disabled={submitting}
-                            style={{ padding: '0.75rem 2rem', fontSize: '1rem' }}
-                        >
-                            {submitting ? 'Salvando...' : 'Salvar Alterações'}
-                        </button>
-                    </div>
                 </form>
             </div>
         </div>

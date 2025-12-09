@@ -10,6 +10,19 @@ export function CartProvider({ children }) {
     const [cart, setCart] = useState([]);
     const [coupon, setCoupon] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [availableCoupons, setAvailableCoupons] = useState([]);
+
+    const fetchAvailableCoupons = async () => {
+        try {
+            const res = await fetch('/api/coupons/available');
+            if (res.ok) {
+                const data = await res.json();
+                setAvailableCoupons(data);
+            }
+        } catch (error) {
+            console.error('Error fetching coupons:', error);
+        }
+    };
 
     // Load cart and coupon from localStorage on mount
     useEffect(() => {
@@ -22,7 +35,13 @@ export function CartProvider({ children }) {
             setCoupon(JSON.parse(savedCoupon));
         }
         setLoading(false);
+        fetchAvailableCoupons();
     }, []);
+
+    // Refresh coupons when session changes (user logs in/out)
+    useEffect(() => {
+        fetchAvailableCoupons();
+    }, [session]);
 
     // Save cart and coupon to localStorage whenever they change
     useEffect(() => {
@@ -36,19 +55,23 @@ export function CartProvider({ children }) {
         }
     }, [cart, coupon, loading]);
 
-    const addToCart = (product, quantity = 1) => {
+    const addToCart = (product, quantity = 1, customization = null) => {
         setCart(prevCart => {
-            const existingItem = prevCart.find(item => item.id === product.id);
+            // Check if item exists with SAME customization
+            const existingItem = prevCart.find(item =>
+                item.id === product.id &&
+                JSON.stringify(item.customization) === JSON.stringify(customization)
+            );
 
             if (existingItem) {
                 return prevCart.map(item =>
-                    item.id === product.id
+                    (item.id === product.id && JSON.stringify(item.customization) === JSON.stringify(customization))
                         ? { ...item, quantity: item.quantity + quantity }
                         : item
                 );
             }
 
-            return [...prevCart, { ...product, quantity }];
+            return [...prevCart, { ...product, quantity, customization }];
         });
     };
 
@@ -132,7 +155,10 @@ export function CartProvider({ children }) {
                 getSubtotal,
                 getDiscountAmount,
                 getCartCount,
-                loading
+                getCartCount,
+                loading,
+                availableCoupons,
+                fetchAvailableCoupons
             }}
         >
             {children}

@@ -30,6 +30,17 @@ export async function POST(request) {
             return NextResponse.json({ error: "Limite de uso do cupom atingido" }, { status: 400 });
         }
 
+        // --- User Validation ---
+        if (coupon.userId) {
+            const { getServerSession } = await import("next-auth/next");
+            const { authOptions } = await import("@/lib/auth");
+            const session = await getServerSession(authOptions);
+
+            if (!session || session.user.id !== coupon.userId) {
+                return NextResponse.json({ error: "Este cupom não é válido para você." }, { status: 403 });
+            }
+        }
+
         // --- Bundle/Quantity Validation ---
         if (coupon.minQuantity > 1) {
             if (!cartItems || !Array.isArray(cartItems)) {

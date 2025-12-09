@@ -7,15 +7,16 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useState } from 'react';
 
 export default function CartDrawer({ isOpen, onClose }) {
-    const { cart, removeFromCart, updateQuantity, getCartTotal, clearCart, coupon, applyCoupon, removeCoupon, getSubtotal, getDiscountAmount } = useCart();
+    const { cart, removeFromCart, updateQuantity, getCartTotal, clearCart, coupon, applyCoupon, removeCoupon, getSubtotal, getDiscountAmount, availableCoupons } = useCart();
     const router = useRouter();
     const { t, formatCurrency } = useLanguage();
     const [couponCode, setCouponCode] = useState('');
     const [couponError, setCouponError] = useState('');
     const [validatingCoupon, setValidatingCoupon] = useState(false);
 
-    const handleApplyCoupon = async () => {
-        if (!couponCode) return;
+    const handleApplyCoupon = async (codeOverride = null) => {
+        const codeToUse = codeOverride || couponCode;
+        if (!codeToUse) return;
         setValidatingCoupon(true);
         setCouponError('');
 
@@ -23,7 +24,7 @@ export default function CartDrawer({ isOpen, onClose }) {
             const res = await fetch('/api/coupons/validate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ code: couponCode })
+                body: JSON.stringify({ code: codeToUse })
             });
 
             const data = await res.json();
@@ -135,9 +136,21 @@ export default function CartDrawer({ isOpen, onClose }) {
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
-                                        fontSize: '2rem'
+                                        fontSize: '2rem',
+                                        overflow: 'hidden'
                                     }}>
-                                        {item.images && item.images[0] ? (
+                                        {item.customization?.preview ? (
+                                            <img
+                                                src={item.customization.preview}
+                                                alt={item.name}
+                                                style={{
+                                                    width: '100%',
+                                                    height: '100%',
+                                                    objectFit: 'contain',
+                                                    borderRadius: 'var(--radius)'
+                                                }}
+                                            />
+                                        ) : (item.images && item.images[0] ? (
                                             <img
                                                 src={typeof item.images[0] === 'string' ? item.images[0] : item.images[0].url}
                                                 alt={item.name}
@@ -150,7 +163,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                                             />
                                         ) : (
                                             '📦'
-                                        )}
+                                        ))}
                                     </div>
 
                                     {/* Product Info */}
@@ -276,28 +289,73 @@ export default function CartDrawer({ isOpen, onClose }) {
                                     </button>
                                 </div>
                             ) : (
-                                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                    <input
-                                        type="text"
-                                        placeholder="Código do cupom"
-                                        value={couponCode}
-                                        onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                                        style={{
-                                            flex: 1,
-                                            padding: '0.5rem',
-                                            borderRadius: 'var(--radius)',
-                                            border: '1px solid var(--border)',
-                                            fontSize: '0.9rem'
-                                        }}
-                                    />
-                                    <button
-                                        onClick={handleApplyCoupon}
-                                        disabled={validatingCoupon || !couponCode}
-                                        className="btn btn-outline"
-                                        style={{ padding: '0.5rem', fontSize: '0.9rem' }}
-                                    >
-                                        {validatingCoupon ? '...' : 'Aplicar'}
-                                    </button>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                        <input
+                                            type="text"
+                                            placeholder="Código do cupom"
+                                            value={couponCode}
+                                            onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                                            style={{
+                                                flex: 1,
+                                                padding: '0.5rem',
+                                                borderRadius: 'var(--radius)',
+                                                border: '1px solid var(--border)',
+                                                fontSize: '0.9rem'
+                                            }}
+                                        />
+                                        <button
+                                            onClick={() => handleApplyCoupon()}
+                                            disabled={validatingCoupon || !couponCode}
+                                            className="btn btn-outline"
+                                            style={{ padding: '0.5rem', fontSize: '0.9rem' }}
+                                        >
+                                            {validatingCoupon ? '...' : 'Aplicar'}
+                                        </button>
+                                    </div>
+
+                                    {/* Available Coupons List */}
+                                    {availableCoupons && availableCoupons.length > 0 && (
+                                        <div style={{ marginTop: '0.5rem' }}>
+                                            <p style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)', marginBottom: '0.5rem' }}>
+                                                Cupons disponíveis para você:
+                                            </p>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                                {availableCoupons.map(c => (
+                                                    <div key={c.id} style={{
+                                                        display: 'flex',
+                                                        justifyContent: 'space-between',
+                                                        alignItems: 'center',
+                                                        padding: '0.5rem',
+                                                        background: '#f0fdf4',
+                                                        border: '1px dashed #86efac',
+                                                        borderRadius: '4px'
+                                                    }}>
+                                                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                            <span style={{ fontWeight: 'bold', color: '#166534', fontSize: '0.9rem' }}>{c.code}</span>
+                                                            <span style={{ fontSize: '0.8rem', color: '#15803d' }}>
+                                                                {c.type === 'percentage' ? `${c.discount}% OFF` : `R$ ${c.discount} OFF`}
+                                                            </span>
+                                                        </div>
+                                                        <button
+                                                            onClick={() => handleApplyCoupon(c.code)}
+                                                            style={{
+                                                                fontSize: '0.8rem',
+                                                                padding: '0.25rem 0.5rem',
+                                                                background: '#166534',
+                                                                color: 'white',
+                                                                border: 'none',
+                                                                borderRadius: '4px',
+                                                                cursor: 'pointer'
+                                                            }}
+                                                        >
+                                                            Usar
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             )}
                             {couponError && (
