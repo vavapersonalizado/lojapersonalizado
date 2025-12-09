@@ -21,6 +21,11 @@ export const authOptions = {
         }),
     ],
     secret: process.env.NEXTAUTH_SECRET,
+    pages: {
+        signIn: '/auth/signin',
+        error: '/auth/error',
+    },
+    debug: true, // Enable debug mode
     events: {
         async createUser({ user }) {
             // Generate 'First Purchase' coupon when a new user is created
