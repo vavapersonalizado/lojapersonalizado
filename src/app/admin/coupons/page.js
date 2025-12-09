@@ -39,6 +39,8 @@ export default function CouponsPage() {
             });
     };
 
+    const [categories, setCategories] = useState([]);
+
     useEffect(() => {
         if (status === 'unauthenticated') {
             router.push('/');
@@ -51,7 +53,15 @@ export default function CouponsPage() {
         }
 
         fetchCoupons();
+        fetchCategories();
     }, [session, status, router]);
+
+    const fetchCategories = () => {
+        fetch('/api/categories')
+            .then(res => res.json())
+            .then(data => setCategories(Array.isArray(data) ? data : []))
+            .catch(console.error);
+    };
 
     const handleDelete = async (id) => {
         if (!confirm('Tem certeza que deseja excluir este cupom?')) return;
@@ -77,7 +87,9 @@ export default function CouponsPage() {
             type: coupon.type,
             maxUses: coupon.maxUses || '',
             expiresAt: coupon.expiresAt ? new Date(coupon.expiresAt).toISOString().split('T')[0] : '',
-            isActive: coupon.isActive
+            isActive: coupon.isActive,
+            minQuantity: coupon.minQuantity || 1,
+            categoryId: coupon.categoryId || ''
         });
         setIsEditing(true);
         setShowModal(true);
@@ -111,7 +123,9 @@ export default function CouponsPage() {
                 type: 'percentage',
                 maxUses: '',
                 expiresAt: '',
-                isActive: true
+                isActive: true,
+                minQuantity: 1,
+                categoryId: ''
             });
             setIsEditing(false);
         } catch (err) {
@@ -129,7 +143,9 @@ export default function CouponsPage() {
             type: 'percentage',
             maxUses: '',
             expiresAt: '',
-            isActive: true
+            isActive: true,
+            minQuantity: 1,
+            categoryId: ''
         });
         setIsEditing(false);
         setShowModal(true);
@@ -170,6 +186,7 @@ export default function CouponsPage() {
                             <th style={{ padding: '1rem' }}>Código</th>
                             <th style={{ padding: '1rem' }}>Desconto</th>
                             <th style={{ padding: '1rem' }}>Tipo</th>
+                            <th style={{ padding: '1rem' }}>Restrição</th>
                             <th style={{ padding: '1rem' }}>Usos</th>
                             <th style={{ padding: '1rem' }}>Expira em</th>
                             <th style={{ padding: '1rem' }}>Status</th>
@@ -179,7 +196,7 @@ export default function CouponsPage() {
                     <tbody>
                         {coupons.length === 0 ? (
                             <tr>
-                                <td colSpan="7" style={{ padding: '2rem', textAlign: 'center', color: 'var(--muted-foreground)' }}>
+                                <td colSpan="8" style={{ padding: '2rem', textAlign: 'center', color: 'var(--muted-foreground)' }}>
                                     Nenhum cupom encontrado.
                                 </td>
                             </tr>
@@ -194,6 +211,11 @@ export default function CouponsPage() {
                                     </td>
                                     <td style={{ padding: '1rem' }}>
                                         {coupon.type === 'percentage' ? 'Porcentagem' : 'Valor Fixo'}
+                                    </td>
+                                    <td style={{ padding: '1rem', fontSize: '0.9rem' }}>
+                                        {coupon.minQuantity > 1 && <div>Min. {coupon.minQuantity} itens</div>}
+                                        {coupon.categoryId && <div>Categoria Específica</div>}
+                                        {!coupon.minQuantity && !coupon.categoryId && !coupon.productId && <span style={{ color: 'var(--muted-foreground)' }}>Geral</span>}
                                     </td>
                                     <td style={{ padding: '1rem' }}>
                                         {coupon.usedCount} / {coupon.maxUses || '∞'}
@@ -255,7 +277,9 @@ export default function CouponsPage() {
                         padding: '2rem',
                         maxWidth: '500px',
                         width: '90%',
-                        border: '1px solid var(--border)'
+                        border: '1px solid var(--border)',
+                        maxHeight: '90vh',
+                        overflowY: 'auto'
                     }}>
                         <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1.5rem' }}>
                             {isEditing ? 'Editar Cupom' : 'Criar Novo Cupom'}
@@ -303,6 +327,39 @@ export default function CouponsPage() {
                                         onChange={(e) => setFormData({ ...formData, discount: e.target.value })}
                                         style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
                                     />
+                                </div>
+                            </div>
+
+                            <div style={{ marginBottom: '1rem', border: '1px dashed var(--border)', padding: '1rem', borderRadius: 'var(--radius)' }}>
+                                <h3 style={{ fontSize: '1rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>Restrições (Bundle)</h3>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+                                            Qtd. Mínima
+                                        </label>
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            value={formData.minQuantity}
+                                            onChange={(e) => setFormData({ ...formData, minQuantity: parseInt(e.target.value) || 1 })}
+                                            style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+                                            Categoria
+                                        </label>
+                                        <select
+                                            value={formData.categoryId}
+                                            onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
+                                            style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
+                                        >
+                                            <option value="">Todas</option>
+                                            {categories.map(cat => (
+                                                <option key={cat.id} value={cat.id}>{cat.name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
 

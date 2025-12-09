@@ -33,7 +33,7 @@ export async function POST(request) {
 
     try {
         const data = await request.json();
-        const { code, discount, type, maxUses, expiresAt, isActive } = data;
+        const { code, discount, type, maxUses, expiresAt, isActive, minQuantity, categoryId } = data;
 
         if (!code || discount === undefined) {
             return NextResponse.json({ error: "Code and discount are required" }, { status: 400 });
@@ -55,7 +55,9 @@ export async function POST(request) {
                 type: type || 'percentage',
                 maxUses: maxUses ? parseInt(maxUses) : null,
                 expiresAt: expiresAt ? new Date(expiresAt) : null,
-                isActive: isActive !== undefined ? isActive : true
+                isActive: isActive !== undefined ? isActive : true,
+                minQuantity: minQuantity ? parseInt(minQuantity) : 1,
+                categoryId: categoryId || null
             }
         });
 
@@ -101,7 +103,7 @@ export async function PATCH(request) {
 
     try {
         const data = await request.json();
-        const { id, code, discount, type, maxUses, expiresAt, isActive } = data;
+        const { id, code, discount, type, maxUses, expiresAt, isActive, minQuantity, categoryId } = data;
 
         if (!id) {
             return NextResponse.json({ error: "ID is required" }, { status: 400 });
@@ -114,6 +116,8 @@ export async function PATCH(request) {
         if (maxUses !== undefined) updateData.maxUses = maxUses ? parseInt(maxUses) : null;
         if (expiresAt !== undefined) updateData.expiresAt = expiresAt ? new Date(expiresAt) : null;
         if (isActive !== undefined) updateData.isActive = isActive;
+        if (minQuantity !== undefined) updateData.minQuantity = parseInt(minQuantity);
+        if (categoryId !== undefined) updateData.categoryId = categoryId || null;
 
         const coupon = await prisma.coupon.update({
             where: { id },

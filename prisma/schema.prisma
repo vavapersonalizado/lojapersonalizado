@@ -84,6 +84,7 @@ model Category {
   slug      String    @unique
   visible   Boolean   @default(true)
   products  Product[]
+  coupons   Coupon[]
 }
 
 model Product {
@@ -170,6 +171,9 @@ model Coupon {
   isActive    Boolean   @default(true)
   cumulative  Boolean   @default(true) // Can be used with other discounts?
   productId   String?   // If set, applies only to this product
+  categoryId  String?   // If set, applies only to products in this category
+  category    Category? @relation(fields: [categoryId], references: [id])
+  minQuantity Int       @default(1) // Minimum quantity of items (total or specific) required
   
   // Automatic Generation Fields
   userId      String?   // Linked to specific user

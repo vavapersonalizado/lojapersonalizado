@@ -62,11 +62,18 @@ export default function CheckoutPage() {
         setCouponError('');
 
         try {
-            const res = await fetch(`/api/coupons/validate?code=${couponCode}`);
+            const res = await fetch(`/api/coupons/validate`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    code: couponCode,
+                    cartItems: cart
+                })
+            });
             const data = await res.json();
 
             if (res.ok) {
-                setCouponData(data);
+                setCouponData(data.coupon);
                 setCouponError('');
             } else {
                 setCouponError(data.error || t('checkout.coupon_invalid'));
