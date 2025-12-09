@@ -128,13 +128,37 @@ export default function SettingsPage() {
                     </div>
                 </div>
 
+                {/* Seed Rules Section */}
+                <div style={{ marginTop: '2rem', borderTop: '1px solid var(--border)', paddingTop: '2rem' }}>
+                    <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>🎫 Regras de Cupom</h2>
+                    <p style={{ color: 'var(--muted-foreground)', marginBottom: '1rem' }}>
+                        Inicialize as regras padrão de cupom (ex: Primeira Compra) se elas não existirem.
+                    </p>
+                    <button
+                        onClick={async () => {
+                            if (!confirm('Deseja inicializar as regras de cupom?')) return;
+                            try {
+                                const res = await fetch('/api/admin/seed-coupons', { method: 'POST' });
+                                const data = await res.json();
+                                if (res.ok) setMessage('✅ ' + data.message);
+                                else throw new Error(data.error);
+                            } catch (e) {
+                                setMessage('❌ ' + e.message);
+                            }
+                        }}
+                        className="btn btn-secondary"
+                    >
+                        🚀 Inicializar Regras Padrão
+                    </button>
+                </div>
+
                 {message && (
                     <div style={{
                         marginTop: '2rem',
                         padding: '1rem',
                         borderRadius: 'var(--radius)',
-                        background: message.includes('Erro') ? '#fee2e2' : '#dcfce7',
-                        color: message.includes('Erro') ? '#991b1b' : '#166534',
+                        background: message.includes('Erro') || message.includes('❌') ? '#fee2e2' : '#dcfce7',
+                        color: message.includes('Erro') || message.includes('❌') ? '#991b1b' : '#166534',
                         fontWeight: '500'
                     }}>
                         {message}

@@ -2,6 +2,8 @@ import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import prisma from "@/lib/prisma";
 
+import { generateAutomaticCoupon } from "@/lib/coupons";
+
 export const authOptions = {
     adapter: PrismaAdapter(prisma),
     providers: [
@@ -19,6 +21,12 @@ export const authOptions = {
         }),
     ],
     secret: process.env.NEXTAUTH_SECRET,
+    events: {
+        async createUser({ user }) {
+            // Generate 'First Purchase' coupon when a new user is created
+            await generateAutomaticCoupon(user.id, 'FIRST_PURCHASE');
+        },
+    },
     callbacks: {
         async session({ session, user }) {
             if (session?.user) {

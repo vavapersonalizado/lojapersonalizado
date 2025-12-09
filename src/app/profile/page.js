@@ -28,6 +28,8 @@ export default function ProfilePage() {
     const [cities, setCities] = useState([]);
     const [prefectures, setPrefectures] = useState([]);
 
+    const [coupons, setCoupons] = useState([]);
+
     useEffect(() => {
         console.log('Profile useEffect:', { status, userId: session?.user?.id });
 
@@ -40,6 +42,7 @@ export default function ProfilePage() {
             if (session?.user?.id) {
                 console.log('Fetching user data for:', session.user.id);
                 fetchUserData();
+                fetchUserCoupons();
                 fetchPrefectures();
             } else {
                 console.error('Session exists but no user ID');
@@ -48,6 +51,20 @@ export default function ProfilePage() {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [status, session?.user?.id, router]);
+
+    const fetchUserCoupons = async () => {
+        try {
+            const res = await fetch(`/api/coupons/user`);
+            if (res.ok) {
+                const data = await res.json();
+                setCoupons(Array.isArray(data) ? data : []);
+            }
+        } catch (error) {
+            console.error('Error fetching coupons:', error);
+        }
+    };
+
+    // ... existing fetchPrefectures and fetchCities ...
 
     const fetchPrefectures = () => {
         fetch('/api/address/cities')
@@ -104,6 +121,8 @@ export default function ProfilePage() {
             setLoading(false);
         }
     };
+
+    // ... existing handlers ...
 
     const handleZipSearch = async () => {
         if (!formData.postalCode || formData.postalCode.length < 7) {
@@ -193,6 +212,62 @@ export default function ProfilePage() {
         <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem' }}>
             <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '2rem', color: '#000' }}>Meu Perfil</h1>
 
+            {/* Meus Cupons */}
+            {coupons.length > 0 && (
+                <div style={{
+                    background: 'var(--card)',
+                    borderRadius: 'var(--radius)',
+                    border: '1px solid var(--border)',
+                    padding: '2rem',
+                    marginBottom: '2rem'
+                }}>
+                    <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '1rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.5rem', color: '#000' }}>
+                        🎫 Meus Cupons
+                    </h3>
+                    <div style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))' }}>
+                        {coupons.map(coupon => (
+                            <div key={coupon.id} style={{
+                                border: '2px dashed var(--primary)',
+                                borderRadius: 'var(--radius)',
+                                padding: '1rem',
+                                background: 'rgba(var(--primary-rgb), 0.05)',
+                                position: 'relative'
+                            }}>
+                                <div style={{ fontWeight: 'bold', fontSize: '1.1rem', color: 'var(--primary)' }}>
+                                    {coupon.code}
+                                </div>
+                                <div style={{ fontSize: '0.9rem', marginTop: '0.5rem' }}>
+                                    {coupon.type === 'percentage' ? `${coupon.discount}% OFF` : `¥${coupon.discount} OFF`}
+                                </div>
+                                {coupon.expiresAt && (
+                                    <div style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)', marginTop: '0.5rem' }}>
+                                        Expira em: {new Date(coupon.expiresAt).toLocaleDateString()}
+                                    </div>
+                                )}
+                                <button
+                                    onClick={() => {
+                                        navigator.clipboard.writeText(coupon.code);
+                                        alert('Código copiado!');
+                                    }}
+                                    style={{
+                                        marginTop: '0.5rem',
+                                        fontSize: '0.8rem',
+                                        padding: '0.25rem 0.5rem',
+                                        background: 'var(--primary)',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '4px',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    Copiar
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             <div style={{
                 background: 'var(--card)',
                 borderRadius: 'var(--radius)',
@@ -204,6 +279,7 @@ export default function ProfilePage() {
                         <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '1rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.5rem', color: '#000' }}>
                             Dados Pessoais
                         </h3>
+                        {/* ... rest of the form ... */}
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                             <div style={{ marginBottom: '1rem' }}>
                                 <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: '#000' }}>
