@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 
+export const dynamic = 'force-dynamic';
+
 export default function PartnerDashboard() {
     const { data: session, status } = useSession();
     const [data, setData] = useState(null);
