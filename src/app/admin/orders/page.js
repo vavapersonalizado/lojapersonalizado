@@ -118,7 +118,7 @@ export default function OrdersPage() {
                         padding: '1rem',
                         borderBottom: activeTab === 'active' ? '2px solid var(--primary)' : 'none',
                         fontWeight: activeTab === 'active' ? 'bold' : 'normal',
-                        color: activeTab === 'active' ? 'var(--primary)' : 'var(--muted-foreground)',
+                        color: activeTab === 'active' ? 'var(--primary)' : '#000000',
                         background: 'none',
                         border: 'none',
                         cursor: 'pointer'
@@ -132,7 +132,7 @@ export default function OrdersPage() {
                         padding: '1rem',
                         borderBottom: activeTab === 'history' ? '2px solid var(--primary)' : 'none',
                         fontWeight: activeTab === 'history' ? 'bold' : 'normal',
-                        color: activeTab === 'history' ? 'var(--primary)' : 'var(--muted-foreground)',
+                        color: activeTab === 'history' ? 'var(--primary)' : '#000000',
                         background: 'none',
                         border: 'none',
                         cursor: 'pointer'
@@ -150,7 +150,7 @@ export default function OrdersPage() {
                     borderRadius: 'var(--radius)',
                     border: '1px solid var(--border)'
                 }}>
-                    <p style={{ fontSize: '1.2rem', color: 'var(--muted-foreground)' }}>
+                    <p style={{ fontSize: '1.2rem', color: '#000000' }}>
                         Nenhum pedido nesta aba.
                     </p>
                 </div>
@@ -187,18 +187,18 @@ export default function OrdersPage() {
                                 >
                                     <div>
                                         <div style={{ fontWeight: 'bold' }}>{order.user.name}</div>
-                                        <div style={{ fontSize: '0.875rem', color: 'var(--muted-foreground)' }}>
+                                        <div style={{ fontSize: '0.875rem', color: '#000000' }}>
                                             {new Date(order.createdAt).toLocaleDateString()} {new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                         </div>
                                     </div>
 
                                     <div>
-                                        <div style={{ fontSize: '0.875rem', color: 'var(--muted-foreground)' }}>Produtos</div>
+                                        <div style={{ fontSize: '0.875rem', color: '#000000' }}>Produtos</div>
                                         <div style={{ fontWeight: '600' }}>{order.items.length} itens</div>
                                     </div>
 
                                     <div>
-                                        <div style={{ fontSize: '0.875rem', color: 'var(--muted-foreground)' }}>Cupom</div>
+                                        <div style={{ fontSize: '0.875rem', color: '#000000' }}>Cupom</div>
                                         <div style={{ fontWeight: '600' }}>{order.couponCode || '-'}</div>
                                     </div>
 
@@ -218,7 +218,7 @@ export default function OrdersPage() {
                                     </div>
 
                                     <div>
-                                        <div style={{ fontSize: '0.875rem', color: 'var(--muted-foreground)' }}>Status Itens</div>
+                                        <div style={{ fontSize: '0.875rem', color: '#000000' }}>Status Itens</div>
                                         <div style={{
                                             fontWeight: 'bold',
                                             color: pendingItems === 0 ? 'green' : 'orange'
@@ -280,7 +280,7 @@ export default function OrdersPage() {
                                                         )}
                                                         <div>
                                                             <span style={{ fontWeight: 'bold' }}>{item.name}</span>
-                                                            <span style={{ marginLeft: '1rem', color: 'var(--muted-foreground)' }}>x{item.quantity}</span>
+                                                            <span style={{ marginLeft: '1rem', color: '#000000' }}>x{item.quantity}</span>
                                                             {item.customization && (
                                                                 <div style={{ fontSize: '0.8rem', color: 'var(--primary)', marginTop: '0.25rem' }}>
                                                                     🎨 Produto Personalizado
@@ -326,7 +326,7 @@ export default function OrdersPage() {
                                         )}
 
                                         {activeTab === 'history' && (
-                                            <div style={{ textAlign: 'right', color: 'var(--muted-foreground)' }}>
+                                            <div style={{ textAlign: 'right', color: '#000000' }}>
                                                 Pedido finalizado em: {order.completedAt ? new Date(order.completedAt).toLocaleString() : '-'}
                                             </div>
                                         )}

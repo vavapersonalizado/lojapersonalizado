@@ -91,7 +91,7 @@ export default function CategoryPage() {
             }}>
                 <div>
                     <h1 style={{ fontSize: '2rem', fontWeight: 'bold' }}>{category.name}</h1>
-                    <p style={{ color: 'var(--muted-foreground)', marginTop: '0.5rem' }}>
+                    <p style={{ color: '#000000', marginTop: '0.5rem' }}>
                         {products.length} {products.length === 1 ? 'produto' : 'produtos'}
                     </p>
                 </div>
@@ -105,7 +105,7 @@ export default function CategoryPage() {
                             borderRadius: 'var(--radius)',
                             border: '1px solid var(--border)',
                             background: 'var(--background)',
-                            color: 'var(--foreground)'
+                            color: '#000000'
                         }}
                     >
                         <option value="newest">Mais Recentes</option>
@@ -131,7 +131,7 @@ export default function CategoryPage() {
                     border: '1px solid var(--border)'
                 }}>
                     <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>EM BREVE</h2>
-                    <p style={{ fontSize: '1.1rem', color: 'var(--muted-foreground)', marginBottom: '2rem' }}>
+                    <p style={{ fontSize: '1.1rem', color: '#000000', marginBottom: '2rem' }}>
                         {isAdmin
                             ? `Nenhum produto na categoria "${category.name}". Adicione produtos para começar.`
                             : `Produtos em "${category.name}" em breve!`}

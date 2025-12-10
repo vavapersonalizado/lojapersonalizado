@@ -325,7 +325,7 @@ export default function AnalyticsPage() {
                                                 <tr key={item.id} style={{ borderBottom: '1px solid var(--border)' }}>
                                                     <td style={{ padding: '1rem' }}>
                                                         <div style={{ fontWeight: '500', color: '#000' }}>{item.itemName}</div>
-                                                        {item.itemCode && <div style={{ fontSize: '0.875rem', color: 'var(--muted-foreground)' }}>Ref: {item.itemCode}</div>}
+                                                        {item.itemCode && <div style={{ fontSize: '0.875rem', color: '#000000' }}>Ref: {item.itemCode}</div>}
                                                     </td>
                                                     <td style={{ padding: '1rem', textAlign: 'center', color: '#666' }}>
                                                         {item.views}

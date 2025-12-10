@@ -41,7 +41,7 @@ export default function SponsorsPage() {
                     borderRadius: 'var(--radius)',
                     border: '1px solid var(--border)'
                 }}>
-                    <p style={{ fontSize: '1.2rem', color: 'var(--muted-foreground)' }}>
+                    <p style={{ fontSize: '1.2rem', color: '#000000' }}>
                         {isAdmin
                             ? 'Nenhum patrocinador cadastrado. Clique em "Adicionar Patrocinador" para começar.'
                             : 'Nenhum patrocinador disponível no momento.'}

@@ -81,7 +81,7 @@ export default function GaleriaPage() {
                         alignItems: 'center',
                         justifyContent: 'center',
                         height: '400px',
-                        color: 'var(--muted-foreground)',
+                        color: '#000000',
                         textAlign: 'center'
                     }}>
                         <p style={{ fontSize: '3rem', marginBottom: '1rem' }}>🖼️</p>
@@ -125,7 +125,7 @@ export default function GaleriaPage() {
                                     }}>
                                         {asset.publicId}
                                     </p>
-                                    <p style={{ color: 'var(--muted-foreground)', fontSize: '0.7rem' }}>
+                                    <p style={{ color: '#000000', fontSize: '0.7rem' }}>
                                         {asset.format?.toUpperCase()} • {asset.resourceType}
                                     </p>
                                 </div>
@@ -136,7 +136,7 @@ export default function GaleriaPage() {
             </div>
 
             {selectedAssets.length > 0 && (
-                <div style={{ marginTop: '1rem', textAlign: 'center', color: 'var(--muted-foreground)' }}>
+                <div style={{ marginTop: '1rem', textAlign: 'center', color: '#000000' }}>
                     {selectedAssets.length} arquivo(s) selecionado(s)
                 </div>
             )}

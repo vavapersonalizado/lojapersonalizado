@@ -43,7 +43,7 @@ export default function PromotionsPage() {
                 paddingBottom: '2rem'
             }}>
                 <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>Blog de Promoções</h1>
-                <p style={{ color: 'var(--muted-foreground)' }}>Aproveite nossas ofertas exclusivas.</p>
+                <p style={{ color: '#000000' }}>Aproveite nossas ofertas exclusivas.</p>
                 {isAdmin && (
                     <div style={{ marginTop: '1rem' }}>
                         <Link href="/admin/promotions" className="btn btn-primary">
@@ -63,7 +63,7 @@ export default function PromotionsPage() {
                     borderRadius: 'var(--radius)',
                     border: '1px solid var(--border)'
                 }}>
-                    <p style={{ fontSize: '1.2rem', color: 'var(--muted-foreground)' }}>
+                    <p style={{ fontSize: '1.2rem', color: '#000000' }}>
                         Nenhuma promoção ativa no momento.
                     </p>
                 </div>
@@ -80,7 +80,7 @@ export default function PromotionsPage() {
                             overflow: 'visible'
                         }}>
                             <header style={{ marginBottom: '1.5rem', textAlign: 'center' }}>
-                                <h2 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '0.5rem', color: 'var(--foreground)' }}>
+                                <h2 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#000000' }}>
                                     {promo.title}
                                 </h2>
                                 {promo.discount > 0 && (
@@ -99,7 +99,7 @@ export default function PromotionsPage() {
                                 )}
                             </header>
 
-                            <div style={{ fontSize: '1.1rem', lineHeight: '1.8', color: 'var(--foreground)', marginBottom: '2rem' }}>
+                            <div style={{ fontSize: '1.1rem', lineHeight: '1.8', color: '#000000', marginBottom: '2rem' }}>
                                 <p style={{ marginBottom: '1rem' }}>{promo.description}</p>
                                 {promo.htmlContent && (
                                     <div

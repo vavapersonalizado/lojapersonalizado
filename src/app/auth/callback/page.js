@@ -51,7 +51,7 @@ function AuthCallbackContent() {
                 <>
                     <div style={{ fontSize: '3rem' }}>❌</div>
                     <h2>Erro no login</h2>
-                    <p style={{ color: 'var(--muted-foreground)' }}>
+                    <p style={{ color: '#000000' }}>
                         {error === 'OAuthAccountNotLinked'
                             ? 'Esta conta já está vinculada a outro método de login.'
                             : 'Ocorreu um erro. Tente novamente.'}

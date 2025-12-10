@@ -78,7 +78,7 @@ export default function SettingsPage() {
                 border: '1px solid var(--border)'
             }}>
                 <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>📦 Backup e Restauração</h2>
-                <p style={{ color: 'var(--muted-foreground)', marginBottom: '2rem' }}>
+                <p style={{ color: '#000000', marginBottom: '2rem' }}>
                     Faça o download de todos os seus dados (Produtos, Clientes, Cupons) ou restaure um backup anterior.
                 </p>
 
@@ -121,7 +121,7 @@ export default function SettingsPage() {
                             >
                                 {restoring ? '⏳ Restaurando...' : '⬆️ Selecionar Arquivo de Backup'}
                             </label>
-                            <p style={{ fontSize: '0.9rem', color: 'var(--muted-foreground)', marginTop: '0.5rem' }}>
+                            <p style={{ fontSize: '0.9rem', color: '#000000', marginTop: '0.5rem' }}>
                                 Selecione um arquivo .json gerado anteriormente
                             </p>
                         </div>
@@ -131,7 +131,7 @@ export default function SettingsPage() {
                 {/* Seed Rules Section */}
                 <div style={{ marginTop: '2rem', borderTop: '1px solid var(--border)', paddingTop: '2rem' }}>
                     <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>🎫 Regras de Cupom</h2>
-                    <p style={{ color: 'var(--muted-foreground)', marginBottom: '1rem' }}>
+                    <p style={{ color: '#000000', marginBottom: '1rem' }}>
                         Inicialize as regras padrão de cupom (ex: Primeira Compra) se elas não existirem.
                     </p>
                     <button

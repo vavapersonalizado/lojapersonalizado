@@ -130,7 +130,7 @@ export default function CouponRulesPage() {
                 <div>
                     <button
                         onClick={() => router.push('/admin/coupons')}
-                        style={{ background: 'none', border: 'none', cursor: 'pointer', marginBottom: '0.5rem', color: 'var(--muted-foreground)' }}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', marginBottom: '0.5rem', color: '#000000' }}
                     >
                         ← Voltar para Cupons
                     </button>
@@ -162,7 +162,7 @@ export default function CouponRulesPage() {
                     <tbody>
                         {rules.length === 0 ? (
                             <tr>
-                                <td colSpan="6" style={{ padding: '2rem', textAlign: 'center', color: 'var(--muted-foreground)' }}>
+                                <td colSpan="6" style={{ padding: '2rem', textAlign: 'center', color: '#000000' }}>
                                     Nenhuma regra encontrada.
                                 </td>
                             </tr>
@@ -239,7 +239,7 @@ export default function CouponRulesPage() {
                                     disabled={isEditing} // Prevent changing ID/Type on edit
                                     style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)', background: isEditing ? 'var(--muted)' : 'white' }}
                                 />
-                                <p style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)', marginTop: '0.25rem' }}>
+                                <p style={{ fontSize: '0.8rem', color: '#000000', marginTop: '0.25rem' }}>
                                     Usado no código para identificar quando gerar (ex: FIRST_PURCHASE)
                                 </p>
                             </div>

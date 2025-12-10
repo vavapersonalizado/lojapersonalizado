@@ -274,7 +274,7 @@ export default function CustomProductPage() {
                                     <img src={sticker.images[0]} alt={sticker.name} style={{ width: '100%', height: 'auto' }} />
                                 </div>
                             ))}
-                            {stickers.length === 0 && <p style={{ color: '#888', gridColumn: 'span 3' }}>Nenhum adesivo encontrado.</p>}
+                            {stickers.length === 0 && <p style={{ color: '#000000', gridColumn: 'span 3' }}>Nenhum adesivo encontrado.</p>}
                         </div>
                     </div>
 

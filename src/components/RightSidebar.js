@@ -227,7 +227,7 @@ export default function RightSidebar() {
                                 }}>
                                     🔥 Promoções
                                     {isAdmin && promotions[currentPromoIndex] && (
-                                        <span style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)' }}>
+                                        <span style={{ fontSize: '0.7rem', color: '#000000' }}>
                                             {promotions[currentPromoIndex].active ? '🟢' : '🔴'}
                                         </span>
                                     )}
@@ -396,7 +396,7 @@ export default function RightSidebar() {
                                     minHeight: '150px'
                                 }}>
                                     {events.length === 0 ? (
-                                        <p style={{ fontSize: '0.9rem', color: 'var(--muted-foreground)' }}>Nenhum evento próximo.</p>
+                                        <p style={{ fontSize: '0.9rem', color: '#000000' }}>Nenhum evento próximo.</p>
                                     ) : (
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                                             {events[currentEventIndex] && (
@@ -405,7 +405,7 @@ export default function RightSidebar() {
                                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
                                                             <p style={{ fontWeight: '600', fontSize: '0.95rem' }}>{events[currentEventIndex].title}</p>
                                                         </div>
-                                                        <p style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)', marginBottom: '0.5rem' }}>
+                                                        <p style={{ fontSize: '0.8rem', color: '#000000', marginBottom: '0.5rem' }}>
                                                             {new Date(events[currentEventIndex].date).toLocaleDateString()}
                                                         </p>
 
@@ -515,7 +515,7 @@ export default function RightSidebar() {
                                 }}>
                                     📢 Publicidade
                                     {isAdmin && ads[currentAdIndex] && (
-                                        <span style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)' }}>
+                                        <span style={{ fontSize: '0.7rem', color: '#000000' }}>
                                             {ads[currentAdIndex].active ? '🟢' : '🔴'}
                                         </span>
                                     )}

@@ -269,7 +269,7 @@ export default function UsersPage() {
                                                 {user.name?.[0] || '?'}
                                             </div>
                                         )}
-                                        <div style={{ fontWeight: '500', textDecoration: 'underline', textDecorationColor: 'var(--muted-foreground)', textUnderlineOffset: '4px' }}>
+                                        <div style={{ fontWeight: '500', textDecoration: 'underline', textDecorationColor: '#000000', textUnderlineOffset: '4px' }}>
                                             {user.name || 'Sem nome'}
                                         </div>
                                     </div>
@@ -364,7 +364,7 @@ export default function UsersPage() {
                                 )}
                                 <div>
                                     <div style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>{viewingUser.name}</div>
-                                    <div style={{ color: 'var(--muted-foreground)' }}>{viewingUser.email}</div>
+                                    <div style={{ color: '#000000' }}>{viewingUser.email}</div>
                                 </div>
                             </div>
 
@@ -406,7 +406,7 @@ export default function UsersPage() {
 
                             {viewingUser.deserveDiscount && (
                                 <div style={{ background: '#f0fdf4', padding: '0.5rem', borderRadius: '4px', marginTop: '0.5rem' }}>
-                                    <span style={{ color: '#166534', fontWeight: 'bold' }}>✓ Elegível para Desconto</span>
+                                    <span style={{ color: '#000000', fontWeight: 'bold' }}>✓ Elegível para Desconto</span>
                                     <div style={{ fontSize: '0.9rem' }}>
                                         {viewingUser.discountType === 'percentage' ? `${viewingUser.discountValue}%` : `¥${viewingUser.discountValue}`}
                                     </div>

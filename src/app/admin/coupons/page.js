@@ -196,7 +196,7 @@ export default function CouponsPage() {
                     <tbody>
                         {coupons.length === 0 ? (
                             <tr>
-                                <td colSpan="8" style={{ padding: '2rem', textAlign: 'center', color: 'var(--muted-foreground)' }}>
+                                <td colSpan="8" style={{ padding: '2rem', textAlign: 'center', color: '#000000' }}>
                                     Nenhum cupom encontrado.
                                 </td>
                             </tr>
@@ -215,7 +215,7 @@ export default function CouponsPage() {
                                     <td style={{ padding: '1rem', fontSize: '0.9rem' }}>
                                         {coupon.minQuantity > 1 && <div>Min. {coupon.minQuantity} itens</div>}
                                         {coupon.categoryId && <div>Categoria Específica</div>}
-                                        {!coupon.minQuantity && !coupon.categoryId && !coupon.productId && <span style={{ color: 'var(--muted-foreground)' }}>Geral</span>}
+                                        {!coupon.minQuantity && !coupon.categoryId && !coupon.productId && <span style={{ color: '#000000' }}>Geral</span>}
                                     </td>
                                     <td style={{ padding: '1rem' }}>
                                         {coupon.usedCount} / {coupon.maxUses || '∞'}

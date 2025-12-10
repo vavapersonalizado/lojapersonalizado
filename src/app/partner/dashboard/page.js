@@ -42,15 +42,15 @@ export default function PartnerDashboard() {
             {/* Stats Cards */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
                 <div className="card" style={{ background: 'white', padding: '1.5rem', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-                    <div style={{ color: '#6b7280', fontSize: '0.9rem', marginBottom: '0.5rem' }}>Total de Visualizações</div>
+                    <div style={{ color: '#000000', fontSize: '0.9rem', marginBottom: '0.5rem' }}>Total de Visualizações</div>
                     <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--primary)' }}>{stats.totalViews}</div>
                 </div>
                 <div className="card" style={{ background: 'white', padding: '1.5rem', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-                    <div style={{ color: '#6b7280', fontSize: '0.9rem', marginBottom: '0.5rem' }}>Anúncios Ativos</div>
+                    <div style={{ color: '#000000', fontSize: '0.9rem', marginBottom: '0.5rem' }}>Anúncios Ativos</div>
                     <div style={{ fontSize: '2rem', fontWeight: 'bold' }}>{stats.activeAds}</div>
                 </div>
                 <div className="card" style={{ background: 'white', padding: '1.5rem', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-                    <div style={{ color: '#6b7280', fontSize: '0.9rem', marginBottom: '0.5rem' }}>Promoções Ativas</div>
+                    <div style={{ color: '#000000', fontSize: '0.9rem', marginBottom: '0.5rem' }}>Promoções Ativas</div>
                     <div style={{ fontSize: '2rem', fontWeight: 'bold' }}>{stats.activePromotions}</div>
                 </div>
             </div>
@@ -61,11 +61,11 @@ export default function PartnerDashboard() {
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead style={{ background: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
                         <tr>
-                            <th style={{ padding: '1rem', textAlign: 'left', fontSize: '0.9rem', color: '#6b7280' }}>Título</th>
-                            <th style={{ padding: '1rem', textAlign: 'left', fontSize: '0.9rem', color: '#6b7280' }}>Tipo</th>
-                            <th style={{ padding: '1rem', textAlign: 'left', fontSize: '0.9rem', color: '#6b7280' }}>Status</th>
-                            <th style={{ padding: '1rem', textAlign: 'left', fontSize: '0.9rem', color: '#6b7280' }}>Visualizações</th>
-                            <th style={{ padding: '1rem', textAlign: 'left', fontSize: '0.9rem', color: '#6b7280' }}>Última Visualização</th>
+                            <th style={{ padding: '1rem', textAlign: 'left', fontSize: '0.9rem', color: '#000000' }}>Título</th>
+                            <th style={{ padding: '1rem', textAlign: 'left', fontSize: '0.9rem', color: '#000000' }}>Tipo</th>
+                            <th style={{ padding: '1rem', textAlign: 'left', fontSize: '0.9rem', color: '#000000' }}>Status</th>
+                            <th style={{ padding: '1rem', textAlign: 'left', fontSize: '0.9rem', color: '#000000' }}>Visualizações</th>
+                            <th style={{ padding: '1rem', textAlign: 'left', fontSize: '0.9rem', color: '#000000' }}>Última Visualização</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -89,14 +89,14 @@ export default function PartnerDashboard() {
                                     </span>
                                 </td>
                                 <td style={{ padding: '1rem', fontWeight: 'bold' }}>{item.views}</td>
-                                <td style={{ padding: '1rem', color: '#6b7280', fontSize: '0.9rem' }}>
+                                <td style={{ padding: '1rem', color: '#000000', fontSize: '0.9rem' }}>
                                     {item.lastViewed ? new Date(item.lastViewed).toLocaleString() : '-'}
                                 </td>
                             </tr>
                         ))}
                         {stats.items.length === 0 && (
                             <tr>
-                                <td colSpan="5" style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>
+                                <td colSpan="5" style={{ padding: '2rem', textAlign: 'center', color: '#000000' }}>
                                     Nenhum conteúdo encontrado.
                                 </td>
                             </tr>

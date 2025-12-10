@@ -110,7 +110,7 @@ export default function ImageUpload({ onUpload, currentImage }) {
                             }}
                             onClick={() => open()}
                         >
-                            <div style={{ color: 'var(--muted-foreground)' }}>
+                            <div style={{ color: '#000000' }}>
                                 <p style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>☁️📷🎥📦</p>
                                 <p>Clique para fazer upload</p>
                                 <p style={{ fontSize: '0.8rem', opacity: 0.8 }}>(Imagens, Vídeos ou 3D .glb)</p>

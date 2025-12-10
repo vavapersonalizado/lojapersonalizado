@@ -43,7 +43,7 @@ export default function AdsPage() {
                 paddingBottom: '2rem'
             }}>
                 <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>Blog de Anúncios</h1>
-                <p style={{ color: 'var(--muted-foreground)' }}>Confira nossos parceiros e novidades.</p>
+                <p style={{ color: '#000000' }}>Confira nossos parceiros e novidades.</p>
                 {isAdmin && (
                     <div style={{ marginTop: '1rem' }}>
                         <Link href="/admin/ads" className="btn btn-primary">
@@ -63,7 +63,7 @@ export default function AdsPage() {
                     borderRadius: 'var(--radius)',
                     border: '1px solid var(--border)'
                 }}>
-                    <p style={{ fontSize: '1.2rem', color: 'var(--muted-foreground)' }}>
+                    <p style={{ fontSize: '1.2rem', color: '#000000' }}>
                         Nenhum anúncio ativo no momento.
                     </p>
                 </div>
@@ -80,12 +80,12 @@ export default function AdsPage() {
                             overflow: 'visible'
                         }}>
                             <header style={{ marginBottom: '1.5rem', textAlign: 'center' }}>
-                                <h2 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '0.5rem', color: 'var(--foreground)' }}>
+                                <h2 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#000000' }}>
                                     {ad.title}
                                 </h2>
                             </header>
 
-                            <div style={{ fontSize: '1.1rem', lineHeight: '1.8', color: 'var(--foreground)', marginBottom: '2rem' }}>
+                            <div style={{ fontSize: '1.1rem', lineHeight: '1.8', color: '#000000', marginBottom: '2rem' }}>
                                 {ad.htmlContent && (
                                     <div
                                         style={{ marginTop: '1rem', overflow: 'hidden' }}

@@ -34,7 +34,7 @@ export default function PartnerLayout({ children }) {
                         👤 Meu Perfil
                     </Link>
                     <hr style={{ border: 'none', borderTop: '1px solid #e5e7eb', margin: '1rem 0' }} />
-                    <Link href="/" style={{ textDecoration: 'none', color: '#6b7280', fontSize: '0.9rem' }}>
+                    <Link href="/" style={{ textDecoration: 'none', color: '#000000', fontSize: '0.9rem' }}>
                         ← Voltar para Loja
                     </Link>
                 </nav>

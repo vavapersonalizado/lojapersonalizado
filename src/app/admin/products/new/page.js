@@ -237,7 +237,7 @@ export default function NewProductPage() {
                                 />
                                 <span style={{ fontWeight: 'bold' }}>🎨 Produto Personalizável</span>
                             </label>
-                            <p style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)', marginLeft: '1.5rem' }}>
+                            <p style={{ fontSize: '0.8rem', color: '#000000', marginLeft: '1.5rem' }}>
                                 Se marcado, o cliente poderá adicionar fotos, textos e adesivos a este produto.
                             </p>
                         </div>
@@ -273,7 +273,7 @@ export default function NewProductPage() {
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
-                                        color: 'var(--muted-foreground)',
+                                        color: '#000000',
                                         textAlign: 'center',
                                         padding: '2rem'
                                     }}>

@@ -63,7 +63,7 @@ export default function PartnersPage() {
                     borderRadius: 'var(--radius)',
                     border: '1px solid var(--border)'
                 }}>
-                    <p style={{ fontSize: '1.2rem', color: 'var(--muted-foreground)' }}>
+                    <p style={{ fontSize: '1.2rem', color: '#000000' }}>
                         {isAdmin
                             ? 'Nenhum parceiro cadastrado. Clique em "Adicionar Parceiro" para começar.'
                             : 'Nenhum parceiro disponível no momento.'}

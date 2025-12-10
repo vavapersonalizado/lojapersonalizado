@@ -168,7 +168,7 @@ export default function AdminAds() {
                             style={{ padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)', flex: 1 }}
                         />
                         <div style={{ flex: 1 }}>
-                            <label style={{ display: 'block', fontSize: '0.8rem', marginBottom: '0.2rem', color: 'var(--muted-foreground)' }}>Validade (Opcional)</label>
+                            <label style={{ display: 'block', fontSize: '0.8rem', marginBottom: '0.2rem', color: '#000000' }}>Validade (Opcional)</label>
                             <input
                                 type="date"
                                 value={formData.expiresAt}
@@ -264,7 +264,7 @@ export default function AdminAds() {
                             )}
                             <div>
                                 <h4 style={{ marginBottom: '0.25rem' }}>{ad.title}</h4>
-                                <p style={{ fontSize: '0.9rem', color: 'var(--muted-foreground)' }}>
+                                <p style={{ fontSize: '0.9rem', color: '#000000' }}>
                                     {ad.link || 'Sem link'}
                                 </p>
                             </div>

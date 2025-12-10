@@ -227,7 +227,7 @@ export default function CheckoutPage() {
                     <p style={{ fontSize: '1.1rem', lineHeight: '1.6', marginBottom: '1rem' }}>
                         {t('order.thank_you')}
                     </p>
-                    <p style={{ color: 'var(--muted-foreground)' }}>
+                    <p style={{ color: '#000000' }}>
                         {t('order.email_sent')}
                     </p>
                 </div>
@@ -273,7 +273,7 @@ export default function CheckoutPage() {
                     }}>
                         <div>
                             <div style={{ fontWeight: '500' }}>{item.name}</div>
-                            <div style={{ fontSize: '0.9rem', color: 'var(--muted-foreground)' }}>
+                            <div style={{ fontSize: '0.9rem', color: '#000000' }}>
                                 {t('common.quantity')}: {item.quantity}
                             </div>
                         </div>
@@ -357,7 +357,7 @@ export default function CheckoutPage() {
                 {/* Available Coupons List */}
                 {availableCoupons && availableCoupons.length > 0 && !couponData && (
                     <div style={{ marginTop: '1rem' }}>
-                        <p style={{ fontSize: '0.9rem', color: 'var(--muted-foreground)', marginBottom: '0.5rem' }}>
+                        <p style={{ fontSize: '0.9rem', color: '#000000', marginBottom: '0.5rem' }}>
                             Cupons disponíveis para você:
                         </p>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
@@ -374,7 +374,7 @@ export default function CheckoutPage() {
                                         border: '1px dashed #86efac',
                                         borderRadius: '4px',
                                         cursor: 'pointer',
-                                        color: '#166534',
+                                        color: '#000000',
                                         fontSize: '0.9rem'
                                     }}
                                 >
@@ -410,7 +410,7 @@ export default function CheckoutPage() {
                 {submitting ? t('checkout.processing') : t('checkout.confirm_order')}
             </button>
 
-            <p style={{ textAlign: 'center', color: 'var(--muted-foreground)', fontSize: '0.9rem', marginTop: '1rem' }}>
+            <p style={{ textAlign: 'center', color: '#000000', fontSize: '0.9rem', marginTop: '1rem' }}>
                 {t('checkout.email_notice')}
             </p>
         </div>

@@ -242,7 +242,7 @@ export default function ProfilePage() {
                                     {coupon.type === 'percentage' ? `${coupon.discount}% OFF` : `¥${coupon.discount} OFF`}
                                 </div>
                                 {coupon.expiresAt && (
-                                    <div style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)', marginTop: '0.5rem' }}>
+                                    <div style={{ fontSize: '0.8rem', color: '#000000', marginTop: '0.5rem' }}>
                                         Expira em: {new Date(coupon.expiresAt).toLocaleDateString()}
                                     </div>
                                 )}
@@ -468,7 +468,7 @@ export default function ProfilePage() {
                     )}
 
                     {success && (
-                        <div style={{ padding: '0.75rem', background: '#e6fffa', color: '#047857', borderRadius: 'var(--radius)', marginBottom: '1rem', fontSize: '0.9rem' }}>
+                        <div style={{ padding: '0.75rem', background: '#e6fffa', color: '#000000', borderRadius: 'var(--radius)', marginBottom: '1rem', fontSize: '0.9rem' }}>
                             {success}
                         </div>
                     )}

@@ -22,7 +22,7 @@ export default function ProductGallery({ images = [], name }) {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: 'var(--muted-foreground)'
+                color: '#000000'
             }}>
                 Sem imagem
             </div>

@@ -133,12 +133,12 @@ export default function AdminProductsPage() {
                                     <td style={{ padding: '1rem' }}>
                                         <div style={{ fontWeight: '500' }}>{product.name}</div>
                                         {product.category && (
-                                            <div style={{ fontSize: '0.875rem', color: 'var(--muted-foreground)' }}>
+                                            <div style={{ fontSize: '0.875rem', color: '#000000' }}>
                                                 {product.category.name}
                                             </div>
                                         )}
                                     </td>
-                                    <td style={{ padding: '1rem', color: 'var(--muted-foreground)' }}>
+                                    <td style={{ padding: '1rem', color: '#000000' }}>
                                         {product.sku || '-'}
                                     </td>
                                     <td style={{ padding: '1rem', textAlign: 'right', fontWeight: '500' }}>

@@ -98,7 +98,7 @@ export default function ProductPage() {
                             padding: '0.25rem 0.5rem',
                             borderRadius: '4px',
                             fontSize: '0.8rem',
-                            color: '#6b7280',
+                            color: '#000000',
                             marginBottom: '1rem'
                         }}>
                             SKU: {product.sku}
@@ -109,7 +109,7 @@ export default function ProductPage() {
                         {formatCurrency(product.price)}
                     </div>
 
-                    <div style={{ marginBottom: '2rem', lineHeight: '1.6', color: 'var(--foreground)' }}>
+                    <div style={{ marginBottom: '2rem', lineHeight: '1.6', color: '#000000' }}>
                         {product.description || 'Sem descrição.'}
                     </div>
 
@@ -177,7 +177,7 @@ export default function ProductPage() {
 
                     {/* Additional Info / Categories */}
                     {product.category && (
-                        <div style={{ marginTop: '3rem', paddingTop: '1rem', borderTop: '1px solid var(--border)', color: 'var(--muted-foreground)', fontSize: '0.9rem' }}>
+                        <div style={{ marginTop: '3rem', paddingTop: '1rem', borderTop: '1px solid var(--border)', color: '#000000', fontSize: '0.9rem' }}>
                             Categoria: <a href={`/categories/${product.category.slug}`} style={{ color: 'var(--primary)', textDecoration: 'none' }}>{product.category.name}</a>
                         </div>
                     )}

@@ -62,7 +62,7 @@ export default function ProductsPage() {
                     border: '1px solid var(--border)'
                 }}>
                     <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>EM BREVE</h2>
-                    <p style={{ fontSize: '1.1rem', color: 'var(--muted-foreground)' }}>
+                    <p style={{ fontSize: '1.1rem', color: '#000000' }}>
                         {isAdmin
                             ? 'Nenhum produto cadastrado. Clique em "Adicionar Produto" para começar.'
                             : 'Novos produtos em breve!'}

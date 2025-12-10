@@ -54,7 +54,7 @@ export default function EventsPage() {
                 paddingBottom: '2rem'
             }}>
                 <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>Blog de Eventos</h1>
-                <p style={{ color: 'var(--muted-foreground)' }}>Fique por dentro das nossas novidades e eventos.</p>
+                <p style={{ color: '#000000' }}>Fique por dentro das nossas novidades e eventos.</p>
             </div>
 
             {loading ? (
@@ -67,7 +67,7 @@ export default function EventsPage() {
                     borderRadius: 'var(--radius)',
                     border: '1px solid var(--border)'
                 }}>
-                    <p style={{ fontSize: '1.2rem', color: 'var(--muted-foreground)' }}>
+                    <p style={{ fontSize: '1.2rem', color: '#000000' }}>
                         {isAdmin
                             ? 'Nenhum evento cadastrado. Clique em "Adicionar Evento" para começar.'
                             : 'Nenhum evento disponível no momento.'}
@@ -85,7 +85,7 @@ export default function EventsPage() {
                             borderRadius: 0
                         }}>
                             <header style={{ marginBottom: '1.5rem', textAlign: 'center' }}>
-                                <h2 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '0.5rem', color: 'var(--foreground)' }}>
+                                <h2 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#000000' }}>
                                     {event.title}
                                 </h2>
                                 <p style={{ color: 'var(--primary)', fontWeight: '500', fontSize: '0.9rem' }}>
@@ -93,7 +93,7 @@ export default function EventsPage() {
                                 </p>
                             </header>
 
-                            <div style={{ fontSize: '1.1rem', lineHeight: '1.8', color: 'var(--foreground)', marginBottom: '2rem' }}>
+                            <div style={{ fontSize: '1.1rem', lineHeight: '1.8', color: '#000000', marginBottom: '2rem' }}>
                                 <p style={{ marginBottom: '1rem' }}>{event.description}</p>
                                 {event.htmlContent && (
                                     <div

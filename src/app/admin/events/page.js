@@ -264,7 +264,7 @@ export default function AdminEvents() {
                             )}
                             <div>
                                 <h4 style={{ marginBottom: '0.25rem' }}>{event.title}</h4>
-                                <p style={{ fontSize: '0.9rem', color: 'var(--muted-foreground)' }}>
+                                <p style={{ fontSize: '0.9rem', color: '#000000' }}>
                                     {new Date(event.date).toLocaleDateString()}
                                 </p>
                             </div>
