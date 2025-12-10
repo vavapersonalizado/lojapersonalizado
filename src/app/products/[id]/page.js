@@ -185,55 +185,6 @@ export default function ProductPage() {
                         )}
                     </div>
 
-                    {/* Add to Cart Actions */}
-                    {product.stock > 0 && (
-                        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                            {!product.isCustomizable && (
-                                <div style={{ display: 'flex', alignItems: 'center', border: '1px solid var(--border)', borderRadius: 'var(--radius)' }}>
-                                    <button
-                                        onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                                        style={{ padding: '0.75rem 1rem', background: 'transparent', border: 'none', cursor: 'pointer' }}
-                                    >
-                                        -
-                                    </button>
-                                    <span style={{ padding: '0.75rem 1rem', fontWeight: 'bold' }}>{quantity}</span>
-                                    <button
-                                        onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
-                                        style={{ padding: '0.75rem 1rem', background: 'transparent', border: 'none', cursor: 'pointer' }}
-                                    >
-                                        +
-                                    </button>
-                                </div>
-                            )}
-
-                            {product.isCustomizable ? (
-                                <a
-                                    href={`/products/custom/${product.id}`}
-                                    className="btn btn-primary"
-                                    style={{ flex: 1, padding: '1rem', fontSize: '1.1rem', textAlign: 'center', textDecoration: 'none' }}
-                                >
-                                    🎨 Personalizar Agora
-                                </a>
-                            ) : (
-                                <button
-                                    onClick={handleAddToCart}
-                                    disabled={adding}
-                                    className="btn btn-primary"
-                                    style={{ flex: 1, padding: '1rem', fontSize: '1.1rem' }}
-                                >
-                                    {adding ? 'Adicionando...' : t('common.add_to_cart') || 'Adicionar ao Carrinho'}
-                                </button>
-                            )}
-                        </div>
-                    )}
-
-                    {/* Additional Info / Categories */}
-                    {product.category && (
-                        <div style={{ marginTop: '3rem', paddingTop: '1rem', borderTop: '1px solid var(--border)', color: '#000000', fontSize: '0.9rem' }}>
-                            Categoria: <a href={`/categories/${product.category.slug}`} style={{ color: 'var(--primary)', textDecoration: 'none' }}>{product.category.name}</a>
-                        </div>
-                    )}
-                </div>
             </div>
         </div>
     );
