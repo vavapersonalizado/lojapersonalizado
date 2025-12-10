@@ -42,7 +42,8 @@ export default function Model3DViewer({
     fallbackImage = null,
     height = '500px',
     customColor = null,
-    onModelLoaded = null
+    onModelLoaded = null,
+    onExportMultipleViews = null
 }) {
     const [error, setError] = useState(false);
     const [isFullscreen, setIsFullscreen] = useState(false);
@@ -171,6 +172,33 @@ export default function Model3DViewer({
                         title="Exportar Screenshot"
                     >
                         📸 Exportar
+                    </button>
+                )}
+                
+                {onExportMultipleViews && (
+                    <button
+                        onClick={() => {
+                            // Export current view as "multiple views" (simplified)
+                            const screenshot = exportScreenshot();
+                            if (screenshot) {
+                                onExportMultipleViews([
+                                    { name: 'Vista Atual', image: screenshot }
+                                ]);
+                            }
+                        }}
+                        style={{
+                            padding: '0.5rem 1rem',
+                            background: 'rgba(234, 102, 126, 0.9)',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: 'var(--radius)',
+                            cursor: 'pointer',
+                            fontSize: '0.9rem',
+                            backdropFilter: 'blur(10px)'
+                        }}
+                        title="Exportar para Impressão 3D"
+                    >
+                        🧊 Exportar 3D
                     </button>
                 )}
             </div>
