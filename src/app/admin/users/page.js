@@ -16,6 +16,11 @@ export default function UsersPage() {
 
     const [editingUser, setEditingUser] = useState(null);
 
+    // Search and filters
+    const [searchTerm, setSearchTerm] = useState('');
+    const [classificationFilter, setClassificationFilter] = useState('all');
+    const [sortBy, setSortBy] = useState('name-asc'); // name-asc, name-desc, date-desc, date-asc
+
     const fetchUsers = () => {
         fetch('/api/users')
             .then(res => {
@@ -218,6 +223,42 @@ export default function UsersPage() {
         }
     };
 
+    // Filter, search and sort users
+    const filteredUsers = users
+        .filter(user => {
+            // Classification filter
+            if (classificationFilter !== 'all' && user.classification !== classificationFilter) {
+                return false;
+            }
+
+            // Search filter
+            if (searchTerm.trim()) {
+                const search = searchTerm.toLowerCase();
+                return (
+                    user.name?.toLowerCase().includes(search) ||
+                    user.email?.toLowerCase().includes(search) ||
+                    user.phone?.toLowerCase().includes(search) ||
+                    user.postalCode?.toLowerCase().includes(search)
+                );
+            }
+
+            return true;
+        })
+        .sort((a, b) => {
+            switch (sortBy) {
+                case 'name-asc':
+                    return (a.name || '').localeCompare(b.name || '');
+                case 'name-desc':
+                    return (b.name || '').localeCompare(a.name || '');
+                case 'date-desc':
+                    return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+                case 'date-asc':
+                    return new Date(a.createdAt || 0) - new Date(b.createdAt || 0);
+                default:
+                    return 0;
+            }
+        });
+
     if (loading) return <p style={{ padding: '2rem' }}>Carregando usuários...</p>;
 
     return (
@@ -230,6 +271,95 @@ export default function UsersPage() {
                 >
                     ➕ Cadastrar Cliente
                 </button>
+            </div>
+
+            {/* Search and Filters */}
+            <div style={{
+                background: 'var(--card)',
+                padding: '1.5rem',
+                borderRadius: 'var(--radius)',
+                border: '1px solid var(--border)',
+                marginBottom: '2rem'
+            }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                    {/* Search Bar */}
+                    <div>
+                        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', fontSize: '0.9rem' }}>
+                            🔍 Buscar
+                        </label>
+                        <input
+                            type="text"
+                            placeholder="Nome, email, telefone ou CEP..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            style={{
+                                width: '100%',
+                                padding: '0.75rem',
+                                borderRadius: 'var(--radius)',
+                                border: '1px solid var(--border)',
+                                fontSize: '1rem'
+                            }}
+                        />
+                    </div>
+
+                    {/* Classification Filter */}
+                    <div>
+                        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', fontSize: '0.9rem' }}>
+                            🏷️ Classificação
+                        </label>
+                        <select
+                            value={classificationFilter}
+                            onChange={(e) => setClassificationFilter(e.target.value)}
+                            style={{
+                                width: '100%',
+                                padding: '0.75rem',
+                                borderRadius: 'var(--radius)',
+                                border: '1px solid var(--border)',
+                                fontSize: '1rem'
+                            }}
+                        >
+                            <option value="all">Todas</option>
+                            <option value="">Padrão</option>
+                            <option value="VIP">VIP</option>
+                            <option value="Family">Família</option>
+                            <option value="Friend">Amigo</option>
+                            <option value="Partner">Parceiro</option>
+                            <option value="Loyal">Fiel</option>
+                            <option value="Good">Bom</option>
+                            <option value="Medium">Médio</option>
+                            <option value="Bad">Ruim</option>
+                        </select>
+                    </div>
+
+                    {/* Sort By */}
+                    <div>
+                        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', fontSize: '0.9rem' }}>
+                            🔄 Ordenar por
+                        </label>
+                        <select
+                            value={sortBy}
+                            onChange={(e) => setSortBy(e.target.value)}
+                            style={{
+                                width: '100%',
+                                padding: '0.75rem',
+                                borderRadius: 'var(--radius)',
+                                border: '1px solid var(--border)',
+                                fontSize: '1rem'
+                            }}
+                        >
+                            <option value="name-asc">Nome (A-Z)</option>
+                            <option value="name-desc">Nome (Z-A)</option>
+                            <option value="date-desc">Cadastro (mais recente)</option>
+                            <option value="date-asc">Cadastro (mais antigo)</option>
+                        </select>
+                    </div>
+                </div>
+
+                {/* Results count */}
+                <div style={{ fontSize: '0.9rem', color: '#666' }}>
+                    {filteredUsers.length} cliente(s) encontrado(s)
+                    {searchTerm && ` para "${searchTerm}"`}
+                </div>
             </div>
 
             <div style={{
@@ -251,7 +381,7 @@ export default function UsersPage() {
                         </tr>
                     </thead>
                     <tbody>
-                        {users.map(user => (
+                        {filteredUsers.map(user => (
                             <tr key={user.id} style={{ borderTop: '1px solid var(--border)' }}>
                                 <td style={{ padding: '1rem' }}>
                                     <div
