@@ -1,6 +1,7 @@
 "use client";
 
 import Link from 'next/link';
+import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import { useCart } from '@/contexts/CartContext';
 import { useState, useRef } from 'react';
@@ -113,7 +114,7 @@ export default function ProductCard({ product, isClientMode }) {
                             </div>
                         </div>
                     ) : (
-                        <Link href={`/products/${product.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block', width: '100%', height: '100%' }}>
+                        <Link href={`/products/${product.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block', width: '100%', height: '100%', position: 'relative' }}>
                             {mediaUrl ? (
                                 mediaUrl.match(/\.(mp4|webm|ogg)$/i) ? (
                                     <video
@@ -129,12 +130,14 @@ export default function ProductCard({ product, isClientMode }) {
                                         autoPlay
                                     />
                                 ) : (
-                                    <div style={{
-                                        width: '100%',
-                                        height: '100%',
-                                        background: `url(${mediaUrl}) center/cover`,
-                                        transition: 'background-image 0.3s ease'
-                                    }} />
+                                    <Image
+                                        src={mediaUrl}
+                                        alt={product.name}
+                                        fill
+                                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                        style={{ objectFit: 'cover' }}
+                                        priority={false}
+                                    />
                                 )
                             ) : (
                                 <div style={{
@@ -175,32 +178,34 @@ export default function ProductCard({ product, isClientMode }) {
                 </div>
 
                 {/* Admin Controls Overlay - Outside Link */}
-                {isAdmin && !isClientMode && (
-                    <div style={{
-                        position: 'absolute',
-                        top: '10px',
-                        left: '10px',
-                        zIndex: 10,
-                        display: 'flex',
-                        gap: '0.5rem'
-                    }}>
-                        <VisibilityToggle product={product} />
-                        <button
-                            onClick={() => router.push(`/admin/products/${product.id}/edit`)}
-                            className="btn btn-primary"
-                            style={{
-                                padding: '0.25rem 0.5rem',
-                                fontSize: '0.8rem',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '0.25rem'
-                            }}
-                        >
-                            ✏️ Editar
-                        </button>
-                    </div>
-                )}
-            </div>
+                {
+                    isAdmin && !isClientMode && (
+                        <div style={{
+                            position: 'absolute',
+                            top: '10px',
+                            left: '10px',
+                            zIndex: 10,
+                            display: 'flex',
+                            gap: '0.5rem'
+                        }}>
+                            <VisibilityToggle product={product} />
+                            <button
+                                onClick={() => router.push(`/admin/products/${product.id}/edit`)}
+                                className="btn btn-primary"
+                                style={{
+                                    padding: '0.25rem 0.5rem',
+                                    fontSize: '0.8rem',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.25rem'
+                                }}
+                            >
+                                ✏️ Editar
+                            </button>
+                        </div>
+                    )
+                }
+            </div >
 
             <div style={{ padding: '0.75rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
                 <Link href={`/products/${product.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
@@ -235,7 +240,7 @@ export default function ProductCard({ product, isClientMode }) {
                     <AddToCartButton product={product} />
                 </div>
             </div>
-        </div>
+        </div >
     );
 }
 
