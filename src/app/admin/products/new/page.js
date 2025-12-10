@@ -19,7 +19,9 @@ export default function NewProductPage() {
         images: [],
         stock: '',
         htmlContent: '',
-        isCustomizable: false
+        isCustomizable: false,
+        model3D: '',
+        modelType: ''
     });
 
     const loadCategories = () => {
@@ -62,6 +64,25 @@ export default function NewProductPage() {
     const handleRemoveImage = (index) => {
         const newImages = formData.images.filter((_, i) => i !== index);
         setFormData({ ...formData, images: newImages });
+    };
+
+    const handleAdd3DModel = (url, type = '3d') => {
+        const extension = url.split('.').pop().toLowerCase();
+        const modelType = ['glb', 'gltf', 'obj', 'fbx'].includes(extension) ? extension : 'glb';
+
+        setFormData(prev => ({
+            ...prev,
+            model3D: url,
+            modelType: modelType
+        }));
+    };
+
+    const handleRemove3DModel = () => {
+        setFormData(prev => ({
+            ...prev,
+            model3D: '',
+            modelType: ''
+        }));
     };
 
     const handleSubmit = async (e) => {
@@ -359,6 +380,64 @@ export default function NewProductPage() {
                                     ))
                                 )}
                             </div>
+                        </div>
+
+                        {/* 3D Model Section */}
+                        <div style={{ marginTop: '2rem' }}>
+                            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+                                🧊 Modelo 3D (Opcional)
+                            </label>
+                            <p style={{ fontSize: '0.85rem', color: '#666', marginBottom: '1rem' }}>
+                                Adicione um modelo 3D (.glb, .gltf, .obj, .fbx) para visualização interativa
+                            </p>
+
+                            {!formData.model3D ? (
+                                <div>
+                                    <MediaSelector
+                                        onSelect={handleAdd3DModel}
+                                        buttonText="Selecionar Modelo 3D da Galeria"
+                                    />
+                                    <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '0.5rem', textAlign: 'center' }}>
+                                        Formatos aceitos: .glb, .gltf, .obj, .fbx (max 100MB)
+                                    </p>
+                                </div>
+                            ) : (
+                                <div style={{
+                                    border: '2px solid var(--border)',
+                                    borderRadius: 'var(--radius)',
+                                    padding: '1rem',
+                                    background: 'var(--muted)'
+                                }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                                        <div>
+                                            <div style={{ fontWeight: 'bold', marginBottom: '0.25rem' }}>
+                                                Modelo 3D Carregado
+                                            </div>
+                                            <div style={{ fontSize: '0.85rem', color: '#666' }}>
+                                                Tipo: {formData.modelType.toUpperCase()}
+                                            </div>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={handleRemove3DModel}
+                                            className="btn btn-outline"
+                                            style={{ color: 'red', borderColor: 'red' }}
+                                        >
+                                            🗑️ Remover
+                                        </button>
+                                    </div>
+                                    <div style={{
+                                        background: '#f0f0f0',
+                                        borderRadius: 'var(--radius)',
+                                        padding: '2rem',
+                                        textAlign: 'center',
+                                        color: '#666'
+                                    }}>
+                                        <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>🧊</div>
+                                        <div style={{ fontSize: '0.9rem' }}>Preview 3D disponível na página do produto</div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
