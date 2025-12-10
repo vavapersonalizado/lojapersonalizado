@@ -8,6 +8,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import Breadcrumbs from '@/components/Breadcrumbs';
 import ProductGallery from '@/components/ProductGallery';
+import Model3DViewer from '@/components/Model3DViewer';
 
 export default function ProductPage() {
     const params = useParams();
@@ -22,6 +23,7 @@ export default function ProductPage() {
     const [loading, setLoading] = useState(true);
     const [quantity, setQuantity] = useState(1);
     const [adding, setAdding] = useState(false);
+    const [activeTab, setActiveTab] = useState('images'); // 'images' or '3d'
     const hasTracked = useRef(false);
 
     useEffect(() => {
@@ -73,37 +75,23 @@ export default function ProductPage() {
 
     return (
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem' }}>
-            <Breadcrumbs items={[
-                { label: 'Produtos', href: '/products' },
-                ...(product.category ? [{ label: product.category.name, href: `/categories/${product.category.slug}` }] : []),
-                { label: product.name }
-            ]} />
+        </h1>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4rem' }}>
-                {/* Left Column: Gallery */}
-                <div>
-                    <ProductGallery images={product.images} name={product.name} />
-                </div>
-
-                {/* Right Column: Details */}
-                <div>
-                    <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>
-                        {product.name}
-                    </h1>
-
-                    {isAdmin && product.sku && (
-                        <div style={{
-                            display: 'inline-block',
-                            background: '#f3f4f6',
-                            padding: '0.25rem 0.5rem',
-                            borderRadius: '4px',
-                            fontSize: '0.8rem',
-                            color: '#000000',
-                            marginBottom: '1rem'
-                        }}>
-                            SKU: {product.sku}
-                        </div>
-                    )}
+                    {
+        isAdmin && product.sku && (
+            <div style={{
+                display: 'inline-block',
+                background: '#f3f4f6',
+                padding: '0.25rem 0.5rem',
+                borderRadius: '4px',
+                fontSize: '0.8rem',
+                color: '#000000',
+                marginBottom: '1rem'
+            }}>
+                SKU: {product.sku}
+            </div>
+        )
+    }
 
                     <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--primary)', marginBottom: '1.5rem' }}>
                         {formatCurrency(product.price)}
@@ -113,76 +101,82 @@ export default function ProductPage() {
                         {product.description || 'Sem descrição.'}
                     </div>
 
-                    {product.htmlContent && (
-                        <div
-                            style={{ marginBottom: '2rem', overflow: 'hidden' }}
-                            dangerouslySetInnerHTML={{ __html: product.htmlContent }}
-                        />
-                    )}
+    {
+        product.htmlContent && (
+            <div
+                style={{ marginBottom: '2rem', overflow: 'hidden' }}
+                dangerouslySetInnerHTML={{ __html: product.htmlContent }}
+            />
+        )
+    }
 
-                    {/* Stock Status */}
-                    <div style={{ marginBottom: '2rem' }}>
-                        {product.stock > 0 ? (
-                            <span style={{ color: 'green', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                ● Em Estoque ({product.stock} unidades)
-                            </span>
-                        ) : (
-                            <span style={{ color: 'red', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                ● Esgotado
-                            </span>
-                        )}
+    {/* Stock Status */ }
+    <div style={{ marginBottom: '2rem' }}>
+        {product.stock > 0 ? (
+            <span style={{ color: 'green', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                ● Em Estoque ({product.stock} unidades)
+            </span>
+        ) : (
+            <span style={{ color: 'red', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                ● Esgotado
+            </span>
+        )}
+    </div>
+
+    {/* Add to Cart Actions */ }
+    {
+        product.stock > 0 && (
+            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                {!product.isCustomizable && (
+                    <div style={{ display: 'flex', alignItems: 'center', border: '1px solid var(--border)', borderRadius: 'var(--radius)' }}>
+                        <button
+                            onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                            style={{ padding: '0.75rem 1rem', background: 'transparent', border: 'none', cursor: 'pointer' }}
+                        >
+                            -
+                        </button>
+                        <span style={{ padding: '0.75rem 1rem', fontWeight: 'bold' }}>{quantity}</span>
+                        <button
+                            onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
+                            style={{ padding: '0.75rem 1rem', background: 'transparent', border: 'none', cursor: 'pointer' }}
+                        >
+                            +
+                        </button>
                     </div>
+                )}
 
-                    {/* Add to Cart Actions */}
-                    {product.stock > 0 && (
-                        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                            {!product.isCustomizable && (
-                                <div style={{ display: 'flex', alignItems: 'center', border: '1px solid var(--border)', borderRadius: 'var(--radius)' }}>
-                                    <button
-                                        onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                                        style={{ padding: '0.75rem 1rem', background: 'transparent', border: 'none', cursor: 'pointer' }}
-                                    >
-                                        -
-                                    </button>
-                                    <span style={{ padding: '0.75rem 1rem', fontWeight: 'bold' }}>{quantity}</span>
-                                    <button
-                                        onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
-                                        style={{ padding: '0.75rem 1rem', background: 'transparent', border: 'none', cursor: 'pointer' }}
-                                    >
-                                        +
-                                    </button>
-                                </div>
-                            )}
-
-                            {product.isCustomizable ? (
-                                <a
-                                    href={`/products/custom/${product.id}`}
-                                    className="btn btn-primary"
-                                    style={{ flex: 1, padding: '1rem', fontSize: '1.1rem', textAlign: 'center', textDecoration: 'none' }}
-                                >
-                                    🎨 Personalizar Agora
-                                </a>
-                            ) : (
-                                <button
-                                    onClick={handleAddToCart}
-                                    disabled={adding}
-                                    className="btn btn-primary"
-                                    style={{ flex: 1, padding: '1rem', fontSize: '1.1rem' }}
-                                >
-                                    {adding ? 'Adicionando...' : t('common.add_to_cart') || 'Adicionar ao Carrinho'}
-                                </button>
-                            )}
-                        </div>
-                    )}
-
-                    {/* Additional Info / Categories */}
-                    {product.category && (
-                        <div style={{ marginTop: '3rem', paddingTop: '1rem', borderTop: '1px solid var(--border)', color: '#000000', fontSize: '0.9rem' }}>
-                            Categoria: <a href={`/categories/${product.category.slug}`} style={{ color: 'var(--primary)', textDecoration: 'none' }}>{product.category.name}</a>
-                        </div>
-                    )}
-                </div>
+                {product.isCustomizable ? (
+                    <a
+                        href={`/products/custom/${product.id}`}
+                        className="btn btn-primary"
+                        style={{ flex: 1, padding: '1rem', fontSize: '1.1rem', textAlign: 'center', textDecoration: 'none' }}
+                    >
+                        🎨 Personalizar Agora
+                    </a>
+                ) : (
+                    <button
+                        onClick={handleAddToCart}
+                        disabled={adding}
+                        className="btn btn-primary"
+                        style={{ flex: 1, padding: '1rem', fontSize: '1.1rem' }}
+                    >
+                        {adding ? 'Adicionando...' : t('common.add_to_cart') || 'Adicionar ao Carrinho'}
+                    </button>
+                )}
             </div>
-        </div>
+        )
+    }
+
+    {/* Additional Info / Categories */ }
+    {
+        product.category && (
+            <div style={{ marginTop: '3rem', paddingTop: '1rem', borderTop: '1px solid var(--border)', color: '#000000', fontSize: '0.9rem' }}>
+                Categoria: <a href={`/categories/${product.category.slug}`} style={{ color: 'var(--primary)', textDecoration: 'none' }}>{product.category.name}</a>
+            </div>
+        )
+    }
+                </div >
+            </div >
+        </div >
     );
 }
