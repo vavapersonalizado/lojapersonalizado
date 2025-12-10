@@ -11,6 +11,8 @@ import LoginModal from './LoginModal';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useView } from '@/contexts/ViewContext';
 
+import NotificationBell from './NotificationBell';
+
 export default function Header() {
     const { data: session } = useSession();
     const pathname = usePathname();
@@ -110,6 +112,9 @@ export default function Header() {
                 >
                     {viewMode === 'mobile' ? '💻' : '📱'}
                 </button>
+
+                {/* Notification Bell */}
+                <NotificationBell />
 
                 {/* Cart Icon */}
                 <button
