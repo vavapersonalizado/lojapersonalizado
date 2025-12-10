@@ -470,14 +470,18 @@ export default function OrdersPage() {
                                                             {item.customization && (
                                                                 <div style={{ fontSize: '0.8rem', color: 'var(--primary)', marginTop: '0.25rem' }}>
                                                                     🎨 Produto Personalizado
-                                                                    {item.printFile && (
+                                                                    {(item.printFile || item.printFileUrl) && (
                                                                         <button
                                                                             onClick={() => {
-                                                                                // Download print file
-                                                                                const link = document.createElement('a');
-                                                                                link.href = item.printFile;
-                                                                                link.download = `print_${order.id}_${item.id}.png`;
-                                                                                link.click();
+                                                                                // Download print file - prefer URL over base64
+                                                                                if (item.printFileUrl) {
+                                                                                    window.open(item.printFileUrl, '_blank');
+                                                                                } else if (item.printFile) {
+                                                                                    const link = document.createElement('a');
+                                                                                    link.href = item.printFile;
+                                                                                    link.download = `print_${order.id}_${item.id}.png`;
+                                                                                    link.click();
+                                                                                }
                                                                             }}
                                                                             style={{
                                                                                 marginLeft: '0.5rem',

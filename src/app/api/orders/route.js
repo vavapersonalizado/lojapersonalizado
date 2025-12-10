@@ -31,13 +31,32 @@ export async function POST(request) {
             couponCode: couponCode || null,
             status: 'pending',
             items: {
-                create: items.map(item => ({
-                    productId: item.productId,
-                    name: item.name,
-                    price: item.price,
-                    quantity: item.quantity,
-                    customization: item.customization || null,
-                    printFile: item.customization?.printFile || null // Arquivo de impressão
+                create: await Promise.all(items.map(async (item) => {
+                    let printFileUrl = null;
+                    
+                    // Upload print file to Cloudinary if exists
+                    if (item.customization?.printFile) {
+                        try {
+                            printFileUrl = await uploadPrintFile(
+                                item.customization.printFile,
+                                'temp', // Will be updated with orderId after creation
+                                item.productId
+                            );
+                        } catch (error) {
+                            console.error('Error uploading print file:', error);
+                            // Continue without URL, printFile will be saved as backup
+                        }
+                    }
+                    
+                    return {
+                        productId: item.productId,
+                        name: item.name,
+                        price: item.price,
+                        quantity: item.quantity,
+                        customization: item.customization || null,
+                        printFile: item.customization?.printFile || null,
+                        printFileUrl: printFileUrl
+                    };
                 }))
             }
         };
