@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useCart } from '@/contexts/CartContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { generatePrintFile } from '@/lib/printFile';
 
 export default function CustomProductPage() {
     const params = useParams();
@@ -198,12 +199,21 @@ export default function CustomProductPage() {
     const handleAddToCart = () => {
         if (!canvasRef.current) return;
 
-        // Generate preview image
+        // Generate preview image (normal resolution)
         const dataUrl = canvasRef.current.toDataURL('image/png');
+
+        // Generate print-ready file (300 DPI)
+        const printFile = generatePrintFile(canvasRef.current, {
+            width: 10, // Default 10cm - pode ser configurado por produto
+            height: 10,
+            name: product.name,
+            dpi: 300
+        });
 
         addToCart(product, 1, {
             preview: dataUrl,
-            elements: elements
+            elements: elements,
+            printFile: printFile // Arquivo pronto para impressão
         });
 
         router.push('/cart');

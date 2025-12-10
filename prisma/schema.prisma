@@ -141,6 +141,8 @@ model OrderItem {
   quantity  Int
   ready     Boolean @default(false) // Is item separated/ready?
   customization Json? // Stores customization data (image, text, stickers)
+  printFile     String? @db.Text // Base64 or data URL of print-ready file
+  printFileUrl  String? // URL of print file in Cloudinary
 }
 
 model SiteSettings {

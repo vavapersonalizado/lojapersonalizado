@@ -36,7 +36,8 @@ export async function POST(request) {
                     name: item.name,
                     price: item.price,
                     quantity: item.quantity,
-                    customization: item.customization || null
+                    customization: item.customization || null,
+                    printFile: item.customization?.printFile || null // Arquivo de impressão
                 }))
             }
         };

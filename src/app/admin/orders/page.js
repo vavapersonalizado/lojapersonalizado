@@ -470,6 +470,29 @@ export default function OrdersPage() {
                                                             {item.customization && (
                                                                 <div style={{ fontSize: '0.8rem', color: 'var(--primary)', marginTop: '0.25rem' }}>
                                                                     🎨 Produto Personalizado
+                                                                    {item.printFile && (
+                                                                        <button
+                                                                            onClick={() => {
+                                                                                // Download print file
+                                                                                const link = document.createElement('a');
+                                                                                link.href = item.printFile;
+                                                                                link.download = `print_${order.id}_${item.id}.png`;
+                                                                                link.click();
+                                                                            }}
+                                                                            style={{
+                                                                                marginLeft: '0.5rem',
+                                                                                padding: '0.25rem 0.5rem',
+                                                                                background: 'var(--primary)',
+                                                                                color: 'white',
+                                                                                border: 'none',
+                                                                                borderRadius: '4px',
+                                                                                cursor: 'pointer',
+                                                                                fontSize: '0.75rem'
+                                                                            }}
+                                                                        >
+                                                                            📥 Baixar para Impressão
+                                                                        </button>
+                                                                    )}
                                                                 </div>
                                                             )}
                                                         </div>
