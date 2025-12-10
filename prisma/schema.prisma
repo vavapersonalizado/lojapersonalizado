@@ -385,3 +385,17 @@ model PointsHistory {
   
   @@index([userId])
 }
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  adminId   String?
+  message   String   @db.Text // Usando @db.Text para mensagens longas
+  isAdmin   Boolean  @default(false)
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([read])
+}

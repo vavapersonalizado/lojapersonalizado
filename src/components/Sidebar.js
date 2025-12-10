@@ -11,10 +11,6 @@ export default function Sidebar() {
     const { data: session } = useSession();
     const isAdmin = session?.user?.role === 'admin';
 
-    // Debug logging
-    console.log('Sidebar - Session:', session);
-    console.log('Sidebar - isAdmin:', isAdmin);
-
     const [settings, setSettings] = useState({
         showProducts: true,
         showCategories: true,
@@ -38,7 +34,6 @@ export default function Sidebar() {
                 if (Array.isArray(data)) {
                     setCategories(data);
                 } else {
-                    console.error('Invalid categories data:', data);
                     setCategories([]);
                 }
             })
@@ -62,7 +57,6 @@ export default function Sidebar() {
             });
         } catch (error) {
             console.error('Error updating settings:', error);
-            // Revert on error
             setSettings(settings);
         }
     };
@@ -70,7 +64,6 @@ export default function Sidebar() {
     const toggleCategoryVisibility = async (categoryId, currentVisibility) => {
         if (!isAdmin) return;
 
-        // Optimistic update
         const updatedCategories = categories.map(cat =>
             cat.id === categoryId ? { ...cat, visible: !currentVisibility } : cat
         );
@@ -84,12 +77,10 @@ export default function Sidebar() {
             });
         } catch (error) {
             console.error('Error updating category visibility:', error);
-            // Revert on error
             setCategories(categories);
         }
     };
 
-    // Filter categories for display
     const visibleCategories = categories.filter(cat => isAdmin || cat.visible !== false);
 
     const menuItems = [
@@ -104,13 +95,13 @@ export default function Sidebar() {
             submenu: visibleCategories.map(cat => ({
                 id: cat.id,
                 name: cat.name,
-                path: `/products?category=${cat.id}`, // Note: This path might need adjustment if using /categories/[slug]
+                path: `/products?category=${cat.id}`,
                 slug: cat.slug,
                 visible: cat.visible
             }))
         },
         { name: 'Eventos', path: '/events', settingKey: 'showEvents' },
-        { name: 'Promoções', path: '/promotions', settingKey: 'showPromotions' }, // Added to client menu
+        { name: 'Promoções', path: '/promotions', settingKey: 'showPromotions' },
         { name: 'Parceiros', path: '/partners', settingKey: 'showPartners' },
         { name: 'Patrocinadores', path: '/sponsors', settingKey: 'showSponsors' },
     ];
@@ -206,8 +197,8 @@ export default function Sidebar() {
                                 { name: 'Galeria', path: '/admin/galeria', icon: '🖼️' },
                                 { name: 'Cupons', path: '/admin/coupons', icon: '🎟️' },
                                 { name: 'Eventos', path: '/admin/events', icon: '📅' },
-                                // Promoções moved to main menu
                                 { name: 'Propagandas', path: '/admin/ads', icon: '📢' },
+                                { name: 'Chat Suporte', path: '/admin/chat', icon: '💬' },
                                 { name: 'Analytics', path: '/admin/analytics', icon: '📊' },
                                 { name: 'Backups', path: '/admin/backups', icon: '💾' },
                                 { name: 'Config', path: '/admin/settings', icon: '⚙️' }
@@ -241,7 +232,6 @@ export default function Sidebar() {
                 </>
             )}
 
-            {/* Admin Quick Actions */}
             {isAdmin && !isClientMode && !isCollapsed && (
                 <div style={{ marginBottom: '1.5rem' }}>
                     <button

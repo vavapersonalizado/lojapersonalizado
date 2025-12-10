@@ -8,6 +8,15 @@ import RightSidebar from "@/components/RightSidebar";
 import Header from "@/components/Header";
 import MobileLayout from "@/components/MobileLayout";
 import FloatingCompareIndicator from "@/components/FloatingCompareIndicator";
+import ChatWidget from "@/components/ChatWidget";
+import { getServerSession } from "next-auth";
+import { authOptions } from "./api/auth/[...nextauth]/route";
+import { Inter, Outfit } from "next/font/google";
+import { CartProvider } from "@/contexts/CartContext";
+import { CompareProvider } from "@/contexts/CompareContext";
+
+const inter = Inter({ subsets: ["latin"] });
+const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
 
 function LayoutContent({ children }) {
     const { viewMode, isInitialized } = useView();
@@ -48,13 +57,19 @@ function LayoutContent({ children }) {
     );
 }
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+    const session = await getServerSession(authOptions);
+
     return (
         <html lang="pt-BR">
-            <body>
-                <Providers>
-                    <LayoutContent>{children}</LayoutContent>
-                    <FloatingCompareIndicator />
+            <body className={`${inter.className} ${outfit.variable}`}>
+                <Providers session={session}>
+                    <CartProvider>
+                        <CompareProvider>
+                            {children}
+                            <ChatWidget />
+                        </CompareProvider>
+                    </CartProvider>
                 </Providers>
             </body>
         </html>
