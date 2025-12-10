@@ -1,13 +1,26 @@
 "use client";
 
-import { Suspense } from 'react';
+import { Suspense, useEffect, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, useGLTF, Stage, PresentationControls } from '@react-three/drei';
+import { OrbitControls, useGLTF, Stage } from '@react-three/drei';
 import { useState } from 'react';
 
-function Model({ url, modelType }) {
+function Model({ url, modelType, customColor }) {
     // Load the 3D model based on type
     const { scene } = useGLTF(url);
+
+    // Apply custom color to all meshes if provided
+    useEffect(() => {
+        if (customColor && scene) {
+            scene.traverse((child) => {
+                if (child.isMesh) {
+                    // Clone material to avoid affecting other instances
+                    child.material = child.material.clone();
+                    child.material.color.set(customColor);
+                }
+            });
+        }
+    }, [customColor, scene]);
 
     return <primitive object={scene} />;
 }
@@ -27,10 +40,13 @@ export default function Model3DViewer({
     autoRotate = false,
     showControls = true,
     fallbackImage = null,
-    height = '500px'
+    height = '500px',
+    customColor = null,
+    onModelLoaded = null
 }) {
     const [error, setError] = useState(false);
     const [isFullscreen, setIsFullscreen] = useState(false);
+    const canvasRef = useRef(null);
 
     if (!modelUrl || error) {
         if (fallbackImage) {
@@ -64,6 +80,20 @@ export default function Model3DViewer({
         setIsFullscreen(!isFullscreen);
     };
 
+    const exportScreenshot = () => {
+        if (canvasRef.current) {
+            const canvas = canvasRef.current.querySelector('canvas');
+            if (canvas) {
+                const dataURL = canvas.toDataURL('image/png');
+                if (onModelLoaded) {
+                    onModelLoaded(dataURL);
+                }
+                return dataURL;
+            }
+        }
+        return null;
+    };
+
     return (
         <div style={{
             width: '100%',
@@ -75,7 +105,7 @@ export default function Model3DViewer({
             background: isFullscreen ? '#000' : '#f0f0f0',
             borderRadius: isFullscreen ? 0 : 'var(--radius)',
             overflow: 'hidden'
-        }}>
+        }} ref={canvasRef}>
             <Canvas
                 camera={{ position: [0, 0, 5], fov: 50 }}
                 style={{ width: '100%', height: '100%' }}
@@ -83,7 +113,7 @@ export default function Model3DViewer({
             >
                 <Suspense fallback={<LoadingFallback />}>
                     <Stage environment="city" intensity={0.6}>
-                        <Model url={modelUrl} modelType={modelType} />
+                        <Model url={modelUrl} modelType={modelType} customColor={customColor} />
                     </Stage>
                 </Suspense>
 
@@ -124,6 +154,25 @@ export default function Model3DViewer({
                 >
                     {isFullscreen ? '🗙' : '⛶'} {isFullscreen ? 'Fechar' : 'Fullscreen'}
                 </button>
+
+                {onModelLoaded && (
+                    <button
+                        onClick={exportScreenshot}
+                        style={{
+                            padding: '0.5rem 1rem',
+                            background: 'rgba(102, 126, 234, 0.9)',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: 'var(--radius)',
+                            cursor: 'pointer',
+                            fontSize: '0.9rem',
+                            backdropFilter: 'blur(10px)'
+                        }}
+                        title="Exportar Screenshot"
+                    >
+                        📸 Exportar
+                    </button>
+                )}
             </div>
 
             {/* Instructions */}
