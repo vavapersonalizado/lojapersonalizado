@@ -21,7 +21,9 @@ export default function NewProductPage() {
         htmlContent: '',
         isCustomizable: false,
         model3D: '',
-        modelType: ''
+        modelType: '',
+        printWidth: '',
+        printHeight: ''
     });
 
     const loadCategories = () => {
@@ -261,6 +263,38 @@ export default function NewProductPage() {
                             <p style={{ fontSize: '0.8rem', color: '#000000', marginLeft: '1.5rem' }}>
                                 Se marcado, o cliente poderá adicionar fotos, textos e adesivos a este produto.
                             </p>
+                        </div>
+
+                        {/* Print Dimensions */}
+                        <div style={{ marginTop: '1.5rem', padding: '1rem', background: '#f9f9f9', borderRadius: 'var(--radius)', border: '1px solid #e0e0e0' }}>
+                            <h3 style={{ fontSize: '1rem', fontWeight: 'bold', marginBottom: '0.75rem' }}>📏 Dimensões para Impressão</h3>
+                            <p style={{ fontSize: '0.8rem', color: '#666', marginBottom: '1rem' }}>
+                                Configure as dimensões reais do produto para gerar arquivos de impressão com tamanho correto.
+                            </p>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                <div>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Largura (cm)</label>
+                                    <input
+                                        type="number"
+                                        step="0.1"
+                                        value={formData.printWidth}
+                                        onChange={e => setFormData({ ...formData, printWidth: e.target.value })}
+                                        placeholder="10.0"
+                                        style={{ width: '100%', padding: '0.5rem', border: '1px solid #ddd', borderRadius: '4px' }}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Altura (cm)</label>
+                                    <input
+                                        type="number"
+                                        step="0.1"
+                                        value={formData.printHeight}
+                                        onChange={e => setFormData({ ...formData, printHeight: e.target.value })}
+                                        placeholder="10.0"
+                                        style={{ width: '100%', padding: '0.5rem', border: '1px solid #ddd', borderRadius: '4px' }}
+                                    />
+                                </div>
+                            </div>
                         </div>
                     </div>
 

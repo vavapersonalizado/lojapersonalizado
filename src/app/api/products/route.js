@@ -41,7 +41,7 @@ export async function POST(request) {
 
     try {
         const body = await request.json();
-        const { name, sku, price, description, categoryId, images, stock, htmlContent, isCustomizable } = body;
+        const { name, sku, price, description, categoryId, images, stock, htmlContent, isCustomizable, printWidth, printHeight } = body;
 
         // Validate required fields
         if (!name || !price || !categoryId) {
@@ -62,7 +62,9 @@ export async function POST(request) {
                 stock: stock ? parseInt(stock) : 0,
                 visible: true, // New products are visible by default
                 htmlContent,
-                isCustomizable: isCustomizable || false
+                isCustomizable: isCustomizable || false,
+                printWidth: printWidth ? parseFloat(printWidth) : null,
+                printHeight: printHeight ? parseFloat(printHeight) : null
             },
         });
 

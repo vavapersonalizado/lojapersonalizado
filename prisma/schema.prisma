@@ -101,6 +101,8 @@ model Product {
   htmlContent String?    // For external banners/embeds
   model3D     String?    // URL of 3D model file (.glb, .gltf, .obj, .fbx)
   modelType   String?    // Type: 'glb', 'gltf', 'obj', 'fbx'
+  printWidth  Float?     // Width for printing (cm)
+  printHeight Float?     // Height for printing (cm)
   categoryId  String
   category    Category   @relation(fields: [categoryId], references: [id])
   cartItems   CartItem[]
