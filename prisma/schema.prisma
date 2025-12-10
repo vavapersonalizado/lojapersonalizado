@@ -99,6 +99,8 @@ model Product {
   visible     Boolean    @default(true) // Show to clients
   isCustomizable Boolean @default(false) // Can be customized by user
   htmlContent String?    // For external banners/embeds
+  model3D     String?    // URL of 3D model file (.glb, .gltf, .obj, .fbx)
+  modelType   String?    // Type: 'glb', 'gltf', 'obj', 'fbx'
   categoryId  String
   category    Category   @relation(fields: [categoryId], references: [id])
   cartItems   CartItem[]
