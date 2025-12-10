@@ -15,12 +15,17 @@ export async function GET(request) {
     try {
         const { searchParams } = new URL(request.url);
         const type = searchParams.get('type');
-        const startDate = searchParams.get('startDate');
-        const endDate = searchParams.get('endDate');
+        const startDate = searchParams.get('startDate'); // Para filtro de criação de itens (existente)
+        const endDate = searchParams.get('endDate');     // Para filtro de criação de itens (existente)
+
+        // Novos parâmetros para "Datas Personalizadas"
+        const customStartDateStr = searchParams.get('customStartDate');
+        const customEndDateStr = searchParams.get('customEndDate');
+
         const limit = parseInt(searchParams.get('limit') || '100');
         const sortBy = searchParams.get('sortBy') || 'views';
 
-        // Construir filtros
+        // Construir filtros para buscar os ITENS (Analytics)
         const where = {};
         if (type) where.type = type;
         if (startDate || endDate) {
@@ -29,25 +34,44 @@ export async function GET(request) {
             if (endDate) where.createdAt.lte = new Date(endDate);
         }
 
-        // Buscar dados
+        // Buscar dados (Itens)
         const analytics = await prisma.analytics.findMany({
             where,
             orderBy: { [sortBy]: 'desc' },
             take: limit
         });
 
-        // Buscar eventos dos últimos 30 dias para os itens retornados
+        // Buscar eventos para calcular estatísticas
         const analyticsIds = analytics.map(a => a.id);
-        const thirtyDaysAgo = new Date();
+
+        // Definir datas de corte
+        const now = new Date();
+        const thirtyDaysAgo = new Date(now);
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-        const sevenDaysAgo = new Date();
+        const sevenDaysAgo = new Date(now);
         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+        const oneDayAgo = new Date(now);
+        oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+
+        // Datas para o intervalo personalizado
+        let customStart = null;
+        let customEnd = null;
+        if (customStartDateStr) customStart = new Date(customStartDateStr);
+        if (customEndDateStr) customEnd = new Date(customEndDateStr);
+
+        // Determinar a data mais antiga necessária para buscar eventos
+        // Precisamos buscar eventos desde o mais antigo entre: 30 dias atrás OU customStart
+        let oldestDateNeeded = thirtyDaysAgo;
+        if (customStart && customStart < oldestDateNeeded) {
+            oldestDateNeeded = customStart;
+        }
 
         const events = await prisma.analyticsEvent.findMany({
             where: {
                 analyticsId: { in: analyticsIds },
-                createdAt: { gte: thirtyDaysAgo },
+                createdAt: { gte: oldestDateNeeded }, // Otimização: buscar apenas o necessário
                 type: 'view' // Apenas visualizações
             },
             select: {
@@ -59,14 +83,39 @@ export async function GET(request) {
         // Calcular stats por item
         const statsMap = events.reduce((acc, event) => {
             if (!acc[event.analyticsId]) {
-                acc[event.analyticsId] = { weekly: 0, monthly: 0 };
+                acc[event.analyticsId] = { daily: 0, weekly: 0, monthly: 0, custom: 0 };
             }
 
             const eventDate = new Date(event.createdAt);
+
+            // 24 Horas
+            if (eventDate >= oneDayAgo) {
+                acc[event.analyticsId].daily++;
+            }
+
+            // 7 Dias
             if (eventDate >= sevenDaysAgo) {
                 acc[event.analyticsId].weekly++;
             }
-            acc[event.analyticsId].monthly++;
+
+            // 30 Dias (Considerando que a query já filtrou >= 30 dias ou customStart)
+            // Mas precisamos garantir que está dentro dos 30 dias para a coluna "30 Dias"
+            if (eventDate >= thirtyDaysAgo) {
+                acc[event.analyticsId].monthly++;
+            }
+
+            // Customizado
+            if (customStart) {
+                if (customEnd) {
+                    if (eventDate >= customStart && eventDate <= customEnd) {
+                        acc[event.analyticsId].custom++;
+                    }
+                } else {
+                    if (eventDate >= customStart) {
+                        acc[event.analyticsId].custom++;
+                    }
+                }
+            }
 
             return acc;
         }, {});
@@ -74,8 +123,10 @@ export async function GET(request) {
         // Anexar stats aos itens
         const analyticsWithStats = analytics.map(item => ({
             ...item,
+            dailyViews: statsMap[item.id]?.daily || 0,
             weeklyViews: statsMap[item.id]?.weekly || 0,
-            monthlyViews: statsMap[item.id]?.monthly || 0
+            monthlyViews: statsMap[item.id]?.monthly || 0,
+            customViews: statsMap[item.id]?.custom || 0
         }));
 
         // Estatísticas gerais

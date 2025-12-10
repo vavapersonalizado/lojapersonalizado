@@ -19,6 +19,10 @@ export default function AnalyticsPage() {
     // Filtros
     const [dateRange, setDateRange] = useState('all');
 
+    // Filtros Personalizados
+    const [customStartDate, setCustomStartDate] = useState('');
+    const [customEndDate, setCustomEndDate] = useState('');
+
     useEffect(() => {
         if (status === 'unauthenticated') {
             router.push('/');
@@ -29,7 +33,7 @@ export default function AnalyticsPage() {
             fetchData();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [status, session, dateRange]);
+    }, [status, session, dateRange, customStartDate, customEndDate]);
 
     const fetchData = async () => {
         setLoading(true);
@@ -55,6 +59,10 @@ export default function AnalyticsPage() {
                 params.append('startDate', startDate.toISOString());
                 params.append('endDate', endDate.toISOString());
             }
+
+            // Adicionar datas personalizadas se existirem
+            if (customStartDate) params.append('customStartDate', customStartDate);
+            if (customEndDate) params.append('customEndDate', customEndDate);
 
             const res = await fetch(`/api/analytics/stats?${params}`);
             const data = await res.json();
@@ -153,14 +161,16 @@ export default function AnalyticsPage() {
     };
 
     const exportCSV = () => {
-        const headers = ['Nome', 'Código', 'Tipo', 'Visualizações Originais', 'Views (7 dias)', 'Views (30 dias)', 'Visualizações Editadas', 'Usos', 'Criado Em', 'Última Visualização'];
+        const headers = ['Nome', 'Código', 'Tipo', 'Visualizações Originais', 'Views (24h)', 'Views (7 dias)', 'Views (30 dias)', 'Views Personalizadas', 'Visualizações Editadas', 'Usos', 'Criado Em', 'Última Visualização'];
         const rows = analytics.map(item => [
             item.itemName,
             item.itemCode || '-',
             item.type,
             item.views,
+            item.dailyViews || 0,
             item.weeklyViews || 0,
             item.monthlyViews || 0,
+            item.customViews || 0,
             item.editedViews || item.views,
             item.uses,
             new Date(item.createdAt).toLocaleDateString(),
@@ -235,10 +245,10 @@ export default function AnalyticsPage() {
             )}
 
             {/* Filtros */}
-            <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap', alignItems: 'flex-end' }}>
                 <div>
                     <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: '500', color: '#000' }}>
-                        Período
+                        Período (Criação)
                     </label>
                     <select
                         value={dateRange}
@@ -251,17 +261,37 @@ export default function AnalyticsPage() {
                         <option value="year">Último Ano</option>
                     </select>
                 </div>
+
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', borderLeft: '1px solid #ccc', paddingLeft: '1rem' }}>
+                    <div>
+                        <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: '500', color: '#000' }}>
+                            Início (Personalizado)
+                        </label>
+                        <input
+                            type="date"
+                            value={customStartDate}
+                            onChange={(e) => setCustomStartDate(e.target.value)}
+                            style={{ padding: '0.4rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
+                        />
+                    </div>
+                    <div>
+                        <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: '500', color: '#000' }}>
+                            Fim (Personalizado)
+                        </label>
+                        <input
+                            type="date"
+                            value={customEndDate}
+                            onChange={(e) => setCustomEndDate(e.target.value)}
+                            style={{ padding: '0.4rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
+                        />
+                    </div>
+                </div>
             </div>
 
             {/* Sections */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                 {sectionOrder.map((type, index) => {
                     const items = groupedAnalytics[type] || [];
-                    // Show section if it has items OR if it's in the order list (so user can reorder empty sections too, or maybe not?)
-                    // Let's show only if items exist to avoid clutter, but then user can't reorder empty sections.
-                    // User asked to "choose order of lists".
-                    // Let's show all sections defined in order, even if empty, so they can be reordered?
-                    // Or maybe just show if items exist.
                     if (items.length === 0) return null;
 
                     const isCollapsed = collapsedSections[type];
@@ -319,8 +349,12 @@ export default function AnalyticsPage() {
                                             <tr style={{ borderBottom: '1px solid var(--border)', background: '#fff' }}>
                                                 <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600' }}>Nome</th>
                                                 <th style={{ padding: '1rem', textAlign: 'center', fontWeight: '600' }}>Views Originais</th>
+                                                <th style={{ padding: '1rem', textAlign: 'center', fontWeight: '600', background: '#e6f7ff' }}>24h</th>
                                                 <th style={{ padding: '1rem', textAlign: 'center', fontWeight: '600' }}>7 Dias</th>
                                                 <th style={{ padding: '1rem', textAlign: 'center', fontWeight: '600' }}>30 Dias</th>
+                                                {(customStartDate || customEndDate) && (
+                                                    <th style={{ padding: '1rem', textAlign: 'center', fontWeight: '600', background: '#fff7e6' }}>Personalizado</th>
+                                                )}
                                                 <th style={{ padding: '1rem', textAlign: 'center', fontWeight: '600' }}>Views Editadas</th>
                                                 <th style={{ padding: '1rem', textAlign: 'center', fontWeight: '600' }}>Ações</th>
                                             </tr>
@@ -335,12 +369,20 @@ export default function AnalyticsPage() {
                                                     <td style={{ padding: '1rem', textAlign: 'center', color: '#666' }}>
                                                         {item.views}
                                                     </td>
+                                                    <td style={{ padding: '1rem', textAlign: 'center', color: '#000', fontWeight: 'bold', background: '#e6f7ff' }}>
+                                                        {item.dailyViews || 0}
+                                                    </td>
                                                     <td style={{ padding: '1rem', textAlign: 'center', color: '#666' }}>
                                                         {item.weeklyViews || 0}
                                                     </td>
                                                     <td style={{ padding: '1rem', textAlign: 'center', color: '#666' }}>
                                                         {item.monthlyViews || 0}
                                                     </td>
+                                                    {(customStartDate || customEndDate) && (
+                                                        <td style={{ padding: '1rem', textAlign: 'center', color: '#000', fontWeight: 'bold', background: '#fff7e6' }}>
+                                                            {item.customViews || 0}
+                                                        </td>
+                                                    )}
                                                     <td style={{ padding: '1rem', textAlign: 'center' }}>
                                                         {editingId === item.id ? (
                                                             <input
