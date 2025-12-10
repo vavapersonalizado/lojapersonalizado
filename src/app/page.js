@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSession } from "next-auth/react";
 import Link from 'next/link';
 import ProductCard from '@/components/ProductCard';
+import OnlineCounter from '@/components/OnlineCounter';
 
 export default function Home() {
     const { data: session } = useSession();
@@ -57,6 +58,11 @@ export default function Home() {
                     }}>
                         Encontre os melhores personalizados com a melhor qualidade.
                     </p>
+
+                    {/* Online Counter */}
+                    <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'center' }}>
+                        <OnlineCounter />
+                    </div>
                 </div>
 
                 {/* Decorative Circles */}

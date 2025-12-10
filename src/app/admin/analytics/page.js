@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import OnlineCounter from '@/components/OnlineCounter';
 
 export default function AnalyticsPage() {
     const { data: session, status } = useSession();
@@ -225,6 +226,10 @@ export default function AnalyticsPage() {
                     <div className="card" style={{ textAlign: 'center' }}>
                         <h3>Total Usos (Cupons)</h3>
                         <p style={{ fontSize: '2rem', fontWeight: 'bold' }}>{summary.totalUses}</p>
+                    </div>
+                    <div className="card" style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                        <h3 style={{ marginBottom: '1rem' }}>Usuários Online</h3>
+                        <OnlineCounter />
                     </div>
                 </div>
             )}

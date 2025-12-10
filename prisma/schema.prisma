@@ -314,3 +314,13 @@ model Partner {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model OnlineUser {
+  id          String   @id @default(cuid())
+  sessionId   String   @unique
+  isAdmin     Boolean  @default(false)
+  lastSeen    DateTime @default(now())
+  
+  @@index([lastSeen])
+  @@index([isAdmin])
+}
