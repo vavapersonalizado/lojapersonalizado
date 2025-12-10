@@ -101,6 +101,7 @@ export default function Sidebar() {
             }))
         },
         { name: 'Eventos', path: '/events', settingKey: 'showEvents' },
+        { name: 'Blog', path: '/blog', settingKey: 'showBlog' },
         { name: 'Promoções', path: '/promotions', settingKey: 'showPromotions' },
         { name: 'Parceiros', path: '/partners', settingKey: 'showPartners' },
         { name: 'Patrocinadores', path: '/sponsors', settingKey: 'showSponsors' },
@@ -199,6 +200,7 @@ export default function Sidebar() {
                                 { name: 'Eventos', path: '/admin/events', icon: '📅' },
                                 { name: 'Propagandas', path: '/admin/ads', icon: '📢' },
                                 { name: 'Chat Suporte', path: '/admin/chat', icon: '💬' },
+                                { name: 'Blog Social', path: '/admin/blog', icon: '📱' },
                                 { name: 'Analytics', path: '/admin/analytics', icon: '📊' },
                                 { name: 'Backups', path: '/admin/backups', icon: '💾' },
                                 { name: 'Config', path: '/admin/settings', icon: '⚙️' }
