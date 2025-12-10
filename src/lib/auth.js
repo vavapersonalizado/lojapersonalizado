@@ -20,6 +20,9 @@ export const authOptions = {
             }
         }),
     ],
+    session: {
+        strategy: "jwt", // Force JWT strategy for middleware compatibility
+    },
     secret: process.env.NEXTAUTH_SECRET,
     pages: {
         signIn: '/auth/signin',
@@ -33,18 +36,32 @@ export const authOptions = {
         },
     },
     callbacks: {
-        async session({ session, token, user }) {
-            if (session?.user) {
-                session.user.id = token.sub || user?.id;
-                session.user.role = token.role || user?.role;
+        async session({ session, token }) {
+            // With JWT strategy, we get token instead of user
+            if (session?.user && token) {
+                session.user.id = token.sub;
+                session.user.role = token.role;
             }
             return session;
         },
-        async jwt({ token, user, account }) {
+        async jwt({ token, user, trigger }) {
+            // On sign in, add user info to token
             if (user) {
                 token.id = user.id;
                 token.role = user.role;
             }
+
+            // On update, refresh user data from database
+            if (trigger === "update") {
+                const dbUser = await prisma.user.findUnique({
+                    where: { id: token.sub },
+                    select: { role: true }
+                });
+                if (dbUser) {
+                    token.role = dbUser.role;
+                }
+            }
+
             return token;
         },
     },
