@@ -11,6 +11,7 @@ export default function OrdersPage() {
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('active'); // 'active' or 'history'
     const [expandedOrderId, setExpandedOrderId] = useState(null);
+    const [editingNotes, setEditingNotes] = useState({}); // { orderId: notesText }
 
     useEffect(() => {
         if (status === 'unauthenticated') {
@@ -92,6 +93,23 @@ export default function OrdersPage() {
 
     const toggleExpand = (orderId) => {
         setExpandedOrderId(expandedOrderId === orderId ? null : orderId);
+    };
+
+    const updateOrderNotes = async (orderId, notes) => {
+        try {
+            const res = await fetch(`/api/orders/${orderId}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ notes })
+            });
+
+            if (res.ok) {
+                fetchOrders();
+                setEditingNotes({ ...editingNotes, [orderId]: notes });
+            }
+        } catch (error) {
+            console.error('Error updating notes:', error);
+        }
     };
 
     const filteredOrders = orders.filter(order => {
@@ -214,8 +232,8 @@ export default function OrdersPage() {
                                             />
                                             <span style={{ fontSize: '0.9rem' }}>
                                                 {order.contactedAt
-                                                    ? `Contato: ${new Date(order.contactedAt).toLocaleDateString()} ${new Date(order.contactedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
-                                                    : 'Contatar Cliente'}
+                                                    ? `✅ Cliente Contatado (${new Date(order.contactedAt).toLocaleDateString()} ${new Date(order.contactedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})`
+                                                    : '⏳ Cliente Contatado'}
                                             </span>
                                         </label>
                                     </div>
@@ -278,15 +296,16 @@ export default function OrdersPage() {
                                                     padding: '1rem',
                                                     background: '#f5f5f5',
                                                     borderRadius: 'var(--radius)',
-                                                    border: item.ready ? '1px solid green' : '1px solid transparent'
+                                                    border: item.ready ? '2px solid green' : '1px solid #ddd'
                                                 }}>
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                                        {item.customization?.preview && (
-                                                            <div style={{ width: '50px', height: '50px', border: '1px solid #ddd', borderRadius: '4px', overflow: 'hidden' }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flex: 1 }}>
+                                                        {/* Product Thumbnail */}
+                                                        {item.customization?.preview ? (
+                                                            <div style={{ width: '60px', height: '60px', border: '2px solid var(--primary)', borderRadius: '4px', overflow: 'hidden', flexShrink: 0 }}>
                                                                 <img
                                                                     src={item.customization.preview}
                                                                     alt="Customization"
-                                                                    style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                                                                    style={{ width: '100%', height: '100%', objectFit: 'contain', cursor: 'pointer' }}
                                                                     onClick={() => {
                                                                         const w = window.open("");
                                                                         w.document.write('<img src="' + item.customization.preview + '" style="max-width: 100%"/>');
@@ -294,10 +313,30 @@ export default function OrdersPage() {
                                                                     title="Clique para ampliar"
                                                                 />
                                                             </div>
+                                                        ) : item.product?.images?.[0] ? (
+                                                            <div style={{ width: '60px', height: '60px', border: '1px solid #ddd', borderRadius: '4px', overflow: 'hidden', flexShrink: 0 }}>
+                                                                <img
+                                                                    src={item.product.images[0]}
+                                                                    alt={item.name}
+                                                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                                                />
+                                                            </div>
+                                                        ) : (
+                                                            <div style={{ width: '60px', height: '60px', border: '1px solid #ddd', borderRadius: '4px', background: '#e0e0e0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                                                <span style={{ fontSize: '0.7rem', color: '#666' }}>Sem foto</span>
+                                                            </div>
                                                         )}
-                                                        <div>
-                                                            <span style={{ fontWeight: 'bold' }}>{item.name}</span>
-                                                            <span style={{ marginLeft: '1rem', color: '#000000' }}>x{item.quantity}</span>
+
+                                                        <div style={{ flex: 1 }}>
+                                                            <div style={{ fontWeight: 'bold', marginBottom: '0.25rem' }}>{item.name}</div>
+                                                            {item.product?.sku && (
+                                                                <div style={{ fontSize: '0.8rem', color: '#666', marginBottom: '0.25rem' }}>
+                                                                    Código: {item.product.sku}
+                                                                </div>
+                                                            )}
+                                                            <div style={{ fontSize: '0.9rem', color: '#000', fontWeight: '600' }}>
+                                                                Quantidade: <span style={{ fontSize: '1.1rem', color: 'var(--primary)' }}>×{item.quantity}</span>
+                                                            </div>
                                                             {item.customization && (
                                                                 <div style={{ fontSize: '0.8rem', color: 'var(--primary)', marginTop: '0.25rem' }}>
                                                                     🎨 Produto Personalizado
@@ -306,9 +345,9 @@ export default function OrdersPage() {
                                                         </div>
                                                     </div>
                                                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                                        <span>R$ {(item.price * item.quantity).toFixed(2)}</span>
+                                                        <span style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>R$ {(item.price * item.quantity).toFixed(2)}</span>
                                                         {activeTab === 'active' && (
-                                                            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', background: '#fff', padding: '0.25rem 0.5rem', borderRadius: '4px', border: '1px solid #ddd' }}>
+                                                            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', background: '#fff', padding: '0.5rem 0.75rem', borderRadius: '4px', border: '1px solid #ddd', whiteSpace: 'nowrap' }}>
                                                                 <input
                                                                     type="checkbox"
                                                                     checked={item.ready}
@@ -320,6 +359,35 @@ export default function OrdersPage() {
                                                     </div>
                                                 </div>
                                             ))}
+                                        </div>
+
+                                        {/* Observações */}
+                                        <div style={{ marginBottom: '2rem' }}>
+                                            <h3 style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>Observações</h3>
+                                            <textarea
+                                                value={editingNotes[order.id] !== undefined ? editingNotes[order.id] : (order.notes || '')}
+                                                onChange={(e) => setEditingNotes({ ...editingNotes, [order.id]: e.target.value })}
+                                                placeholder="Adicione observações sobre este pedido..."
+                                                style={{
+                                                    width: '100%',
+                                                    minHeight: '80px',
+                                                    padding: '0.75rem',
+                                                    borderRadius: 'var(--radius)',
+                                                    border: '1px solid var(--border)',
+                                                    fontSize: '0.95rem',
+                                                    fontFamily: 'inherit',
+                                                    resize: 'vertical'
+                                                }}
+                                            />
+                                            {editingNotes[order.id] !== undefined && editingNotes[order.id] !== (order.notes || '') && (
+                                                <button
+                                                    onClick={() => updateOrderNotes(order.id, editingNotes[order.id])}
+                                                    className="btn btn-primary"
+                                                    style={{ marginTop: '0.5rem', padding: '0.5rem 1rem' }}
+                                                >
+                                                    💾 Salvar Observações
+                                                </button>
+                                            )}
                                         </div>
 
                                         {activeTab === 'active' && (

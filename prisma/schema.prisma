@@ -122,6 +122,7 @@ model Order {
   finalTotal   Float
   couponCode   String?
   status       String      @default("pending") // pending, processing, completed, cancelled
+  notes        String?     @db.Text // Admin notes/observations about the order
   contactedAt  DateTime?   // When seller contacted client
   completedAt  DateTime?   // When order was finished
   createdAt    DateTime    @default(now())
