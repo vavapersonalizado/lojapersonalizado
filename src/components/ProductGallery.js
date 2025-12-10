@@ -1,9 +1,6 @@
 "use client";
 
 import { useState } from 'react';
-import dynamic from 'next/dynamic';
-
-const ModelViewer = dynamic(() => import('./ModelViewer'), { ssr: false });
 
 export default function ProductGallery({ images = [], name }) {
     const [selectedIndex, setSelectedIndex] = useState(0);
@@ -49,18 +46,25 @@ export default function ProductGallery({ images = [], name }) {
             <div style={{
                 width: '100%',
                 aspectRatio: '1',
-                background: '#f5f5f5', // Light background for 3D models
+                background: '#f5f5f5',
                 borderRadius: 'var(--radius)',
                 overflow: 'hidden',
                 position: 'relative',
                 border: '1px solid var(--border)'
             }}>
                 {getMediaType(selectedMedia) === '3d' ? (
-                    <ModelViewer
-                        src={getMediaUrl(selectedMedia)}
-                        alt={name}
-                        style={{ width: '100%', height: '100%' }}
-                    />
+                    <div style={{
+                        width: '100%',
+                        height: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexDirection: 'column',
+                        color: '#666'
+                    }}>
+                        <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>🧊</div>
+                        <div>Modelo 3D</div>
+                    </div>
                 ) : getMediaType(selectedMedia) === 'video' ? (
                     <video
                         src={getMediaUrl(selectedMedia)}
