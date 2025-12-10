@@ -6,46 +6,70 @@ import prisma from '@/lib/prisma';
 export async function POST(request) {
     const session = await getServerSession(authOptions);
 
-    if (!session?.user) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     try {
         const body = await request.json();
-        const { items, couponCode, discount, total, finalTotal } = body;
+        const { items, couponCode, discount, total, finalTotal, guestData } = body;
 
         if (!items || items.length === 0) {
             return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
         }
 
+        // Validate guest data if no session
+        if (!session?.user) {
+            if (!guestData || !guestData.name || !guestData.email || !guestData.phone) {
+                return NextResponse.json({
+                    error: "Nome, email e telefone são obrigatórios para pedidos sem login"
+                }, { status: 400 });
+            }
+        }
+
+        // Prepare order data
+        const orderData = {
+            total,
+            discount: discount || 0,
+            finalTotal,
+            couponCode: couponCode || null,
+            status: 'pending',
+            items: {
+                create: items.map(item => ({
+                    productId: item.productId,
+                    name: item.name,
+                    price: item.price,
+                    quantity: item.quantity,
+                    customization: item.customization || null
+                }))
+            }
+        };
+
+        // Add user or guest data
+        if (session?.user) {
+            orderData.userId = session.user.id;
+        } else {
+            orderData.guestName = guestData.name;
+            orderData.guestEmail = guestData.email;
+            orderData.guestPhone = guestData.phone;
+            orderData.guestAddress = {
+                postalCode: guestData.postalCode || '',
+                prefecture: guestData.prefecture || '',
+                city: guestData.city || '',
+                town: guestData.town || '',
+                street: guestData.street || '',
+                building: guestData.building || ''
+            };
+        }
+
         // Create order with items
         const order = await prisma.order.create({
-            data: {
-                userId: session.user.id,
-                total,
-                discount: discount || 0,
-                finalTotal,
-                couponCode: couponCode || null,
-                status: 'pending',
-                items: {
-                    create: items.map(item => ({
-                        productId: item.productId,
-                        name: item.name,
-                        price: item.price,
-                        quantity: item.quantity,
-                        customization: item.customization || null
-                    }))
-                }
-            },
+            data: orderData,
             include: {
                 items: true,
-                user: {
+                user: session?.user ? {
                     select: {
                         name: true,
                         email: true,
                         phone: true
                     }
-                }
+                } : false
             }
         });
 

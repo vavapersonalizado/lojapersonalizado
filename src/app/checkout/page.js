@@ -22,11 +22,22 @@ export default function CheckoutPage() {
     const [userDiscount, setUserDiscount] = useState({ eligible: false, percentage: 0, classification: '' });
     const [loadingUser, setLoadingUser] = useState(true);
 
+    // Guest checkout data
+    const [guestData, setGuestData] = useState({
+        name: '',
+        email: '',
+        phone: '',
+        postalCode: '',
+        prefecture: '',
+        city: '',
+        town: '',
+        street: '',
+        building: ''
+    });
+    const [guestErrors, setGuestErrors] = useState({});
+
     useEffect(() => {
-        if (status === 'unauthenticated') {
-            router.push('/');
-            return;
-        }
+        // Allow unauthenticated users for guest checkout
         if (cart.length === 0 && !orderSuccess) {
             router.push('/products');
             return;
@@ -173,7 +184,18 @@ export default function CheckoutPage() {
     const totals = calculateTotals();
 
     const handleSubmitOrder = async () => {
-        if (!session?.user) return;
+        // Validate guest data if not logged in
+        if (!session?.user) {
+            const errors = {};
+            if (!guestData.name.trim()) errors.name = 'Nome é obrigatório';
+            if (!guestData.email.trim()) errors.email = 'Email é obrigatório';
+            if (!guestData.phone.trim()) errors.phone = 'Telefone é obrigatório';
+
+            if (Object.keys(errors).length > 0) {
+                setGuestErrors(errors);
+                return;
+            }
+        }
 
         setSubmitting(true);
 
@@ -192,7 +214,8 @@ export default function CheckoutPage() {
                     couponCode: couponData ? couponCode : null,
                     discount: totals.totalDiscount,
                     total: totals.subtotal,
-                    finalTotal: totals.finalTotal
+                    finalTotal: totals.finalTotal,
+                    guestData: !session?.user ? guestData : null
                 })
             });
 
@@ -251,6 +274,186 @@ export default function CheckoutPage() {
             <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '2rem' }}>
                 {t('checkout.title')}
             </h1>
+
+            {/* Guest Checkout Form */}
+            {!session?.user && (
+                <div style={{
+                    background: 'var(--card)',
+                    borderRadius: 'var(--radius)',
+                    border: '1px solid var(--border)',
+                    padding: '1.5rem',
+                    marginBottom: '2rem'
+                }}>
+                    <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '1rem' }}>
+                        Seus Dados
+                    </h2>
+                    <p style={{ fontSize: '0.9rem', color: '#000000', marginBottom: '1rem' }}>
+                        Preencha seus dados para finalizar o pedido
+                    </p>
+
+                    <div style={{ display: 'grid', gap: '1rem' }}>
+                        {/* Nome */}
+                        <div>
+                            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+                                Nome <span style={{ color: 'red' }}>*</span>
+                            </label>
+                            <input
+                                type="text"
+                                value={guestData.name}
+                                onChange={(e) => {
+                                    setGuestData({ ...guestData, name: e.target.value });
+                                    setGuestErrors({ ...guestErrors, name: '' });
+                                }}
+                                style={{
+                                    width: '100%',
+                                    padding: '0.75rem',
+                                    borderRadius: 'var(--radius)',
+                                    border: `1px solid ${guestErrors.name ? 'red' : 'var(--border)'}`,
+                                    fontSize: '1rem'
+                                }}
+                                placeholder="Seu nome completo"
+                            />
+                            {guestErrors.name && (
+                                <p style={{ color: 'red', fontSize: '0.85rem', marginTop: '0.25rem' }}>
+                                    {guestErrors.name}
+                                </p>
+                            )}
+                        </div>
+
+                        {/* Email */}
+                        <div>
+                            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+                                Email <span style={{ color: 'red' }}>*</span>
+                            </label>
+                            <input
+                                type="email"
+                                value={guestData.email}
+                                onChange={(e) => {
+                                    setGuestData({ ...guestData, email: e.target.value });
+                                    setGuestErrors({ ...guestErrors, email: '' });
+                                }}
+                                style={{
+                                    width: '100%',
+                                    padding: '0.75rem',
+                                    borderRadius: 'var(--radius)',
+                                    border: `1px solid ${guestErrors.email ? 'red' : 'var(--border)'}`,
+                                    fontSize: '1rem'
+                                }}
+                                placeholder="seu@email.com"
+                            />
+                            {guestErrors.email && (
+                                <p style={{ color: 'red', fontSize: '0.85rem', marginTop: '0.25rem' }}>
+                                    {guestErrors.email}
+                                </p>
+                            )}
+                        </div>
+
+                        {/* Telefone */}
+                        <div>
+                            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+                                Telefone <span style={{ color: 'red' }}>*</span>
+                            </label>
+                            <input
+                                type="tel"
+                                value={guestData.phone}
+                                onChange={(e) => {
+                                    setGuestData({ ...guestData, phone: e.target.value });
+                                    setGuestErrors({ ...guestErrors, phone: '' });
+                                }}
+                                style={{
+                                    width: '100%',
+                                    padding: '0.75rem',
+                                    borderRadius: 'var(--radius)',
+                                    border: `1px solid ${guestErrors.phone ? 'red' : 'var(--border)'}`,
+                                    fontSize: '1rem'
+                                }}
+                                placeholder="(00) 00000-0000"
+                            />
+                            {guestErrors.phone && (
+                                <p style={{ color: 'red', fontSize: '0.85rem', marginTop: '0.25rem' }}>
+                                    {guestErrors.phone}
+                                </p>
+                            )}
+                        </div>
+
+                        {/* Endereço (Opcional) */}
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                            <input
+                                type="text"
+                                placeholder="CEP (opcional)"
+                                value={guestData.postalCode}
+                                onChange={(e) => setGuestData({ ...guestData, postalCode: e.target.value })}
+                                style={{
+                                    padding: '0.75rem',
+                                    borderRadius: 'var(--radius)',
+                                    border: '1px solid var(--border)',
+                                    fontSize: '1rem'
+                                }}
+                            />
+                            <input
+                                type="text"
+                                placeholder="Província (opcional)"
+                                value={guestData.prefecture}
+                                onChange={(e) => setGuestData({ ...guestData, prefecture: e.target.value })}
+                                style={{
+                                    padding: '0.75rem',
+                                    borderRadius: 'var(--radius)',
+                                    border: '1px solid var(--border)',
+                                    fontSize: '1rem'
+                                }}
+                            />
+                        </div>
+                        <input
+                            type="text"
+                            placeholder="Cidade (opcional)"
+                            value={guestData.city}
+                            onChange={(e) => setGuestData({ ...guestData, city: e.target.value })}
+                            style={{
+                                padding: '0.75rem',
+                                borderRadius: 'var(--radius)',
+                                border: '1px solid var(--border)',
+                                fontSize: '1rem'
+                            }}
+                        />
+                        <input
+                            type="text"
+                            placeholder="Bairro (opcional)"
+                            value={guestData.town}
+                            onChange={(e) => setGuestData({ ...guestData, town: e.target.value })}
+                            style={{
+                                padding: '0.75rem',
+                                borderRadius: 'var(--radius)',
+                                border: '1px solid var(--border)',
+                                fontSize: '1rem'
+                            }}
+                        />
+                        <input
+                            type="text"
+                            placeholder="Rua (opcional)"
+                            value={guestData.street}
+                            onChange={(e) => setGuestData({ ...guestData, street: e.target.value })}
+                            style={{
+                                padding: '0.75rem',
+                                borderRadius: 'var(--radius)',
+                                border: '1px solid var(--border)',
+                                fontSize: '1rem'
+                            }}
+                        />
+                        <input
+                            type="text"
+                            placeholder="Edifício/Apartamento (opcional)"
+                            value={guestData.building}
+                            onChange={(e) => setGuestData({ ...guestData, building: e.target.value })}
+                            style={{
+                                padding: '0.75rem',
+                                borderRadius: 'var(--radius)',
+                                border: '1px solid var(--border)',
+                                fontSize: '1rem'
+                            }}
+                        />
+                    </div>
+                </div>
+            )}
 
             {/* Order Summary */}
             <div style={{
