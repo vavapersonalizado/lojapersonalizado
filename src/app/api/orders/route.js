@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import prisma from '@/lib/prisma';
+import { uploadPrintFile } from '@/lib/printFile';
 
 export async function POST(request) {
     const session = await getServerSession(authOptions);
@@ -33,7 +34,7 @@ export async function POST(request) {
             items: {
                 create: await Promise.all(items.map(async (item) => {
                     let printFileUrl = null;
-                    
+
                     // Upload print file to Cloudinary if exists
                     if (item.customization?.printFile) {
                         try {
@@ -47,7 +48,7 @@ export async function POST(request) {
                             // Continue without URL, printFile will be saved as backup
                         }
                     }
-                    
+
                     return {
                         productId: item.productId,
                         name: item.name,
