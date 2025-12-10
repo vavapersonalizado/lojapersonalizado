@@ -186,7 +186,10 @@ export default function OrdersPage() {
                                     onClick={() => toggleExpand(order.id)}
                                 >
                                     <div>
-                                        <div style={{ fontWeight: 'bold' }}>{order.user.name}</div>
+                                        <div style={{ fontWeight: 'bold' }}>
+                                            {order.user ? order.user.name : order.guestName}
+                                            {!order.user && <span style={{ fontSize: '0.75rem', color: '#666', marginLeft: '0.5rem' }}>(Convidado)</span>}
+                                        </div>
                                         <div style={{ fontSize: '0.875rem', color: '#000000' }}>
                                             {new Date(order.createdAt).toLocaleDateString()} {new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                         </div>
@@ -240,8 +243,22 @@ export default function OrdersPage() {
                                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '2rem' }}>
                                             <div>
                                                 <h3 style={{ fontWeight: 'bold', marginBottom: '1rem' }}>Detalhes do Cliente</h3>
-                                                <p><strong>Email:</strong> {order.user.email}</p>
-                                                <p><strong>Telefone:</strong> {order.user.phone || '-'}</p>
+                                                <p><strong>Nome:</strong> {order.user ? order.user.name : order.guestName}</p>
+                                                <p><strong>Email:</strong> {order.user ? order.user.email : order.guestEmail}</p>
+                                                <p><strong>Telefone:</strong> {order.user ? (order.user.phone || '-') : (order.guestPhone || '-')}</p>
+                                                {!order.user && order.guestAddress && (
+                                                    <div style={{ marginTop: '1rem' }}>
+                                                        <strong>Endereço:</strong>
+                                                        <p style={{ marginLeft: '1rem', fontSize: '0.9rem' }}>
+                                                            {order.guestAddress.postalCode && `CEP: ${order.guestAddress.postalCode}`}<br />
+                                                            {order.guestAddress.prefecture && `${order.guestAddress.prefecture}`}
+                                                            {order.guestAddress.city && `, ${order.guestAddress.city}`}<br />
+                                                            {order.guestAddress.town && `${order.guestAddress.town}`}
+                                                            {order.guestAddress.street && `, ${order.guestAddress.street}`}<br />
+                                                            {order.guestAddress.building && order.guestAddress.building}
+                                                        </p>
+                                                    </div>
+                                                )}
                                             </div>
                                             <div>
                                                 <h3 style={{ fontWeight: 'bold', marginBottom: '1rem' }}>Resumo Financeiro</h3>
