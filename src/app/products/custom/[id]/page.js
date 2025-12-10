@@ -196,101 +196,117 @@ export default function CustomProductPage() {
         setIsDragging(false);
     };
 
-    elements: elements,
-        printFile: printFile // Arquivo pronto para impressão
-});
+    const handleAddToCart = () => {
+        if (!canvasRef.current) return;
 
-router.push('/cart');
+        // Generate preview image (normal resolution)
+        const dataUrl = canvasRef.current.toDataURL('image/png');
+
+        // Generate print-ready file (300 DPI)
+        const printFile = generatePrintFile(canvasRef.current, {
+            width: product.printWidth || 10, // Use product dimensions or default 10cm
+            height: product.printHeight || 10,
+            name: product.name,
+            dpi: 300
+        });
+
+        addToCart(product, 1, {
+            preview: dataUrl,
+            elements: elements,
+            printFile: printFile // Arquivo pronto para impressão
+        });
+
+        router.push('/cart');
     };
 
-if (loading) return <div>Carregando...</div>;
-if (!product) return <div>Produto não encontrado</div>;
+    if (loading) return <div>Carregando...</div>;
+    if (!product) return <div>Produto não encontrado</div>;
 
-return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem' }}>
-        <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '2rem' }}>Personalizar: {product.name}</h1>
+    return (
+        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem' }}>
+            <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '2rem' }}>Personalizar: {product.name}</h1>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem' }}>
-            {/* Canvas Area */}
-            <div style={{ border: '1px solid #ccc', borderRadius: '8px', overflow: 'hidden', background: '#f9f9f9' }}>
-                <canvas
-                    ref={canvasRef}
-                    width={600}
-                    height={600}
-                    style={{ width: '100%', height: 'auto', cursor: isDragging ? 'grabbing' : 'grab' }}
-                    onMouseDown={handleMouseDown}
-                    onMouseMove={handleMouseMove}
-                    onMouseUp={handleMouseUp}
-                    onMouseLeave={handleMouseUp}
-                />
-            </div>
-
-            {/* Controls */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-
-                {/* Upload Image */}
-                <div style={{ background: 'white', padding: '1.5rem', borderRadius: '8px', border: '1px solid #eee' }}>
-                    <h3 style={{ fontWeight: 'bold', marginBottom: '1rem' }}>📸 Sua Foto</h3>
-                    <input type="file" accept="image/*" onChange={handleImageUpload} />
+            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem' }}>
+                {/* Canvas Area */}
+                <div style={{ border: '1px solid #ccc', borderRadius: '8px', overflow: 'hidden', background: '#f9f9f9' }}>
+                    <canvas
+                        ref={canvasRef}
+                        width={600}
+                        height={600}
+                        style={{ width: '100%', height: 'auto', cursor: isDragging ? 'grabbing' : 'grab' }}
+                        onMouseDown={handleMouseDown}
+                        onMouseMove={handleMouseMove}
+                        onMouseUp={handleMouseUp}
+                        onMouseLeave={handleMouseUp}
+                    />
                 </div>
 
-                {/* Add Text */}
-                <div style={{ background: 'white', padding: '1.5rem', borderRadius: '8px', border: '1px solid #eee' }}>
-                    <h3 style={{ fontWeight: 'bold', marginBottom: '1rem' }}>✍️ Adicionar Texto</h3>
-                    <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                        <input
-                            type="text"
-                            value={textInput}
-                            onChange={(e) => setTextInput(e.target.value)}
-                            placeholder="Digite aqui..."
-                            style={{ flex: 1, padding: '0.5rem', border: '1px solid #ddd', borderRadius: '4px' }}
-                        />
-                        <input
-                            type="color"
-                            value={textColor}
-                            onChange={(e) => setTextColor(e.target.value)}
-                            style={{ width: '40px', height: '40px', padding: 0, border: 'none' }}
-                        />
+                {/* Controls */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+
+                    {/* Upload Image */}
+                    <div style={{ background: 'white', padding: '1.5rem', borderRadius: '8px', border: '1px solid #eee' }}>
+                        <h3 style={{ fontWeight: 'bold', marginBottom: '1rem' }}>📸 Sua Foto</h3>
+                        <input type="file" accept="image/*" onChange={handleImageUpload} />
                     </div>
-                    <button onClick={addText} className="btn btn-secondary" style={{ width: '100%' }}>Adicionar Texto</button>
-                </div>
 
-                {/* Stickers */}
-                <div style={{ background: 'white', padding: '1.5rem', borderRadius: '8px', border: '1px solid #eee' }}>
-                    <h3 style={{ fontWeight: 'bold', marginBottom: '1rem' }}>⭐ Adesivos</h3>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem', maxHeight: '200px', overflowY: 'auto' }}>
-                        {stickers.map(sticker => (
-                            <div
-                                key={sticker.id}
-                                onClick={() => addSticker(sticker.images[0])}
-                                style={{ cursor: 'pointer', border: '1px solid #eee', padding: '0.25rem', borderRadius: '4px' }}
-                            >
-                                <img src={sticker.images[0]} alt={sticker.name} style={{ width: '100%', height: 'auto' }} />
-                            </div>
-                        ))}
-                        {stickers.length === 0 && <p style={{ color: '#000000', gridColumn: 'span 3' }}>Nenhum adesivo encontrado.</p>}
+                    {/* Add Text */}
+                    <div style={{ background: 'white', padding: '1.5rem', borderRadius: '8px', border: '1px solid #eee' }}>
+                        <h3 style={{ fontWeight: 'bold', marginBottom: '1rem' }}>✍️ Adicionar Texto</h3>
+                        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                            <input
+                                type="text"
+                                value={textInput}
+                                onChange={(e) => setTextInput(e.target.value)}
+                                placeholder="Digite aqui..."
+                                style={{ flex: 1, padding: '0.5rem', border: '1px solid #ddd', borderRadius: '4px' }}
+                            />
+                            <input
+                                type="color"
+                                value={textColor}
+                                onChange={(e) => setTextColor(e.target.value)}
+                                style={{ width: '40px', height: '40px', padding: 0, border: 'none' }}
+                            />
+                        </div>
+                        <button onClick={addText} className="btn btn-secondary" style={{ width: '100%' }}>Adicionar Texto</button>
                     </div>
-                </div>
 
-                {/* Actions */}
-                <div style={{ marginTop: 'auto' }}>
-                    <button
-                        onClick={handleAddToCart}
-                        className="btn btn-primary"
-                        style={{ width: '100%', padding: '1rem', fontSize: '1.2rem' }}
-                    >
-                        Concluir e Adicionar ao Carrinho
-                    </button>
-                    <button
-                        onClick={() => setElements([])}
-                        className="btn btn-outline"
-                        style={{ width: '100%', marginTop: '1rem' }}
-                    >
-                        Limpar Tudo
-                    </button>
+                    {/* Stickers */}
+                    <div style={{ background: 'white', padding: '1.5rem', borderRadius: '8px', border: '1px solid #eee' }}>
+                        <h3 style={{ fontWeight: 'bold', marginBottom: '1rem' }}>⭐ Adesivos</h3>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem', maxHeight: '200px', overflowY: 'auto' }}>
+                            {stickers.map(sticker => (
+                                <div
+                                    key={sticker.id}
+                                    onClick={() => addSticker(sticker.images[0])}
+                                    style={{ cursor: 'pointer', border: '1px solid #eee', padding: '0.25rem', borderRadius: '4px' }}
+                                >
+                                    <img src={sticker.images[0]} alt={sticker.name} style={{ width: '100%', height: 'auto' }} />
+                                </div>
+                            ))}
+                            {stickers.length === 0 && <p style={{ color: '#000000', gridColumn: 'span 3' }}>Nenhum adesivo encontrado.</p>}
+                        </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div style={{ marginTop: 'auto' }}>
+                        <button
+                            onClick={handleAddToCart}
+                            className="btn btn-primary"
+                            style={{ width: '100%', padding: '1rem', fontSize: '1.2rem' }}
+                        >
+                            Concluir e Adicionar ao Carrinho
+                        </button>
+                        <button
+                            onClick={() => setElements([])}
+                            className="btn btn-outline"
+                            style={{ width: '100%', marginTop: '1rem' }}
+                        >
+                            Limpar Tudo
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-);
+    );
 }
