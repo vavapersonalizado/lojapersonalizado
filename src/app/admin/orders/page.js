@@ -13,6 +13,11 @@ export default function OrdersPage() {
     const [expandedOrderId, setExpandedOrderId] = useState(null);
     const [editingNotes, setEditingNotes] = useState({}); // { orderId: notesText }
 
+    // Search and filters
+    const [searchTerm, setSearchTerm] = useState('');
+    const [statusFilter, setStatusFilter] = useState('all');
+    const [sortBy, setSortBy] = useState('date-desc'); // date-desc, date-asc, value-desc, value-asc
+
     useEffect(() => {
         if (status === 'unauthenticated') {
             router.push('/');
@@ -112,13 +117,54 @@ export default function OrdersPage() {
         }
     };
 
-    const filteredOrders = orders.filter(order => {
-        if (activeTab === 'active') {
-            return ['pending', 'processing'].includes(order.status);
-        } else {
-            return ['completed', 'cancelled'].includes(order.status);
-        }
-    });
+    // Filter, search and sort orders
+    const filteredOrders = orders
+        .filter(order => {
+            // Tab filter (active/history)
+            if (activeTab === 'active') {
+                if (!['pending', 'processing'].includes(order.status)) return false;
+            } else {
+                if (!['completed', 'cancelled'].includes(order.status)) return false;
+            }
+
+            // Status filter
+            if (statusFilter !== 'all' && order.status !== statusFilter) {
+                return false;
+            }
+
+            // Search filter
+            if (searchTerm.trim()) {
+                const search = searchTerm.toLowerCase();
+                const customerName = order.user ? order.user.name : order.guestName;
+                const customerEmail = order.user ? order.user.email : order.guestEmail;
+                const customerPhone = order.user ? order.user.phone : order.guestPhone;
+                const customerCEP = order.user ? '' : (order.guestAddress?.postalCode || '');
+
+                return (
+                    customerName?.toLowerCase().includes(search) ||
+                    customerEmail?.toLowerCase().includes(search) ||
+                    customerPhone?.toLowerCase().includes(search) ||
+                    customerCEP?.toLowerCase().includes(search) ||
+                    order.id.toLowerCase().includes(search)
+                );
+            }
+
+            return true;
+        })
+        .sort((a, b) => {
+            switch (sortBy) {
+                case 'date-desc':
+                    return new Date(b.createdAt) - new Date(a.createdAt);
+                case 'date-asc':
+                    return new Date(a.createdAt) - new Date(b.createdAt);
+                case 'value-desc':
+                    return b.finalTotal - a.finalTotal;
+                case 'value-asc':
+                    return a.finalTotal - b.finalTotal;
+                default:
+                    return 0;
+            }
+        });
 
     if (loading) return <p style={{ padding: '2rem', textAlign: 'center' }}>Carregando pedidos...</p>;
 
@@ -127,6 +173,90 @@ export default function OrdersPage() {
             <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '2rem' }}>
                 📦 Gerenciar Pedidos
             </h1>
+
+            {/* Search and Filters */}
+            <div style={{
+                background: 'var(--card)',
+                padding: '1.5rem',
+                borderRadius: 'var(--radius)',
+                border: '1px solid var(--border)',
+                marginBottom: '2rem'
+            }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                    {/* Search Bar */}
+                    <div>
+                        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', fontSize: '0.9rem' }}>
+                            🔍 Buscar
+                        </label>
+                        <input
+                            type="text"
+                            placeholder="Nome, email, telefone ou CEP..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            style={{
+                                width: '100%',
+                                padding: '0.75rem',
+                                borderRadius: 'var(--radius)',
+                                border: '1px solid var(--border)',
+                                fontSize: '1rem'
+                            }}
+                        />
+                    </div>
+
+                    {/* Status Filter */}
+                    <div>
+                        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', fontSize: '0.9rem' }}>
+                            📊 Status
+                        </label>
+                        <select
+                            value={statusFilter}
+                            onChange={(e) => setStatusFilter(e.target.value)}
+                            style={{
+                                width: '100%',
+                                padding: '0.75rem',
+                                borderRadius: 'var(--radius)',
+                                border: '1px solid var(--border)',
+                                fontSize: '1rem'
+                            }}
+                        >
+                            <option value="all">Todos</option>
+                            <option value="pending">Pendente</option>
+                            <option value="processing">Processando</option>
+                            <option value="completed">Concluído</option>
+                            <option value="cancelled">Cancelado</option>
+                        </select>
+                    </div>
+
+                    {/* Sort By */}
+                    <div>
+                        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', fontSize: '0.9rem' }}>
+                            🔄 Ordenar por
+                        </label>
+                        <select
+                            value={sortBy}
+                            onChange={(e) => setSortBy(e.target.value)}
+                            style={{
+                                width: '100%',
+                                padding: '0.75rem',
+                                borderRadius: 'var(--radius)',
+                                border: '1px solid var(--border)',
+                                fontSize: '1rem'
+                            }}
+                        >
+                            <option value="date-desc">Data (mais recente)</option>
+                            <option value="date-asc">Data (mais antigo)</option>
+                            <option value="value-desc">Valor (maior)</option>
+                            <option value="value-asc">Valor (menor)</option>
+                        </select>
+                    </div>
+                </div>
+
+                {/* Results count */}
+                <div style={{ fontSize: '0.9rem', color: '#666' }}>
+                    {filteredOrders.length} pedido(s) encontrado(s)
+                    {searchTerm && ` para "${searchTerm}"`}
+                </div>
+            </div>
 
             {/* Tabs */}
             <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', borderBottom: '1px solid var(--border)' }}>
