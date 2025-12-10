@@ -102,6 +102,53 @@ export async function POST(request) {
             });
         }
 
+        // Loyalty Program: Add points for registered users
+        if (session?.user) {
+            try {
+                const pointsEarned = Math.floor(finalTotal); // 1 point per currency unit
+
+                await prisma.$transaction(async (tx) => {
+                    // Update or create LoyaltyPoints
+                    const loyalty = await tx.loyaltyPoints.upsert({
+                        where: { userId: session.user.id },
+                        create: {
+                            userId: session.user.id,
+                            points: pointsEarned,
+                            tier: 'bronze'
+                        },
+                        update: {
+                            points: { increment: pointsEarned }
+                        }
+                    });
+
+                    // Create History Record
+                    await tx.pointsHistory.create({
+                        data: {
+                            userId: session.user.id,
+                            points: pointsEarned,
+                            reason: `Compra: Pedido #${order.id.slice(-6)}`,
+                            orderId: order.id
+                        }
+                    });
+
+                    // Update Tier
+                    let newTier = loyalty.tier;
+                    if (loyalty.points >= 5000) newTier = 'gold';
+                    else if (loyalty.points >= 1000) newTier = 'silver';
+
+                    if (newTier !== loyalty.tier) {
+                        await tx.loyaltyPoints.update({
+                            where: { userId: session.user.id },
+                            data: { tier: newTier }
+                        });
+                    }
+                });
+            } catch (error) {
+                console.error('Error adding loyalty points:', error);
+                // Don't fail the order if loyalty fails, just log it
+            }
+        }
+
         return NextResponse.json(order, { status: 201 });
     } catch (error) {
         console.error("Error creating order:", error);
