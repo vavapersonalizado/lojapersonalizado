@@ -1,0 +1,329 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?  @db.Text
+  access_token       String?  @db.Text
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?  @db.Text
+  session_state      String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  role          String    @default("client") // client, admin
+  phone         String?   // For manually registered clients
+  notes         String?   // Admin notes about the client
+  
+  // Client Classification System
+  classification   String?  @default("Médio") // Admin, Amigo, Família, Fiel, Bom, Médio, Ruim
+  deserveDiscount  Boolean  @default(false)
+  discountType     String?  // "percentage" or "fixed"
+  discountValue    Float?   @default(0)
+  birthDate        DateTime?
+
+  // Address Information (Japan - Romanji)
+  postalCode       String?
+  prefecture       String?
+  city             String?
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  name      String
+  slug      String    @unique
+  visible   Boolean   @default(true)
+  products  Product[]
+  coupons   Coupon[]
+}
+
+model Product {
+  id          String     @id @default(cuid())
+  name        String
+  sku         String?    @unique // Admin only product code
+  description String?
+  price       Float
+  stock       Int        @default(0)
+  images      String[]   @default([])
+  visible     Boolean    @default(true) // Show to clients
+  isCustomizable Boolean @default(false) // Can be customized by user
+  htmlContent String?    // For external banners/embeds
+  model3D     String?    // URL of 3D model file (.glb, .gltf, .obj, .fbx)
+  modelType   String?    // Type: 'glb', 'gltf', 'obj', 'fbx'
+  printWidth  Float?     // Width for printing (cm)
+  printHeight Float?     // Height for printing (cm)
+  categoryId  String
+  category    Category   @relation(fields: [categoryId], references: [id])
+  cartItems   CartItem[]
+  reviews     Review[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rating    Int
+  comment   String?  @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@unique([productId, userId])
+}
+
+model Order {
+  id           String      @id @default(cuid())
+  userId       String?     // Optional for guest orders
+  user         User?       @relation(fields: [userId], references: [id])
+  
+  // Guest checkout fields (required if userId is null)
+  guestName    String?
+  guestEmail   String?
+  guestPhone   String?
+  guestAddress Json?       // Stores full address for guests
+  
+  total        Float
+  discount     Float       @default(0)
+  finalTotal   Float
+  couponCode   String?
+  status       String      @default("pending") // pending, processing, completed, cancelled
+  notes        String?     @db.Text // Admin notes/observations about the order
+  contactedAt  DateTime?   // When seller contacted client
+  completedAt  DateTime?   // When order was finished
+  createdAt    DateTime    @default(now())
+  items        OrderItem[]
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id])
+  productId String
+  name      String
+  price     Float
+  quantity  Int
+  ready     Boolean @default(false) // Is item separated/ready?
+  customization Json? // Stores customization data (image, text, stickers)
+  printFile     String? @db.Text // Base64 or data URL of print-ready file
+  printFileUrl  String? // URL of print file in Cloudinary
+}
+
+model SiteSettings {
+  id             String  @id @default("settings")
+  showProducts   Boolean @default(true)
+  showCategories Boolean @default(true)
+  showEvents     Boolean @default(true)
+  showPromotions Boolean @default(true)
+  showPartners   Boolean @default(true)
+  showSponsors   Boolean @default(true)
+}
+
+model Cart {
+  id        String     @id @default(cuid())
+  userId    String?
+  user      User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model CartItem {
+  id        String  @id @default(cuid())
+  cartId    String
+  cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int     @default(1)
+  customization Json? // Stores customization data (image, text, stickers)
+
+  @@unique([cartId, productId])
+}
+
+model Coupon {
+  id          String    @id @default(cuid())
+  code        String    @unique
+  discount    Float     // Percentage (0-100) or fixed amount
+  type        String    @default("percentage") // "percentage" or "fixed"
+  maxUses     Int?      // null = unlimited
+  usedCount   Int       @default(0)
+  expiresAt   DateTime?
+  isActive    Boolean   @default(true)
+  cumulative  Boolean   @default(true) // Can be used with other discounts?
+  productId   String?   // If set, applies only to this product
+  categoryId  String?   // If set, applies only to products in this category
+  category    Category? @relation(fields: [categoryId], references: [id])
+  minQuantity Int       @default(1) // Minimum quantity of items (total or specific) required
+  
+  // Automatic Generation Fields
+  userId      String?   // Linked to specific user
+  user        User?     @relation(fields: [userId], references: [id])
+  isSystemGenerated Boolean @default(false)
+  
+  createdAt   DateTime  @default(now())
+}
+
+model CouponRule {
+  id            String   @id @default(cuid())
+  type          String   @unique // e.g., 'FIRST_PURCHASE', 'BIRTHDAY'
+  discountType  String   @default("percentage") // "percentage" or "fixed"
+  discountValue Float
+  active        Boolean  @default(true)
+  codePrefix    String   // e.g., 'WELCOME', 'BDAY'
+  expirationDays Int?    // How many days until it expires
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Event {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  date        DateTime
+  active      Boolean  @default(true)
+  images      String[] @default([])
+  htmlContent String?  // For external banners/embeds
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Settings {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Analytics {
+  id            String   @id @default(cuid())
+  type          String   // 'product', 'event', 'promotion', 'ad', 'coupon', 'page'
+  itemId        String   // ID do item rastreado
+  itemName      String   // Nome/título do item
+  itemCode      String?  // Código (produtos, cupons)
+  views         Int      @default(0) // Visualizações originais (auto)
+  editedViews   Int?     // Visualizações editadas manualmente
+  uses          Int      @default(0) // Para cupons
+  createdAt     DateTime @default(now())
+  lastViewedAt  DateTime @updatedAt
+  
+  // Métricas extras
+  deviceType    String?  // 'desktop', 'mobile'
+  referrer      String?  // De onde veio
+  
+  events        AnalyticsEvent[] // Histórico de visualizações
+
+  @@index([type])
+  @@index([itemId])
+  @@index([createdAt])
+  @@index([type, itemId])
+}
+
+model AnalyticsEvent {
+  id          String    @id @default(cuid())
+  analyticsId String
+  analytics   Analytics @relation(fields: [analyticsId], references: [id], onDelete: Cascade)
+  type        String    // 'view', 'use'
+  createdAt   DateTime  @default(now())
+  
+  @@index([analyticsId])
+  @@index([createdAt])
+}
+
+model Ad {
+  id        String   @id @default(cuid())
+  title     String
+  link      String?
+  active    Boolean  @default(true)
+  imageUrl  String?
+  images    String[] @default([])
+  htmlContent String?  // For external banners/embeds
+  expiresAt   DateTime?
+  
+  partnerId   String?
+  partner     Partner? @relation(fields: [partnerId], references: [id])
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Promotion {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  discount    Float?
+  active      Boolean  @default(true)
+  images      String[] @default([])
+  htmlContent String?  // For external banners/embeds
+  expiresAt   DateTime?
+  
+  partnerId   String?
+  partner     Partner? @relation(fields: [partnerId], references: [id])
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+
+model Partner {
+  id        String   @id @default(cuid())
+  name      String
+  logo      String?
+  link      String?
+  active    Boolean  @default(true)
+  
+  userId    String?  @unique
+  user      User?    @relation(fields: [userId], references: [id])
+  
+  ads       Ad[]
+  promotions Promotion[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OnlineUser {
+  id          String   @id @default(cuid())
+  sessionId   String   @unique
+  isAdmin     Boolean  @default(false)
+  lastSeen    DateTime @default(now())
+  
+  @@index([lastSeen])
+  @@index([isAdmin])
+}
