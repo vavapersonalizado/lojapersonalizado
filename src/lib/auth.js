@@ -31,8 +31,13 @@ export const authOptions = {
     debug: true, // Enable debug mode
     events: {
         async createUser({ user }) {
-            // Generate 'First Purchase' coupon when a new user is created
-            await generateAutomaticCoupon(user.id, 'FIRST_PURCHASE');
+            try {
+                // Generate 'First Purchase' coupon when a new user is created
+                await generateAutomaticCoupon(user.id, 'FIRST_PURCHASE');
+            } catch (error) {
+                console.error("Error in createUser event (coupon generation):", error);
+                // Don't block user creation/login if coupon generation fails
+            }
         },
     },
     callbacks: {
