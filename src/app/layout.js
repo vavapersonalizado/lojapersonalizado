@@ -6,7 +6,7 @@ import { CompareProvider } from "@/contexts/CompareContext";
 import ChatWidget from "@/components/ChatWidget";
 import MainLayout from "@/components/MainLayout";
 import { getServerSession } from "next-auth";
-import { authOptions } from "./api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 
 const inter = Inter({ subsets: ["latin"] });
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
