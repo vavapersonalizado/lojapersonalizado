@@ -141,6 +141,70 @@ export default function CouponRulesPage() {
                 </button>
             </div>
 
+            {/* Gatilhos Disponíveis - Info Section */}
+            <div style={{
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                borderRadius: 'var(--radius)',
+                padding: '1.5rem',
+                marginBottom: '2rem',
+                color: 'white'
+            }}>
+                <h2 style={{ fontSize: '1.3rem', fontWeight: 'bold', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    ⚡ Gatilhos Disponíveis
+                </h2>
+                <p style={{ marginBottom: '1rem', opacity: 0.9 }}>
+                    Gatilhos são eventos que acionam automaticamente a criação de cupons. Configure abaixo as regras para cada tipo de gatilho.
+                </p>
+
+                <div style={{
+                    background: 'rgba(255,255,255,0.1)',
+                    borderRadius: 'var(--radius)',
+                    padding: '1rem',
+                    backdropFilter: 'blur(10px)'
+                }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                        <thead>
+                            <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.2)' }}>
+                                <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: '600' }}>Gatilho</th>
+                                <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: '600' }}>Descrição</th>
+                                <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: '600' }}>Quando é Acionado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                                <td style={{ padding: '0.75rem', fontWeight: '500' }}>FIRST_PURCHASE</td>
+                                <td style={{ padding: '0.75rem', opacity: 0.9 }}>Primeira Compra</td>
+                                <td style={{ padding: '0.75rem', opacity: 0.9 }}>Quando um novo usuário é criado</td>
+                            </tr>
+                            <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                                <td style={{ padding: '0.75rem', fontWeight: '500' }}>BIRTHDAY</td>
+                                <td style={{ padding: '0.75rem', opacity: 0.9 }}>Aniversário</td>
+                                <td style={{ padding: '0.75rem', opacity: 0.9 }}>Diariamente via cron job para usuários com aniversário</td>
+                            </tr>
+                            <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                                <td style={{ padding: '0.75rem', fontWeight: '500' }}>CART_ABANDONMENT</td>
+                                <td style={{ padding: '0.75rem', opacity: 0.9 }}>Carrinho Abandonado</td>
+                                <td style={{ padding: '0.75rem', opacity: 0.9 }}>Após X dias sem finalizar compra (requer implementação)</td>
+                            </tr>
+                            <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                                <td style={{ padding: '0.75rem', fontWeight: '500' }}>LOYALTY</td>
+                                <td style={{ padding: '0.75rem', opacity: 0.9 }}>Fidelidade</td>
+                                <td style={{ padding: '0.75rem', opacity: 0.9 }}>Após X compras realizadas (requer implementação)</td>
+                            </tr>
+                            <tr>
+                                <td style={{ padding: '0.75rem', fontWeight: '500' }}>REFERRAL</td>
+                                <td style={{ padding: '0.75rem', opacity: 0.9 }}>Indicação</td>
+                                <td style={{ padding: '0.75rem', opacity: 0.9 }}>Quando usuário indica um amigo (requer implementação)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <p style={{ marginTop: '1rem', fontSize: '0.9rem', opacity: 0.8 }}>
+                    💡 <strong>Dica:</strong> Use o campo "Tipo" exatamente como mostrado acima (ex: FIRST_PURCHASE) para que o sistema reconheça o gatilho.
+                </p>
+            </div>
+
             <div style={{
                 background: 'var(--card)',
                 borderRadius: 'var(--radius)',
