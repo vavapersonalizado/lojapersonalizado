@@ -11,6 +11,8 @@ export default function SocialEmbed({ url, platform }) {
 
     if (!isMounted) return <div style={{ height: '400px', background: '#f0f0f0', borderRadius: '8px' }} />;
 
+    if (!url) return null;
+
     try {
         if (platform === 'INSTAGRAM') {
             // Extrair ID do post do Instagram
