@@ -23,7 +23,7 @@ export const metadata = {
     openGraph: {
         type: "website",
         locale: "pt_BR",
-        url: "https://lojapersonalizada.vercel.app",
+        url: "https://projetovava.vercel.app",
         siteName: "Vanessa Yachiro Personalizados",
         images: [
             {
