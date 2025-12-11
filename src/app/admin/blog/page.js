@@ -8,10 +8,8 @@ import SocialEmbed from '@/components/SocialEmbed';
 export default function AdminBlogPage() {
     const { data: session, status } = useSession();
     const router = useRouter();
-    const [posts, setPosts] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [newUrl, setNewUrl] = useState('');
-    const [submitting, setSubmitting] = useState(false);
+    const [selectedPosts, setSelectedPosts] = useState([]);
+    const [deleting, setDeleting] = useState(false);
 
     useEffect(() => {
         if (status === 'unauthenticated') router.push('/');
@@ -71,11 +69,50 @@ export default function AdminBlogPage() {
 
             if (res.ok) {
                 setPosts(posts.filter(p => p.id !== id));
+                setSelectedPosts(selectedPosts.filter(pid => pid !== id));
             } else {
                 alert('Erro ao remover post');
             }
         } catch (error) {
             console.error('Error deleting post:', error);
+        }
+    };
+
+    const toggleSelectPost = (id) => {
+        if (selectedPosts.includes(id)) {
+            setSelectedPosts(selectedPosts.filter(pid => pid !== id));
+        } else {
+            setSelectedPosts([...selectedPosts, id]);
+        }
+    };
+
+    const toggleSelectAll = () => {
+        if (selectedPosts.length === posts.length) {
+            setSelectedPosts([]);
+        } else {
+            setSelectedPosts(posts.map(p => p.id));
+        }
+    };
+
+    const handleDeleteSelected = async () => {
+        if (selectedPosts.length === 0) return;
+        if (!confirm(`Tem certeza que deseja remover ${selectedPosts.length} posts selecionados?`)) return;
+
+        setDeleting(true);
+        try {
+            // Deletar um por um (idealmente seria uma API de bulk delete)
+            for (const id of selectedPosts) {
+                await fetch(`/api/blog/${id}`, { method: 'DELETE' });
+            }
+
+            setPosts(posts.filter(p => !selectedPosts.includes(p.id)));
+            setSelectedPosts([]);
+            alert('Posts removidos com sucesso!');
+        } catch (error) {
+            console.error('Error deleting posts:', error);
+            alert('Erro ao remover alguns posts');
+        } finally {
+            setDeleting(false);
         }
     };
 
@@ -119,6 +156,40 @@ export default function AdminBlogPage() {
                 </p>
             </div>
 
+            {/* Bulk Actions */}
+            {posts.length > 0 && (
+                <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f9f9f9', padding: '1rem', borderRadius: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <input
+                            type="checkbox"
+                            checked={posts.length > 0 && selectedPosts.length === posts.length}
+                            onChange={toggleSelectAll}
+                            style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                        />
+                        <span style={{ fontWeight: 'bold' }}>Selecionar Todos ({selectedPosts.length})</span>
+                    </div>
+
+                    {selectedPosts.length > 0 && (
+                        <button
+                            onClick={handleDeleteSelected}
+                            disabled={deleting}
+                            style={{
+                                background: '#dc2626',
+                                color: 'white',
+                                border: 'none',
+                                padding: '0.5rem 1rem',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                fontWeight: 'bold',
+                                opacity: deleting ? 0.7 : 1
+                            }}
+                        >
+                            {deleting ? 'Removendo...' : `🗑️ Remover Selecionados (${selectedPosts.length})`}
+                        </button>
+                    )}
+                </div>
+            )}
+
             {/* Posts Grid */}
             <div style={{
                 display: 'grid',
@@ -126,8 +197,17 @@ export default function AdminBlogPage() {
                 gap: '1.5rem'
             }}>
                 {posts.map(post => (
-                    <div key={post.id} className="card" style={{ position: 'relative', padding: '1rem' }}>
-                        <div style={{ marginBottom: '1rem' }}>
+                    <div key={post.id} className="card" style={{ position: 'relative', padding: '1rem', border: selectedPosts.includes(post.id) ? '2px solid var(--primary)' : '1px solid var(--border)' }}>
+                        <div style={{ position: 'absolute', top: '10px', left: '10px', zIndex: 10 }}>
+                            <input
+                                type="checkbox"
+                                checked={selectedPosts.includes(post.id)}
+                                onChange={() => toggleSelectPost(post.id)}
+                                style={{ width: '20px', height: '20px', cursor: 'pointer' }}
+                            />
+                        </div>
+
+                        <div style={{ marginBottom: '1rem', marginLeft: '2rem' }}>
                             <span style={{
                                 fontSize: '0.8rem',
                                 padding: '0.25rem 0.5rem',
@@ -161,7 +241,8 @@ export default function AdminBlogPage() {
                                 cursor: 'pointer',
                                 display: 'flex',
                                 alignItems: 'center',
-                                justifyContent: 'center'
+                                justifyContent: 'center',
+                                zIndex: 10
                             }}
                             title="Remover Post"
                         >

@@ -92,6 +92,22 @@ export default function UserProfile() {
                     </div>
 
                     <Link
+                        href="/wishlist"
+                        onClick={() => setIsOpen(false)}
+                        style={{
+                            display: 'block',
+                            padding: '0.75rem 1rem',
+                            color: '#000',
+                            textDecoration: 'none',
+                            transition: 'background 0.2s'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = 'var(--muted)'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                    >
+                        ❤️ Meus Favoritos
+                    </Link>
+
+                    <Link
                         href="/profile"
                         onClick={() => setIsOpen(false)}
                         style={{

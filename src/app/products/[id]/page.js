@@ -37,6 +37,8 @@ async function getProduct(id) {
     return product;
 }
 
+import ProductRecommendations from '@/components/ProductRecommendations';
+
 export default async function ProductPage({ params }) {
     const { id } = params;
     const product = await getProduct(id);
@@ -45,5 +47,16 @@ export default async function ProductPage({ params }) {
         notFound();
     }
 
-    return <ProductDetails product={product} />;
+    return (
+        <>
+            <ProductDetails product={product} />
+            <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 2rem 4rem' }}>
+                <ProductRecommendations
+                    productId={product.id}
+                    type="similar"
+                    title="Produtos Relacionados"
+                />
+            </div>
+        </>
+    );
 }
