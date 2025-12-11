@@ -10,6 +10,10 @@ export default function AdminBlogPage() {
     const router = useRouter();
     const [selectedPosts, setSelectedPosts] = useState([]);
     const [deleting, setDeleting] = useState(false);
+    const [posts, setPosts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [newUrl, setNewUrl] = useState('');
+    const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
         if (status === 'unauthenticated') router.push('/');
