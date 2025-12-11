@@ -123,6 +123,22 @@ export default function UserProfile() {
                         👤 Meu Perfil
                     </Link>
 
+                    <Link
+                        href="/support"
+                        onClick={() => setIsOpen(false)}
+                        style={{
+                            display: 'block',
+                            padding: '0.75rem 1rem',
+                            color: '#000',
+                            textDecoration: 'none',
+                            transition: 'background 0.2s'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = 'var(--muted)'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                    >
+                        🎧 Suporte
+                    </Link>
+
                     <div style={{
                         height: '1px',
                         background: 'var(--border)',
