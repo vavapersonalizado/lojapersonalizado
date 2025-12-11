@@ -1,4 +1,3 @@
-```javascript
 import prisma from '@/lib/prisma';
 import ProductDetails from '@/components/ProductDetails';
 import { notFound } from 'next/navigation';
@@ -17,8 +16,8 @@ export async function generateMetadata({ params }) {
     }
 
     return {
-        title: `${ product.name } | Vanessa Yachiro Personalizados`,
-        description: product.description || `Compre ${ product.name } personalizado na Vanessa Yachiro.`,
+        title: `${product.name} | Vanessa Yachiro Personalizados`,
+        description: product.description || `Compre ${product.name} personalizado na Vanessa Yachiro.`,
         openGraph: {
             title: product.name,
             description: product.description,
@@ -61,4 +60,3 @@ export default async function ProductPage({ params }) {
         </>
     );
 }
-```
