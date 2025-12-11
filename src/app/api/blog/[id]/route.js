@@ -12,7 +12,7 @@ export async function DELETE(request, { params }) {
     }
 
     try {
-        const { id } = params;
+        const { id } = await params;
 
         await prisma.blogPost.delete({
             where: { id }

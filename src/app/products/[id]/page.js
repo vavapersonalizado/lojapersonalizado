@@ -1,9 +1,10 @@
+```javascript
 import prisma from '@/lib/prisma';
 import ProductDetails from '@/components/ProductDetails';
 import { notFound } from 'next/navigation';
 
 export async function generateMetadata({ params }) {
-    const { id } = params;
+    const { id } = await params;
 
     const product = await prisma.product.findUnique({
         where: { id },
@@ -16,8 +17,8 @@ export async function generateMetadata({ params }) {
     }
 
     return {
-        title: `${product.name} | Vanessa Yachiro Personalizados`,
-        description: product.description || `Compre ${product.name} personalizado na Vanessa Yachiro.`,
+        title: `${ product.name } | Vanessa Yachiro Personalizados`,
+        description: product.description || `Compre ${ product.name } personalizado na Vanessa Yachiro.`,
         openGraph: {
             title: product.name,
             description: product.description,
@@ -40,7 +41,7 @@ async function getProduct(id) {
 import ProductRecommendations from '@/components/ProductRecommendations';
 
 export default async function ProductPage({ params }) {
-    const { id } = params;
+    const { id } = await params;
     const product = await getProduct(id);
 
     if (!product) {
@@ -60,3 +61,4 @@ export default async function ProductPage({ params }) {
         </>
     );
 }
+```
