@@ -90,15 +90,19 @@ export default function RightSidebar() {
 
     // Event Carousel Logic
     useEffect(() => {
-        if (events.length > 1 && !isEventHovered) {
+        const currentEvent = events[currentEventIndex];
+        const shouldRotate = currentEvent?.autoRotate ?? true;
+        const duration = (currentEvent?.carouselDuration || 8) * 1000;
+
+        if (events.length > 1 && !isEventHovered && shouldRotate) {
             eventIntervalRef.current = setInterval(() => {
                 setCurrentEventIndex(prev => (prev + 1) % events.length);
-            }, 8000); // Slightly slower than promotions
+            }, duration);
         }
         return () => {
             if (eventIntervalRef.current) clearInterval(eventIntervalRef.current);
         };
-    }, [events.length, isEventHovered]);
+    }, [events, isEventHovered, currentEventIndex]); // Added currentEventIndex to dependency to re-evaluate duration per slide
 
     // ...
 
