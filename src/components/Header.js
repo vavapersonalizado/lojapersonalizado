@@ -29,9 +29,9 @@ export default function Header() {
     useEffect(() => {
         if (theme?.icons) {
             setRandomIcons({
-                cart: theme.icons.cart[Math.floor(Math.random() * theme.icons.cart.length)] || '🛒',
-                mobile: theme.icons.mobile[Math.floor(Math.random() * theme.icons.mobile.length)] || '📱',
-                desktop: theme.icons.desktop[Math.floor(Math.random() * theme.icons.desktop.length)] || '💻'
+                cart: theme.icons.cart?.[Math.floor(Math.random() * theme.icons.cart.length)] || '🛒',
+                mobile: theme.icons.mobile?.[Math.floor(Math.random() * theme.icons.mobile.length)] || '📱',
+                desktop: theme.icons.desktop?.[Math.floor(Math.random() * theme.icons.desktop.length)] || '💻'
             });
         }
     }, [theme]);

@@ -44,20 +44,37 @@ export function ThemeProvider({ children }) {
                 const res = await fetch('/api/settings');
                 const data = await res.json();
                 if (data && data.theme) {
-                    // Merge with defaults to ensure new keys exist
-                    setTheme(prev => ({ ...prev, ...data.theme, texts: { ...prev.texts, ...data.theme.texts } }));
+                    // Deep merge with defaults
+                    setTheme(prev => ({
+                        ...prev,
+                        ...data.theme,
+                        texts: { ...prev.texts, ...data.theme.texts },
+                        icons: { ...prev.icons, ...data.theme.icons }
+                    }));
                     localStorage.setItem('site-theme', JSON.stringify(data.theme));
                 } else {
                     const savedTheme = localStorage.getItem('site-theme');
                     if (savedTheme) {
-                        setTheme(JSON.parse(savedTheme));
+                        const parsed = JSON.parse(savedTheme);
+                        setTheme(prev => ({
+                            ...prev,
+                            ...parsed,
+                            texts: { ...prev.texts, ...parsed.texts },
+                            icons: { ...prev.icons, ...parsed.icons }
+                        }));
                     }
                 }
             } catch (error) {
                 console.error('Error fetching theme:', error);
                 const savedTheme = localStorage.getItem('site-theme');
                 if (savedTheme) {
-                    setTheme(JSON.parse(savedTheme));
+                    const parsed = JSON.parse(savedTheme);
+                    setTheme(prev => ({
+                        ...prev,
+                        ...parsed,
+                        texts: { ...prev.texts, ...parsed.texts },
+                        icons: { ...prev.icons, ...parsed.icons }
+                    }));
                 }
             }
         };

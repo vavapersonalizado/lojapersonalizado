@@ -17,7 +17,7 @@ export default function NotificationBell() {
 
     useEffect(() => {
         if (theme?.icons?.bell) {
-            setBellIcon(theme.icons.bell[Math.floor(Math.random() * theme.icons.bell.length)] || '🔔');
+            setBellIcon(theme.icons.bell?.[Math.floor(Math.random() * theme.icons.bell.length)] || '🔔');
         }
     }, [theme]);
 
