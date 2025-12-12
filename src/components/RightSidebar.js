@@ -28,6 +28,39 @@ export default function RightSidebar() {
     const [isAdHovered, setIsAdHovered] = useState(false);
     const adIntervalRef = useRef(null);
 
+    // Internal Slideshow State
+    const [activeImageIndex, setActiveImageIndex] = useState(0);
+    const internalIntervalRef = useRef(null);
+
+    const fetchData = useCallback(async () => {
+        try {
+            const [eventsRes, promoRes, adsRes, settingsRes] = await Promise.all([
+                fetch(`/api/events${isAdmin ? '?admin=true' : ''}`, { cache: 'no-store' }),
+                fetch(`/api/promotions${isAdmin ? '?admin=true' : ''}`, { cache: 'no-store' }),
+                fetch(`/api/announcements${isAdmin ? '?admin=true' : ''}`, { cache: 'no-store' }),
+                fetch('/api/settings', { cache: 'no-store' })
+            ]);
+
+            const eventsData = eventsRes.ok ? await eventsRes.json() : [];
+            const promoData = promoRes.ok ? await promoRes.json() : [];
+            const adsData = adsRes.ok ? await adsRes.json() : [];
+            const settingsData = settingsRes.ok ? await settingsRes.json() : {};
+
+            setEvents(Array.isArray(eventsData) ? eventsData : []);
+            setPromotions(Array.isArray(promoData) ? promoData : []);
+            setAds(Array.isArray(adsData) ? adsData : []);
+            if (settingsData && typeof settingsData.showEvents === 'boolean') {
+                setShowEvents(settingsData.showEvents);
+            }
+        } catch (error) {
+            console.error("Error fetching sidebar data:", error);
+        }
+    }, [isAdmin]);
+
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
+
     // Ad Carousel Logic
     useEffect(() => {
         if (ads.length > 1 && !isAdHovered) {
