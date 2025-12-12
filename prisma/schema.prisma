@@ -192,6 +192,7 @@ model SiteSettings {
   showPromotions Boolean @default(true)
   showPartners   Boolean @default(true)
   showSponsors   Boolean @default(true)
+  showBlog       Boolean @default(true)
 }
 
 model Cart {

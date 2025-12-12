@@ -5,13 +5,17 @@ import { useSession } from "next-auth/react";
 import Link from 'next/link';
 import ProductCard from '@/components/ProductCard';
 import OnlineCounter from '@/components/OnlineCounter';
+import SocialEmbed from '@/components/SocialEmbed';
 
 export default function HomeContent() {
     const { data: session } = useSession();
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [blogPosts, setBlogPosts] = useState([]);
+    const [showBlog, setShowBlog] = useState(false);
 
     useEffect(() => {
+        // Fetch products
         fetch('/api/products')
             .then(res => {
                 if (!res.ok) throw new Error('Erro ao buscar produtos');
@@ -31,6 +35,27 @@ export default function HomeContent() {
                 setProducts([]);
                 setLoading(false);
             });
+
+        // Fetch settings and blog
+        fetch('/api/settings')
+            .then(res => res.json())
+            .then(settings => {
+                if (settings && settings.showBlog) {
+                    setShowBlog(true);
+                    return fetch('/api/blog?limit=6');
+                }
+                return null;
+            })
+            .then(res => {
+                if (res) return res.json();
+                return null;
+            })
+            .then(data => {
+                if (data && data.posts) {
+                    setBlogPosts(data.posts);
+                }
+            })
+            .catch(err => console.error('Error fetching blog/settings:', err));
     }, []);
 
     return (
@@ -106,10 +131,55 @@ export default function HomeContent() {
                 )}
             </main>
 
+
+
+            {/* Social Blog Section */}
+            {
+                showBlog && blogPosts.length > 0 && (
+                    <section className="container" style={{ padding: '2rem 1rem', marginBottom: '2rem' }}>
+                        <h2 style={{
+                            textAlign: 'center',
+                            marginBottom: '2rem',
+                            fontSize: '2rem',
+                            color: 'var(--primary)',
+                            fontFamily: 'Outfit, sans-serif'
+                        }}>
+                            Siga-nos nas Redes Sociais
+                        </h2>
+                        <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+                            gap: '1.5rem'
+                        }}>
+                            {blogPosts.map(post => (
+                                <div key={post.id} className="card" style={{ padding: '1rem', overflow: 'hidden' }}>
+                                    <div style={{ marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                        <span style={{
+                                            fontSize: '0.7rem',
+                                            padding: '0.2rem 0.4rem',
+                                            borderRadius: '4px',
+                                            background: '#eee',
+                                            color: '#333',
+                                            fontWeight: 'bold'
+                                        }}>
+                                            {post.platform}
+                                        </span>
+                                        <span style={{ fontSize: '0.8rem', color: '#999' }}>
+                                            {new Date(post.createdAt).toLocaleDateString()}
+                                        </span>
+                                    </div>
+                                    <SocialEmbed url={post.embedUrl} platform={post.platform} />
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+                )
+            }
+
             {/* Footer */}
             <footer style={{ padding: '2rem', textAlign: 'center', borderTop: '1px solid var(--border)', color: '#000000' }}>
                 &copy; 2025 Loja Personalizada. Todos os direitos reservados. (v1.1)
             </footer>
-        </div>
+        </div >
     );
 }

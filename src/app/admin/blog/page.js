@@ -14,15 +14,7 @@ export default function AdminBlogPage() {
     const [loading, setLoading] = useState(true);
     const [newUrl, setNewUrl] = useState('');
     const [submitting, setSubmitting] = useState(false);
-
-    useEffect(() => {
-        if (status === 'unauthenticated') router.push('/');
-        if (status === 'authenticated' && session?.user?.role !== 'admin') router.push('/');
-
-        if (status === 'authenticated' && session?.user?.role === 'admin') {
-            fetchPosts();
-        }
-    }, [status, session, router]);
+    const [showBlog, setShowBlog] = useState(true);
 
     const fetchPosts = async () => {
         try {
@@ -35,6 +27,28 @@ export default function AdminBlogPage() {
             setLoading(false);
         }
     };
+
+    const fetchSettings = async () => {
+        try {
+            const res = await fetch('/api/settings');
+            const data = await res.json();
+            if (data && typeof data.showBlog === 'boolean') {
+                setShowBlog(data.showBlog);
+            }
+        } catch (error) {
+            console.error('Error fetching settings:', error);
+        }
+    };
+
+    useEffect(() => {
+        if (status === 'unauthenticated') router.push('/');
+        if (status === 'authenticated' && session?.user?.role !== 'admin') router.push('/');
+
+        if (status === 'authenticated' && session?.user?.role === 'admin') {
+            fetchPosts();
+            fetchSettings();
+        }
+    }, [status, session, router]);
 
     const handleAddPost = async (e) => {
         e.preventDefault();
@@ -120,13 +134,39 @@ export default function AdminBlogPage() {
         }
     };
 
+    const toggleVisibility = async () => {
+        try {
+            const res = await fetch('/api/settings', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ showBlog: !showBlog })
+            });
+            if (res.ok) {
+                setShowBlog(!showBlog);
+            }
+        } catch (error) {
+            console.error('Error toggling visibility:', error);
+        }
+    };
+
     if (loading) return <div className="p-8 text-center">Carregando...</div>;
 
     return (
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem' }}>
-            <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '2rem', color: '#000' }}>
-                Gerenciar Blog Social
-            </h1>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: '#000', margin: 0 }}>
+                    Gerenciar Blog Social
+                </h1>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '1rem', fontWeight: 'bold' }}>
+                    <input
+                        type="checkbox"
+                        checked={showBlog}
+                        onChange={toggleVisibility}
+                        style={{ width: '20px', height: '20px' }}
+                    />
+                    Seção Visível na Home
+                </label>
+            </div>
 
             {/* Add New Post */}
             <div className="card" style={{ marginBottom: '2rem' }}>
