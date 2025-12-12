@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { isVideo } from '@/lib/mediaUtils';
@@ -157,6 +157,14 @@ export default function RightSidebar() {
 
     const [isCollapsed, setIsCollapsed] = useState(false);
 
+    const currentEvent = events[currentEventIndex];
+    const currentPromo = promotions[currentPromoIndex];
+    const currentAd = ads[currentAdIndex];
+
+    const eventHtml = useMemo(() => (currentEvent?.htmlContent ? { __html: currentEvent.htmlContent } : null), [currentEvent?.htmlContent]);
+    const promoHtml = useMemo(() => (currentPromo?.htmlContent ? { __html: currentPromo.htmlContent } : null), [currentPromo?.htmlContent]);
+    const adHtml = useMemo(() => (currentAd?.htmlContent ? { __html: currentAd.htmlContent } : null), [currentAd?.htmlContent]);
+
     return (
         <>
             <aside className="glass" style={{
@@ -175,422 +183,284 @@ export default function RightSidebar() {
                 backdropFilter: 'blur(10px)',
                 color: 'white'
             }}>
-                const currentEvent = events[currentEventIndex];
-                const currentPromo = promotions[currentPromoIndex];
-                const currentAd = ads[currentAdIndex];
+                {/* ... (keep existing code for toggle button) ... */}
+                <div style={{ display: 'flex', justifyContent: isCollapsed ? 'center' : 'flex-start' }}>
+                    <button
+                        onClick={() => setIsCollapsed(!isCollapsed)}
+                        style={{
+                            background: 'transparent',
+                            border: 'none',
+                            cursor: 'pointer',
+                            padding: '0.5rem',
+                            borderRadius: 'var(--radius)',
+                            color: 'white',
+                            fontSize: '1.2rem'
+                        }}
+                    >
+                        {isCollapsed ? '⬅️' : '➡️'}
+                    </button>
+                </div>
 
-    const eventHtml = useMemo(() => (currentEvent?.htmlContent ? {__html: currentEvent.htmlContent } : null), [currentEvent?.htmlContent]);
-    const promoHtml = useMemo(() => (currentPromo?.htmlContent ? {__html: currentPromo.htmlContent } : null), [currentPromo?.htmlContent]);
-    const adHtml = useMemo(() => (currentAd?.htmlContent ? {__html: currentAd.htmlContent } : null), [currentAd?.htmlContent]);
-
-                return (
-                <>
-                    <aside className="glass" style={{
-                        width: isCollapsed ? '70px' : '280px',
-                        padding: isCollapsed ? '1rem 0.5rem' : '1.5rem',
-                        height: '100vh',
-                        position: 'sticky',
-                        top: 0,
-                        overflowY: 'auto',
-                        borderLeft: '1px solid rgba(255,255,255,0.1)',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '2rem',
-                        transition: 'width 0.3s ease',
-                        background: 'rgba(0, 0, 0, 0.1)',
-                        backdropFilter: 'blur(10px)',
-                        color: 'white'
-                    }}>
-                        {/* ... (keep existing code for toggle button) ... */}
-                        <div style={{ display: 'flex', justifyContent: isCollapsed ? 'center' : 'flex-start' }}>
-                            <button
-                                onClick={() => setIsCollapsed(!isCollapsed)}
-                                style={{
-                                    background: 'transparent',
-                                    border: 'none',
-                                    cursor: 'pointer',
-                                    padding: '0.5rem',
-                                    borderRadius: 'var(--radius)',
+                {/* Promoções */}
+                {promotions.length > 0 && (
+                    <section
+                        onMouseEnter={() => setIsPromoHovered(true)}
+                        onMouseLeave={() => setIsPromoHovered(false)}
+                        style={{ display: 'flex', flexDirection: 'column', alignItems: isCollapsed ? 'center' : 'stretch' }}
+                    >
+                        {isCollapsed ? (
+                            <div title="Promoções" style={{ fontSize: '1.5rem', cursor: 'pointer' }}>🔥</div>
+                        ) : (
+                            <>
+                                <h3 style={{
+                                    fontSize: '1.1rem',
+                                    marginBottom: '1rem',
                                     color: 'white',
-                                    fontSize: '1.2rem'
-                                }}
-                            >
-                                {isCollapsed ? '⬅️' : '➡️'}
-                            </button>
-                        </div>
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between'
+                                }}>
+                                    🔥 Promoções
+                                    {isAdmin && currentPromo && (
+                                        <span style={{ fontSize: '0.7rem', color: '#000000' }}>
+                                            {currentPromo.active ? '🟢' : '🔴'}
+                                        </span>
+                                    )}
+                                </h3>
 
-                        {/* Promoções */}
-                        {promotions.length > 0 && (
-                            <section
-                                onMouseEnter={() => setIsPromoHovered(true)}
-                                onMouseLeave={() => setIsPromoHovered(false)}
-                                style={{ display: 'flex', flexDirection: 'column', alignItems: isCollapsed ? 'center' : 'stretch' }}
-                            >
-                                {isCollapsed ? (
-                                    <div title="Promoções" style={{ fontSize: '1.5rem', cursor: 'pointer' }}>🔥</div>
-                                ) : (
-                                    <>
-                                        <h3 style={{
-                                            fontSize: '1.1rem',
-                                            marginBottom: '1rem',
-                                            color: 'white',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'space-between'
-                                        }}>
-                                            🔥 Promoções
-                                            {isAdmin && currentPromo && (
-                                                <span style={{ fontSize: '0.7rem', color: '#000000' }}>
-                                                    {currentPromo.active ? '🟢' : '🔴'}
-                                                </span>
-                                            )}
-                                        </h3>
-
-                                        <div style={{
-                                            background: 'var(--card)',
-                                            border: '1px solid var(--border)',
-                                            padding: '1rem',
-                                            borderRadius: 'var(--radius)',
-                                            boxShadow: 'var(--shadow)',
-                                            position: 'relative',
-                                            transition: 'all 0.3s ease'
-                                        }}>
-                                            {currentPromo && (
-                                                <>
-                                                    {promoHtml ? (
-                                                        <div
-                                                            style={{ marginBottom: '0.5rem', overflow: 'hidden', borderRadius: 'var(--radius)' }}
-                                                            dangerouslySetInnerHTML={promoHtml}
-                                                        />
-                                                    ) : (
-                                                        getActiveMedia(currentPromo) && (
-                                                            <div
-                                                                style={{ position: 'relative', marginBottom: '0.5rem', cursor: 'pointer' }}
-                                                                onClick={() => openModal(getActiveMedia(currentPromo))}
-                                                            >
-                                                                {isVideo(getActiveMedia(currentPromo)) ? (
-                                                                    <video
-                                                                        src={getActiveMedia(currentPromo)}
-                                                                        style={{ width: '100%', borderRadius: 'var(--radius)' }}
-                                                                        muted
-                                                                        autoPlay
-                                                                        loop
-                                                                    />
-                                                                ) : (
-                                                                    <Image
-                                                                        src={getActiveMedia(currentPromo)}
-                                                                        alt={currentPromo.title}
-                                                                        width={0}
-                                                                        height={0}
-                                                                        sizes="100vw"
-                                                                        style={{ width: '100%', height: 'auto', borderRadius: 'var(--radius)' }}
-                                                                    />
-                                                                )}
-                                                                {currentPromo.images && currentPromo.images.length > 1 && (
-                                                                    <div style={{
-                                                                        position: 'absolute',
-                                                                        bottom: '5px',
-                                                                        right: '5px',
-                                                                        background: 'rgba(0,0,0,0.6)',
-                                                                        color: 'white',
-                                                                        padding: '2px 6px',
-                                                                        borderRadius: '10px',
-                                                                        fontSize: '0.7rem'
-                                                                    }}>
-                                                                        {currentPromo.images.length} fotos
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                        )
-                                                    )}
-                                                    <p style={{ fontWeight: 'bold', marginBottom: '0.25rem' }}>
-                                                        {currentPromo.title}
-                                                    </p>
-                                                    <p style={{
-                                                        fontSize: '0.9rem',
-                                                        opacity: 0.9,
-                                                        display: '-webkit-box',
-                                                        WebkitLineClamp: 2,
-                                                        WebkitBoxOrient: 'vertical',
-                                                        overflow: 'hidden',
-                                                        textOverflow: 'ellipsis'
-                                                    }}>
-                                                        {currentPromo.description}
-                                                    </p>
-                                                    {currentPromo.discount && (
-                                                        <div style={{
-                                                            marginTop: '0.5rem',
-                                                            fontWeight: 'bold',
-                                                            fontSize: '1.2rem',
-                                                            background: 'var(--primary)',
-                                                            color: 'white',
-                                                            padding: '0.25rem 0.5rem',
-                                                            borderRadius: 'var(--radius)',
-                                                            display: 'inline-block'
-                                                        }}>
-                                                            {currentPromo.discount}% OFF
-                                                        </div>
-                                                    )}
-
-                                                    {isAdmin && (
-                                                        <div style={{ marginTop: '1rem', borderTop: '1px solid var(--border)', paddingTop: '0.5rem' }}>
-                                                            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.8rem' }}>
-                                                                <input
-                                                                    type="checkbox"
-                                                                    checked={currentPromo.active}
-                                                                    onChange={() => toggleItem('promotions', currentPromo.id, currentPromo.active)}
-                                                                />
-                                                                Visível
-                                                            </label>
-                                                        </div>
-                                                    )}
-                                                </>
-                                            )}
-
-                                            {/* Dots Indicator */}
-                                            {promotions.length > 1 && (
-                                                <div style={{ display: 'flex', justifyContent: 'center', gap: '4px', marginTop: '1rem' }}>
-                                                    {promotions.map((_, idx) => (
-                                                        <div key={idx} style={{
-                                                            width: '6px',
-                                                            height: '6px',
-                                                            borderRadius: '50%',
-                                                            background: idx === currentPromoIndex ? 'white' : 'rgba(255,255,255,0.5)'
-                                                        }} />
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </div>
-                                    </>
-                                )}
-
-                            </section >
-                        )
-                        }
-
-                        {/* Eventos */}
-                        {
-                            (isAdmin || showEvents) && (
-                                <section
-                                    onMouseEnter={() => setIsEventHovered(true)}
-                                    onMouseLeave={() => setIsEventHovered(false)}
-                                    style={{ display: 'flex', flexDirection: 'column', alignItems: isCollapsed ? 'center' : 'stretch' }}
-                                >
-                                    {isCollapsed ? (
-                                        <div title="Eventos" style={{ fontSize: '1.5rem', cursor: 'pointer' }}>📅</div>
-                                    ) : (
+                                <div style={{
+                                    background: 'var(--card)',
+                                    border: '1px solid var(--border)',
+                                    padding: '1rem',
+                                    borderRadius: 'var(--radius)',
+                                    boxShadow: 'var(--shadow)',
+                                    position: 'relative',
+                                    transition: 'all 0.3s ease'
+                                }}>
+                                    {currentPromo && (
                                         <>
-                                            <h3 style={{
-                                                fontSize: '1.1rem',
-                                                marginBottom: '1rem',
-                                                color: 'white',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'space-between'
-                                            }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                                    📅 Próximos Eventos
-                                                </div>
-                                                {isAdmin && (
-                                                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 'normal' }}>
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={showEvents}
-                                                            onChange={() => toggleGlobalSetting('showEvents', showEvents)}
-                                                        />
-                                                        Seção Visível
-                                                    </label>
-                                                )}
-                                            </h3>
-                                            <div style={{
-                                                background: 'var(--card)',
-                                                border: '1px solid var(--border)',
-                                                padding: '1rem',
-                                                borderRadius: 'var(--radius)',
-                                                boxShadow: 'var(--shadow)',
-                                                minHeight: '150px'
-                                            }}>
-                                                {events.length === 0 ? (
-                                                    <p style={{ fontSize: '0.9rem', color: '#000000' }}>Nenhum evento próximo.</p>
-                                                ) : (
-                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                                                        {currentEvent && (
-                                                            <div key={currentEvent.id} className="animate-fade-in">
-                                                                <div style={{ marginBottom: '0.5rem', opacity: currentEvent.active ? 1 : 0.5 }}>
-                                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
-                                                                        <p style={{ fontWeight: '600', fontSize: '0.95rem' }}>{currentEvent.title}</p>
-                                                                    </div>
-                                                                    <p style={{ fontSize: '0.8rem', color: '#000000', marginBottom: '0.5rem' }}>
-                                                                        {new Date(currentEvent.date).toLocaleDateString()}
-                                                                    </p>
-
-                                                                    {/* Event Image/Video Preview or HTML Content */}
-                                                                    {eventHtml ? (
-                                                                        <div
-                                                                            style={{ marginBottom: '0.5rem', overflow: 'hidden', borderRadius: 'var(--radius)' }}
-                                                                            dangerouslySetInnerHTML={eventHtml}
-                                                                        />
-                                                                    ) : (
-                                                                        getActiveMedia(currentEvent) && (
-                                                                            <div
-                                                                                style={{ position: 'relative', borderRadius: 'var(--radius)', overflow: 'hidden', cursor: 'pointer' }}
-                                                                                onClick={() => openModal(getActiveMedia(currentEvent))}
-                                                                            >
-                                                                                {isVideo(getActiveMedia(currentEvent)) ? (
-                                                                                    <video
-                                                                                        src={getActiveMedia(currentEvent)}
-                                                                                        style={{ width: '100%', height: 'auto' }}
-                                                                                        muted
-                                                                                        autoPlay
-                                                                                        loop
-                                                                                    />
-                                                                                ) : (
-                                                                                    <Image
-                                                                                        src={getActiveMedia(currentEvent)}
-                                                                                        alt={currentEvent.title}
-                                                                                        width={0}
-                                                                                        height={0}
-                                                                                        sizes="100vw"
-                                                                                        style={{ width: '100%', height: 'auto' }}
-                                                                                    />
-                                                                                )}
-                                                                                {currentEvent.images && currentEvent.images.length > 1 && (
-                                                                                    <div style={{
-                                                                                        position: 'absolute',
-                                                                                        bottom: '5px',
-                                                                                        right: '5px',
-                                                                                        background: 'rgba(0,0,0,0.6)',
-                                                                                        color: 'white',
-                                                                                        padding: '2px 6px',
-                                                                                        borderRadius: '10px',
-                                                                                        fontSize: '0.7rem'
-                                                                                    }}>
-                                                                                        {currentEvent.images.length} fotos
-                                                                                    </div>
-                                                                                )}
-                                                                            </div>
-                                                                        )
-                                                                    )}
-
-                                                                    {isAdmin && (
-                                                                        <div style={{ marginTop: '1rem', borderTop: '1px solid var(--border)', paddingTop: '0.5rem' }}>
-                                                                            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.8rem' }}>
-                                                                                <input
-                                                                                    type="checkbox"
-                                                                                    checked={currentEvent.active}
-                                                                                    onChange={() => toggleItem('events', currentEvent.id, currentEvent.active)}
-                                                                                />
-                                                                                Visível
-                                                                            </label>
-                                                                        </div>
-                                                                    )}
-                                                                </div>
-                                                            </div>
+                                            {promoHtml ? (
+                                                <div
+                                                    style={{ marginBottom: '0.5rem', overflow: 'hidden', borderRadius: 'var(--radius)' }}
+                                                    dangerouslySetInnerHTML={promoHtml}
+                                                />
+                                            ) : (
+                                                getActiveMedia(currentPromo) && (
+                                                    <div
+                                                        style={{ position: 'relative', marginBottom: '0.5rem', cursor: 'pointer' }}
+                                                        onClick={() => openModal(getActiveMedia(currentPromo))}
+                                                    >
+                                                        {isVideo(getActiveMedia(currentPromo)) ? (
+                                                            <video
+                                                                src={getActiveMedia(currentPromo)}
+                                                                style={{ width: '100%', borderRadius: 'var(--radius)' }}
+                                                                muted
+                                                                autoPlay
+                                                                loop
+                                                            />
+                                                        ) : (
+                                                            <Image
+                                                                src={getActiveMedia(currentPromo)}
+                                                                alt={currentPromo.title}
+                                                                width={0}
+                                                                height={0}
+                                                                sizes="100vw"
+                                                                style={{ width: '100%', height: 'auto', borderRadius: 'var(--radius)' }}
+                                                            />
                                                         )}
-
-                                                        {/* Dots Indicator for Events */}
-                                                        {events.length > 1 && (
-                                                            <div style={{ display: 'flex', justifyContent: 'center', gap: '4px', marginTop: '0.5rem' }}>
-                                                                {events.map((_, idx) => (
-                                                                    <div key={idx} style={{
-                                                                        width: '6px',
-                                                                        height: '6px',
-                                                                        borderRadius: '50%',
-                                                                        background: idx === currentEventIndex ? 'white' : 'rgba(255,255,255,0.5)'
-                                                                    }} />
-                                                                ))}
+                                                        {currentPromo.images && currentPromo.images.length > 1 && (
+                                                            <div style={{
+                                                                position: 'absolute',
+                                                                bottom: '5px',
+                                                                right: '5px',
+                                                                background: 'rgba(0,0,0,0.6)',
+                                                                color: 'white',
+                                                                padding: '2px 6px',
+                                                                borderRadius: '10px',
+                                                                fontSize: '0.7rem'
+                                                            }}>
+                                                                {currentPromo.images.length} fotos
                                                             </div>
                                                         )}
                                                     </div>
-                                                )}
-                                            </div>
+                                                )
+                                            )}
+                                            <p style={{ fontWeight: 'bold', marginBottom: '0.25rem' }}>
+                                                {currentPromo.title}
+                                            </p>
+                                            <p style={{
+                                                fontSize: '0.9rem',
+                                                opacity: 0.9,
+                                                display: '-webkit-box',
+                                                WebkitLineClamp: 2,
+                                                WebkitBoxOrient: 'vertical',
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis'
+                                            }}>
+                                                {currentPromo.description}
+                                            </p>
+                                            {currentPromo.discount && (
+                                                <div style={{
+                                                    marginTop: '0.5rem',
+                                                    fontWeight: 'bold',
+                                                    fontSize: '1.2rem',
+                                                    background: 'var(--primary)',
+                                                    color: 'white',
+                                                    padding: '0.25rem 0.5rem',
+                                                    borderRadius: 'var(--radius)',
+                                                    display: 'inline-block'
+                                                }}>
+                                                    {currentPromo.discount}% OFF
+                                                </div>
+                                            )}
+
+                                            {isAdmin && (
+                                                <div style={{ marginTop: '1rem', borderTop: '1px solid var(--border)', paddingTop: '0.5rem' }}>
+                                                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.8rem' }}>
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={currentPromo.active}
+                                                            onChange={() => toggleItem('promotions', currentPromo.id, currentPromo.active)}
+                                                        />
+                                                        Visível
+                                                    </label>
+                                                </div>
+                                            )}
                                         </>
                                     )}
-                                </section>
-                            )
-                        }
 
-                        {/* Publicidade */}
-                        {
-                            ads.length > 0 && (
-                                <section
-                                    onMouseEnter={() => setIsAdHovered(true)}
-                                    onMouseLeave={() => setIsAdHovered(false)}
-                                    style={{ display: 'flex', flexDirection: 'column', alignItems: isCollapsed ? 'center' : 'stretch' }}
-                                >
-                                    {isCollapsed ? (
-                                        <div title="Publicidade" style={{ fontSize: '1.5rem', cursor: 'pointer' }}>📢</div>
-                                    ) : (
-                                        <>
-                                            <h3 style={{
-                                                fontSize: '1.1rem',
-                                                marginBottom: '1rem',
-                                                color: 'var(--primary)',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'space-between'
-                                            }}>
-                                                📢 Publicidade
-                                                {isAdmin && currentAd && (
-                                                    <span style={{ fontSize: '0.7rem', color: '#000000' }}>
-                                                        {currentAd.active ? '🟢' : '🔴'}
-                                                    </span>
-                                                )}
-                                            </h3>
+                                    {/* Dots Indicator */}
+                                    {promotions.length > 1 && (
+                                        <div style={{ display: 'flex', justifyContent: 'center', gap: '4px', marginTop: '1rem' }}>
+                                            {promotions.map((_, idx) => (
+                                                <div key={idx} style={{
+                                                    width: '6px',
+                                                    height: '6px',
+                                                    borderRadius: '50%',
+                                                    background: idx === currentPromoIndex ? 'white' : 'rgba(255,255,255,0.5)'
+                                                }} />
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            </>
+                        )}
 
-                                            <div style={{
-                                                background: 'var(--card)',
-                                                border: '1px solid var(--border)',
-                                                padding: '1rem',
-                                                borderRadius: 'var(--radius)',
-                                                boxShadow: 'var(--shadow)',
-                                                position: 'relative',
-                                                transition: 'all 0.3s ease'
-                                            }}>
-                                                {currentAd && (
-                                                    <div key={currentAd.id} className="animate-fade-in">
-                                                        <div style={{ position: 'relative', opacity: currentAd.active ? 1 : 0.5 }}>
-                                                            {adHtml ? (
+                    </section >
+                )
+                }
+
+                {/* Eventos */}
+                {
+                    (isAdmin || showEvents) && (
+                        <section
+                            onMouseEnter={() => setIsEventHovered(true)}
+                            onMouseLeave={() => setIsEventHovered(false)}
+                            style={{ display: 'flex', flexDirection: 'column', alignItems: isCollapsed ? 'center' : 'stretch' }}
+                        >
+                            {isCollapsed ? (
+                                <div title="Eventos" style={{ fontSize: '1.5rem', cursor: 'pointer' }}>📅</div>
+                            ) : (
+                                <>
+                                    <h3 style={{
+                                        fontSize: '1.1rem',
+                                        marginBottom: '1rem',
+                                        color: 'white',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between'
+                                    }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                            📅 Próximos Eventos
+                                        </div>
+                                        {isAdmin && (
+                                            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 'normal' }}>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={showEvents}
+                                                    onChange={() => toggleGlobalSetting('showEvents', showEvents)}
+                                                />
+                                                Seção Visível
+                                            </label>
+                                        )}
+                                    </h3>
+                                    <div style={{
+                                        background: 'var(--card)',
+                                        border: '1px solid var(--border)',
+                                        padding: '1rem',
+                                        borderRadius: 'var(--radius)',
+                                        boxShadow: 'var(--shadow)',
+                                        minHeight: '150px'
+                                    }}>
+                                        {events.length === 0 ? (
+                                            <p style={{ fontSize: '0.9rem', color: '#000000' }}>Nenhum evento próximo.</p>
+                                        ) : (
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                                {currentEvent && (
+                                                    <div key={currentEvent.id} className="animate-fade-in">
+                                                        <div style={{ marginBottom: '0.5rem', opacity: currentEvent.active ? 1 : 0.5 }}>
+                                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                                                                <p style={{ fontWeight: '600', fontSize: '0.95rem' }}>{currentEvent.title}</p>
+                                                            </div>
+                                                            <p style={{ fontSize: '0.8rem', color: '#000000', marginBottom: '0.5rem' }}>
+                                                                {new Date(currentEvent.date).toLocaleDateString()}
+                                                            </p>
+
+                                                            {/* Event Image/Video Preview or HTML Content */}
+                                                            {eventHtml ? (
                                                                 <div
                                                                     style={{ marginBottom: '0.5rem', overflow: 'hidden', borderRadius: 'var(--radius)' }}
-                                                                    dangerouslySetInnerHTML={adHtml}
+                                                                    dangerouslySetInnerHTML={eventHtml}
                                                                 />
                                                             ) : (
-                                                                getDisplayMedia(currentAd) && (
+                                                                getActiveMedia(currentEvent) && (
                                                                     <div
-                                                                        style={{ cursor: 'pointer' }}
-                                                                        onClick={() => currentAd.link ? window.open(currentAd.link, '_blank') : openModal(getDisplayMedia(currentAd))}
+                                                                        style={{ position: 'relative', borderRadius: 'var(--radius)', overflow: 'hidden', cursor: 'pointer' }}
+                                                                        onClick={() => openModal(getActiveMedia(currentEvent))}
                                                                     >
-                                                                        {isVideo(getDisplayMedia(currentAd)) ? (
+                                                                        {isVideo(getActiveMedia(currentEvent)) ? (
                                                                             <video
-                                                                                src={getDisplayMedia(currentAd)}
-                                                                                style={{ width: '100%', borderRadius: 'var(--radius)', height: 'auto' }}
+                                                                                src={getActiveMedia(currentEvent)}
+                                                                                style={{ width: '100%', height: 'auto' }}
                                                                                 muted
                                                                                 autoPlay
                                                                                 loop
                                                                             />
                                                                         ) : (
                                                                             <Image
-                                                                                src={getDisplayMedia(currentAd)}
-                                                                                alt={currentAd.title}
+                                                                                src={getActiveMedia(currentEvent)}
+                                                                                alt={currentEvent.title}
                                                                                 width={0}
                                                                                 height={0}
                                                                                 sizes="100vw"
-                                                                                style={{ width: '100%', borderRadius: 'var(--radius)', height: 'auto' }}
+                                                                                style={{ width: '100%', height: 'auto' }}
                                                                             />
+                                                                        )}
+                                                                        {currentEvent.images && currentEvent.images.length > 1 && (
+                                                                            <div style={{
+                                                                                position: 'absolute',
+                                                                                bottom: '5px',
+                                                                                right: '5px',
+                                                                                background: 'rgba(0,0,0,0.6)',
+                                                                                color: 'white',
+                                                                                padding: '2px 6px',
+                                                                                borderRadius: '10px',
+                                                                                fontSize: '0.7rem'
+                                                                            }}>
+                                                                                {currentEvent.images.length} fotos
+                                                                            </div>
                                                                         )}
                                                                     </div>
                                                                 )
                                                             )}
 
                                                             {isAdmin && (
-                                                                <div style={{ marginTop: '0.5rem', borderTop: '1px solid var(--border)', paddingTop: '0.5rem' }}>
+                                                                <div style={{ marginTop: '1rem', borderTop: '1px solid var(--border)', paddingTop: '0.5rem' }}>
                                                                     <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.8rem' }}>
                                                                         <input
                                                                             type="checkbox"
-                                                                            checked={currentAd.active}
-                                                                            onChange={() => toggleItem('ads', currentAd.id, currentAd.active)}
-                                                                            title="Visível"
+                                                                            checked={currentEvent.active}
+                                                                            onChange={() => toggleItem('events', currentEvent.id, currentEvent.active)}
                                                                         />
                                                                         Visível
                                                                     </label>
@@ -600,86 +470,198 @@ export default function RightSidebar() {
                                                     </div>
                                                 )}
 
-                                                {ads.length > 1 && (
-                                                    <div style={{ display: 'flex', justifyContent: 'center', gap: '4px', marginTop: '1rem' }}>
-                                                        {ads.map((_, idx) => (
+                                                {/* Dots Indicator for Events */}
+                                                {events.length > 1 && (
+                                                    <div style={{ display: 'flex', justifyContent: 'center', gap: '4px', marginTop: '0.5rem' }}>
+                                                        {events.map((_, idx) => (
                                                             <div key={idx} style={{
                                                                 width: '6px',
                                                                 height: '6px',
                                                                 borderRadius: '50%',
-                                                                background: idx === currentAdIndex ? 'white' : 'rgba(255,255,255,0.5)'
+                                                                background: idx === currentEventIndex ? 'white' : 'rgba(255,255,255,0.5)'
                                                             }} />
                                                         ))}
                                                     </div>
                                                 )}
                                             </div>
-                                        </>
-                                    )}
-                                </section>
-                            )
-                        }
+                                        )}
+                                    </div>
+                                </>
+                            )}
+                        </section>
+                    )
+                }
 
-                    </aside >
+                {/* Publicidade */}
+                {
+                    ads.length > 0 && (
+                        <section
+                            onMouseEnter={() => setIsAdHovered(true)}
+                            onMouseLeave={() => setIsAdHovered(false)}
+                            style={{ display: 'flex', flexDirection: 'column', alignItems: isCollapsed ? 'center' : 'stretch' }}
+                        >
+                            {isCollapsed ? (
+                                <div title="Publicidade" style={{ fontSize: '1.5rem', cursor: 'pointer' }}>📢</div>
+                            ) : (
+                                <>
+                                    <h3 style={{
+                                        fontSize: '1.1rem',
+                                        marginBottom: '1rem',
+                                        color: 'var(--primary)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between'
+                                    }}>
+                                        📢 Publicidade
+                                        {isAdmin && currentAd && (
+                                            <span style={{ fontSize: '0.7rem', color: '#000000' }}>
+                                                {currentAd.active ? '🟢' : '🔴'}
+                                            </span>
+                                        )}
+                                    </h3>
 
-                    {/* Media Modal */}
-                    {
-                        selectedMedia && (
-                            <div
-                                style={{
-                                    position: 'fixed',
-                                    top: 0,
-                                    left: 0,
-                                    width: '100%',
-                                    height: '100%',
-                                    background: 'rgba(0,0,0,0.8)',
-                                    zIndex: 9999,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    padding: '2rem'
-                                }}
+                                    <div style={{
+                                        background: 'var(--card)',
+                                        border: '1px solid var(--border)',
+                                        padding: '1rem',
+                                        borderRadius: 'var(--radius)',
+                                        boxShadow: 'var(--shadow)',
+                                        position: 'relative',
+                                        transition: 'all 0.3s ease'
+                                    }}>
+                                        {currentAd && (
+                                            <div key={currentAd.id} className="animate-fade-in">
+                                                <div style={{ position: 'relative', opacity: currentAd.active ? 1 : 0.5 }}>
+                                                    {adHtml ? (
+                                                        <div
+                                                            style={{ marginBottom: '0.5rem', overflow: 'hidden', borderRadius: 'var(--radius)' }}
+                                                            dangerouslySetInnerHTML={adHtml}
+                                                        />
+                                                    ) : (
+                                                        getDisplayMedia(currentAd) && (
+                                                            <div
+                                                                style={{ cursor: 'pointer' }}
+                                                                onClick={() => currentAd.link ? window.open(currentAd.link, '_blank') : openModal(getDisplayMedia(currentAd))}
+                                                            >
+                                                                {isVideo(getDisplayMedia(currentAd)) ? (
+                                                                    <video
+                                                                        src={getDisplayMedia(currentAd)}
+                                                                        style={{ width: '100%', borderRadius: 'var(--radius)', height: 'auto' }}
+                                                                        muted
+                                                                        autoPlay
+                                                                        loop
+                                                                    />
+                                                                ) : (
+                                                                    <Image
+                                                                        src={getDisplayMedia(currentAd)}
+                                                                        alt={currentAd.title}
+                                                                        width={0}
+                                                                        height={0}
+                                                                        sizes="100vw"
+                                                                        style={{ width: '100%', borderRadius: 'var(--radius)', height: 'auto' }}
+                                                                    />
+                                                                )}
+                                                            </div>
+                                                        )
+                                                    )}
+
+                                                    {isAdmin && (
+                                                        <div style={{ marginTop: '0.5rem', borderTop: '1px solid var(--border)', paddingTop: '0.5rem' }}>
+                                                            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.8rem' }}>
+                                                                <input
+                                                                    type="checkbox"
+                                                                    checked={currentAd.active}
+                                                                    onChange={() => toggleItem('ads', currentAd.id, currentAd.active)}
+                                                                    title="Visível"
+                                                                />
+                                                                Visível
+                                                            </label>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {ads.length > 1 && (
+                                            <div style={{ display: 'flex', justifyContent: 'center', gap: '4px', marginTop: '1rem' }}>
+                                                {ads.map((_, idx) => (
+                                                    <div key={idx} style={{
+                                                        width: '6px',
+                                                        height: '6px',
+                                                        borderRadius: '50%',
+                                                        background: idx === currentAdIndex ? 'white' : 'rgba(255,255,255,0.5)'
+                                                    }} />
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                </>
+                            )}
+                        </section>
+                    )
+                }
+
+            </aside >
+
+            {/* Media Modal */}
+            {
+                selectedMedia && (
+                    <div
+                        style={{
+                            position: 'fixed',
+                            top: 0,
+                            left: 0,
+                            width: '100%',
+                            height: '100%',
+                            background: 'rgba(0,0,0,0.8)',
+                            zIndex: 9999,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: '2rem'
+                        }}
+                        onClick={closeModal}
+                    >
+                        <div
+                            style={{ position: 'relative', maxWidth: '90%', maxHeight: '90%' }}
+                            onClick={e => e.stopPropagation()}
+                        >
+                            <button
                                 onClick={closeModal}
+                                style={{
+                                    position: 'absolute',
+                                    top: -40,
+                                    right: 0,
+                                    background: 'none',
+                                    border: 'none',
+                                    color: 'white',
+                                    fontSize: '2rem',
+                                    cursor: 'pointer'
+                                }}
                             >
-                                <div
-                                    style={{ position: 'relative', maxWidth: '90%', maxHeight: '90%' }}
-                                    onClick={e => e.stopPropagation()}
-                                >
-                                    <button
-                                        onClick={closeModal}
-                                        style={{
-                                            position: 'absolute',
-                                            top: -40,
-                                            right: 0,
-                                            background: 'none',
-                                            border: 'none',
-                                            color: 'white',
-                                            fontSize: '2rem',
-                                            cursor: 'pointer'
-                                        }}
-                                    >
-                                        &times;
-                                    </button>
-                                    {isVideo(selectedMedia) ? (
-                                        <video
-                                            src={selectedMedia}
-                                            controls
-                                            autoPlay
-                                            style={{ maxWidth: '100%', maxHeight: '80vh', borderRadius: 'var(--radius)' }}
-                                        />
-                                    ) : (
-                                        <Image
-                                            src={selectedMedia}
-                                            alt="Full view"
-                                            width={0}
-                                            height={0}
-                                            sizes="100vw"
-                                            style={{ maxWidth: '100%', maxHeight: '80vh', borderRadius: 'var(--radius)', width: 'auto', height: 'auto' }}
-                                        />
-                                    )}
-                                </div>
-                            </div>
-                        )
-                    }
-                </>
-                );
+                                &times;
+                            </button>
+                            {isVideo(selectedMedia) ? (
+                                <video
+                                    src={selectedMedia}
+                                    controls
+                                    autoPlay
+                                    style={{ maxWidth: '100%', maxHeight: '80vh', borderRadius: 'var(--radius)' }}
+                                />
+                            ) : (
+                                <Image
+                                    src={selectedMedia}
+                                    alt="Full view"
+                                    width={0}
+                                    height={0}
+                                    sizes="100vw"
+                                    style={{ maxWidth: '100%', maxHeight: '80vh', borderRadius: 'var(--radius)', width: 'auto', height: 'auto' }}
+                                />
+                            )}
+                        </div>
+                    </div>
+                )
+            }
+        </>
+    );
 }
