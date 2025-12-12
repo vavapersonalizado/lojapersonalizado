@@ -11,6 +11,7 @@ import LoginModal from './LoginModal';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useView } from '@/contexts/ViewContext';
 
+import { useTheme } from '@/contexts/ThemeContext';
 import NotificationBell from './NotificationBell';
 
 export default function Header() {
