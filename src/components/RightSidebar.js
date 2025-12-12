@@ -141,6 +141,20 @@ export default function RightSidebar() {
         }
     };
 
+    const toggleGlobalSetting = async (key, currentValue) => {
+        if (!isAdmin) return;
+        try {
+            await fetch('/api/settings', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ [key]: !currentValue })
+            });
+            fetchData(); // Refresh data
+        } catch (error) {
+            console.error(`Error toggling setting ${key}:`, error);
+        }
+    };
+
     const getDisplayMedia = (item) => {
         if (item.images && item.images.length > 0) return item.images[0];
         if (item.imageUrl) return item.imageUrl;
