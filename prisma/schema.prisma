@@ -425,5 +425,6 @@ model BlogPost {
   title     String?
   embedUrl  String   @db.Text
   platform  String   // INSTAGRAM, FACEBOOK, PINTEREST, OTHER
+  visible   Boolean  @default(true)
   createdAt DateTime @default(now())
 }

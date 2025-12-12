@@ -6,12 +6,21 @@ import prisma from '@/lib/prisma';
 // GET /api/blog - Listar posts
 export async function GET(request) {
     try {
+        const session = await getServerSession(authOptions);
+        const isAdmin = session?.user?.role === 'admin';
+
         const { searchParams } = new URL(request.url);
         const limit = parseInt(searchParams.get('limit')) || 20;
         const page = parseInt(searchParams.get('page')) || 1;
         const skip = (page - 1) * limit;
 
+        const where = {};
+        if (!isAdmin) {
+            where.visible = true;
+        }
+
         const posts = await prisma.blogPost.findMany({
+            where,
             take: limit,
             skip: skip,
             orderBy: {
@@ -19,7 +28,7 @@ export async function GET(request) {
             }
         });
 
-        const total = await prisma.blogPost.count();
+        const total = await prisma.blogPost.count({ where });
 
         return NextResponse.json({
             posts,
@@ -69,5 +78,32 @@ export async function POST(request) {
     } catch (error) {
         console.error('Error creating blog post:', error);
         return NextResponse.json({ error: 'Error creating post' }, { status: 500 });
+    }
+}
+// PATCH /api/blog/[id] - Atualizar post (visibilidade)
+export async function PATCH(request, { params }) {
+    const session = await getServerSession(authOptions);
+
+    if (!session || session.user.role !== 'admin') {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    try {
+        const id = params.id;
+        const body = await request.json();
+        const { visible } = body;
+
+        const updateData = {};
+        if (visible !== undefined) updateData.visible = visible;
+
+        const post = await prisma.blogPost.update({
+            where: { id },
+            data: updateData
+        });
+
+        return NextResponse.json(post);
+    } catch (error) {
+        console.error('Error updating blog post:', error);
+        return NextResponse.json({ error: 'Error updating post' }, { status: 500 });
     }
 }

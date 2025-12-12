@@ -87,7 +87,7 @@ export default function AdminBlogPage() {
 
             if (res.ok) {
                 setPosts(posts.filter(p => p.id !== id));
-                setSelectedPosts(selectedPosts.filter(pid => pid !== id));
+                setPosts(posts.filter(p => p.id !== id));
             } else {
                 alert('Erro ao remover post');
             }
@@ -96,41 +96,19 @@ export default function AdminBlogPage() {
         }
     };
 
-    const toggleSelectPost = (id) => {
-        if (selectedPosts.includes(id)) {
-            setSelectedPosts(selectedPosts.filter(pid => pid !== id));
-        } else {
-            setSelectedPosts([...selectedPosts, id]);
-        }
-    };
-
-    const toggleSelectAll = () => {
-        if (selectedPosts.length === posts.length) {
-            setSelectedPosts([]);
-        } else {
-            setSelectedPosts(posts.map(p => p.id));
-        }
-    };
-
-    const handleDeleteSelected = async () => {
-        if (selectedPosts.length === 0) return;
-        if (!confirm(`Tem certeza que deseja remover ${selectedPosts.length} posts selecionados?`)) return;
-
-        setDeleting(true);
+    const togglePostVisibility = async (id, currentStatus) => {
         try {
-            // Deletar um por um (idealmente seria uma API de bulk delete)
-            for (const id of selectedPosts) {
-                await fetch(`/api/blog/${id}`, { method: 'DELETE' });
-            }
+            const res = await fetch(`/api/blog/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ visible: !currentStatus })
+            });
 
-            setPosts(posts.filter(p => !selectedPosts.includes(p.id)));
-            setSelectedPosts([]);
-            alert('Posts removidos com sucesso!');
+            if (res.ok) {
+                setPosts(posts.map(p => p.id === id ? { ...p, visible: !currentStatus } : p));
+            }
         } catch (error) {
-            console.error('Error deleting posts:', error);
-            alert('Erro ao remover alguns posts');
-        } finally {
-            setDeleting(false);
+            console.error('Error toggling post visibility:', error);
         }
     };
 
@@ -200,39 +178,7 @@ export default function AdminBlogPage() {
                 </p>
             </div>
 
-            {/* Bulk Actions */}
-            {posts.length > 0 && (
-                <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f9f9f9', padding: '1rem', borderRadius: '8px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <input
-                            type="checkbox"
-                            checked={posts.length > 0 && selectedPosts.length === posts.length}
-                            onChange={toggleSelectAll}
-                            style={{ width: '18px', height: '18px', cursor: 'pointer' }}
-                        />
-                        <span style={{ fontWeight: 'bold' }}>Selecionar Todos ({selectedPosts.length})</span>
-                    </div>
 
-                    {selectedPosts.length > 0 && (
-                        <button
-                            onClick={handleDeleteSelected}
-                            disabled={deleting}
-                            style={{
-                                background: '#dc2626',
-                                color: 'white',
-                                border: 'none',
-                                padding: '0.5rem 1rem',
-                                borderRadius: '4px',
-                                cursor: 'pointer',
-                                fontWeight: 'bold',
-                                opacity: deleting ? 0.7 : 1
-                            }}
-                        >
-                            {deleting ? 'Removendo...' : `🗑️ Remover Selecionados (${selectedPosts.length})`}
-                        </button>
-                    )}
-                </div>
-            )}
 
             {/* Posts Grid */}
             <div style={{
@@ -245,9 +191,10 @@ export default function AdminBlogPage() {
                         <div style={{ position: 'absolute', top: '10px', left: '10px', zIndex: 10 }}>
                             <input
                                 type="checkbox"
-                                checked={selectedPosts.includes(post.id)}
-                                onChange={() => toggleSelectPost(post.id)}
+                                checked={post.visible !== false} // Default true
+                                onChange={() => togglePostVisibility(post.id, post.visible !== false)}
                                 style={{ width: '20px', height: '20px', cursor: 'pointer' }}
+                                title={post.visible !== false ? "Visível para clientes" : "Oculto para clientes"}
                             />
                         </div>
 
