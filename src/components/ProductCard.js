@@ -74,7 +74,7 @@ export default function ProductCard({ product, isClientMode }) {
 
     return (
         <div
-            className="card"
+            className="card glass"
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             style={{
@@ -83,15 +83,16 @@ export default function ProductCard({ product, isClientMode }) {
                 height: '100%',
                 transition: 'all 0.3s ease',
                 transform: isHovered ? 'translateY(-5px)' : 'none',
-                boxShadow: isHovered ? 'var(--shadow-lg)' : 'var(--shadow)'
+                boxShadow: isHovered ? 'var(--shadow-glow)' : 'var(--shadow)',
+                border: 'var(--glass-border)',
+                background: 'var(--card)'
             }}
         >
-            <div style={{ position: 'relative' }}>
+            <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 'var(--radius) var(--radius) 0 0' }}>
                 <div style={{
-                    height: '140px',
+                    height: '200px', // Aumentado para melhor visualização
                     position: 'relative',
-                    background: 'var(--muted)',
-                    borderRadius: 'var(--radius) var(--radius) 0 0',
+                    background: 'rgba(255,255,255,0.02)',
                     overflow: 'hidden'
                 }}>
                     {is3D ? (
@@ -99,7 +100,7 @@ export default function ProductCard({ product, isClientMode }) {
                             <ModelViewer
                                 src={mediaUrl}
                                 alt={product.name}
-                                style={{ backgroundColor: '#f5f5f5' }}
+                                style={{ backgroundColor: 'transparent' }}
                             />
                             <div style={{
                                 position: 'absolute',
@@ -110,7 +111,8 @@ export default function ProductCard({ product, isClientMode }) {
                                 padding: '4px 8px',
                                 borderRadius: '4px',
                                 fontSize: '0.8rem',
-                                pointerEvents: 'none'
+                                pointerEvents: 'none',
+                                backdropFilter: 'blur(4px)'
                             }}>
                                 🧊 3D
                             </div>
@@ -137,7 +139,8 @@ export default function ProductCard({ product, isClientMode }) {
                                         alt={product.name}
                                         fill
                                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                                        style={{ objectFit: 'cover' }}
+                                        style={{ objectFit: 'cover', transition: 'transform 0.5s ease' }}
+                                        className={isHovered ? 'scale-110' : ''}
                                         priority={false}
                                     />
                                 )
@@ -148,7 +151,8 @@ export default function ProductCard({ product, isClientMode }) {
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                    fontSize: '3rem'
+                                    fontSize: '3rem',
+                                    background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%)'
                                 }}>
                                     📦
                                 </div>
@@ -164,22 +168,24 @@ export default function ProductCard({ product, isClientMode }) {
                             left: '50%',
                             transform: 'translateX(-50%)',
                             display: 'flex',
-                            gap: '4px'
+                            gap: '6px',
+                            zIndex: 2
                         }}>
                             {product.images.map((_, idx) => (
                                 <div key={idx} style={{
                                     width: '6px',
                                     height: '6px',
                                     borderRadius: '50%',
-                                    background: idx === currentImageIndex ? 'var(--primary)' : 'rgba(255,255,255,0.5)',
-                                    boxShadow: '0 1px 2px rgba(0,0,0,0.3)'
+                                    background: idx === currentImageIndex ? 'var(--primary)' : 'rgba(255,255,255,0.3)',
+                                    boxShadow: '0 1px 2px rgba(0,0,0,0.3)',
+                                    transition: 'all 0.3s ease'
                                 }} />
                             ))}
                         </div>
                     )}
                 </div>
 
-                {/* Admin Controls Overlay - Outside Link */}
+                {/* Admin Controls Overlay */}
                 {
                     isAdmin && !isClientMode && (
                         <div style={{
@@ -196,49 +202,71 @@ export default function ProductCard({ product, isClientMode }) {
                                 className="btn btn-primary"
                                 style={{
                                     padding: '0.25rem 0.5rem',
-                                    fontSize: '0.8rem',
+                                    fontSize: '0.7rem',
                                     display: 'flex',
                                     alignItems: 'center',
-                                    gap: '0.25rem'
+                                    gap: '0.25rem',
+                                    height: 'auto'
                                 }}
                             >
-                                ✏️ Editar
+                                ✏️
                             </button>
                         </div>
                     )
                 }
             </div >
 
-            <div style={{ padding: '0.75rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
+            <div style={{ padding: '1.25rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <Link href={`/products/${product.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                    <h3 style={{ fontSize: '0.95rem', marginBottom: '0.25rem', fontWeight: '600', color: 'var(--card-foreground)' }}>{product.name}</h3>
+                    <h3 style={{
+                        fontSize: '1.1rem',
+                        fontWeight: '700',
+                        color: 'var(--foreground)',
+                        lineHeight: '1.2'
+                    }}>
+                        {product.name}
+                    </h3>
                 </Link>
+
+                {product.category && (
+                    <span style={{
+                        fontSize: '0.75rem',
+                        color: 'var(--primary)',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                        fontWeight: '600'
+                    }}>
+                        {product.category.name}
+                    </span>
+                )}
 
                 {product.description && (
                     <p style={{
-                        fontSize: '0.75rem',
-                        color: 'rgba(0,0,0,0.7)',
-                        marginBottom: '0.5rem',
+                        fontSize: '0.85rem',
+                        color: 'var(--muted-foreground)',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                         display: '-webkit-box',
                         WebkitLineClamp: 2,
                         WebkitBoxOrient: 'vertical',
-                        lineHeight: '1.3'
+                        lineHeight: '1.5',
+                        margin: '0.25rem 0'
                     }}>
                         {product.description}
                     </p>
                 )}
 
-                <div style={{ marginTop: 'auto' }}>
-                    <p style={{ color: 'var(--primary)', fontWeight: 'bold', fontSize: '1rem', marginBottom: '0.25rem' }}>
+                <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '0.5rem' }}>
+                    <p style={{
+                        color: 'var(--foreground)',
+                        fontWeight: '700',
+                        fontSize: '1.25rem',
+                        background: 'var(--gradient-primary)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent'
+                    }}>
                         {formatCurrency(product.price)}
                     </p>
-                    {product.category && (
-                        <p style={{ fontSize: '0.75rem', color: 'rgba(0,0,0,0.6)', marginBottom: '0.5rem' }}>
-                            {product.category.name}
-                        </p>
-                    )}
                     <AddToCartButton product={product} />
                 </div>
             </div>
@@ -265,7 +293,7 @@ function AddToCartButton({ product }) {
                 style={{ width: '100%', opacity: 0.5 }}
             >
                 {t('common.unavailable')}
-            </button>
+            </button >
         );
     }
 
@@ -273,9 +301,15 @@ function AddToCartButton({ product }) {
         <button
             className="btn btn-primary"
             onClick={handleAddToCart}
-            style={{ width: '100%' }}
+            style={{
+                width: 'auto',
+                padding: '0.5rem 1rem',
+                borderRadius: 'var(--radius)',
+                fontSize: '0.9rem'
+            }}
+            title={t('common.add_to_cart')}
         >
-            {added ? `✓ ${t('common.added')}` : `🛒 ${t('common.add_to_cart')}`}
+            {added ? '✓' : '🛒'}
         </button>
     );
 }

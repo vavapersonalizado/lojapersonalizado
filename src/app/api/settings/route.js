@@ -56,7 +56,7 @@ export async function PUT(request) {
         // Filter out 'order' or other non-SiteSettings keys if necessary, 
         // but prisma update will ignore or throw if fields don't exist.
         // For safety, we extract known keys.
-        const { showProducts, showCategories, showEvents, showPromotions, showPartners, showSponsors, showBlog } = body;
+        const { showProducts, showCategories, showEvents, showPromotions, showPartners, showSponsors, showBlog, theme } = body;
 
         const updateData = {};
         if (showProducts !== undefined) updateData.showProducts = showProducts;
@@ -66,6 +66,7 @@ export async function PUT(request) {
         if (showPartners !== undefined) updateData.showPartners = showPartners;
         if (showSponsors !== undefined) updateData.showSponsors = showSponsors;
         if (showBlog !== undefined) updateData.showBlog = showBlog;
+        if (theme !== undefined) updateData.theme = theme;
 
         const updatedSettings = await prisma.siteSettings.upsert({
             where: { id: 'settings' },

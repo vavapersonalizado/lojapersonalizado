@@ -112,10 +112,10 @@ export default function Sidebar() {
     return (
         <aside className="glass" style={{
             width: isCollapsed ? '80px' : '260px',
-            background: 'rgba(0, 0, 0, 0.1)',
-            backdropFilter: 'blur(10px)',
-            color: 'white',
-            borderRight: '1px solid rgba(255,255,255,0.1)',
+            background: 'rgba(255, 255, 255, 0.02)',
+            backdropFilter: 'blur(12px)',
+            color: 'var(--foreground)',
+            borderRight: 'var(--glass-border)',
             padding: '1rem 0.5rem',
             height: '100vh',
             position: 'sticky',
@@ -123,26 +123,38 @@ export default function Sidebar() {
             overflowY: 'auto',
             display: 'flex',
             flexDirection: 'column',
-            transition: 'width 0.3s ease',
+            transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             zIndex: 50
         }}>
-            <div style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 0.5rem' }}>
                 {!isCollapsed && (
-                    <div style={{ fontSize: '1.2rem', fontWeight: 'bold', fontFamily: 'Outfit, sans-serif' }}>
-                        Menu
+                    <div style={{
+                        fontSize: '1.1rem',
+                        fontWeight: '700',
+                        fontFamily: 'Outfit, sans-serif',
+                        color: 'var(--primary)',
+                        letterSpacing: '0.05em'
+                    }}>
+                        MENU
                     </div>
                 )}
                 <button
                     onClick={() => setIsCollapsed(!isCollapsed)}
                     style={{
-                        background: 'transparent',
+                        background: 'var(--muted)',
                         border: 'none',
                         cursor: 'pointer',
                         padding: '0.5rem',
                         borderRadius: 'var(--radius)',
-                        color: 'white',
-                        margin: isCollapsed ? '0 auto' : '0'
+                        color: 'var(--foreground)',
+                        margin: isCollapsed ? '0 auto' : '0',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'background 0.2s ease'
                     }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = 'var(--primary)'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = 'var(--muted)'}
                 >
                     {isCollapsed ? '➡️' : '⬅️'}
                 </button>
@@ -155,19 +167,22 @@ export default function Sidebar() {
                         flexDirection: isCollapsed ? 'column' : 'row',
                         alignItems: 'center',
                         justifyContent: isCollapsed ? 'center' : 'space-between',
-                        marginBottom: '1rem',
-                        gap: '0.5rem'
+                        marginBottom: '1.5rem',
+                        gap: '0.5rem',
+                        padding: '0 0.5rem'
                     }}>
                         <div style={{
-                            fontSize: '0.75rem',
-                            color: 'black',
-                            background: 'rgba(255, 255, 255, 0.2)',
-                            padding: '0.25rem 0.5rem',
-                            borderRadius: 'var(--radius)',
+                            fontSize: '0.7rem',
+                            color: 'white',
+                            background: 'var(--gradient-primary)',
+                            padding: '0.25rem 0.75rem',
+                            borderRadius: '20px',
                             whiteSpace: 'nowrap',
-                            display: isCollapsed ? 'none' : 'block'
+                            display: isCollapsed ? 'none' : 'block',
+                            fontWeight: '600',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
                         }}>
-                            ⚡ Modo Admin
+                            ⚡ ADMIN
                         </div>
 
                         <label style={{
@@ -176,7 +191,7 @@ export default function Sidebar() {
                             gap: '0.5rem',
                             fontSize: '0.8rem',
                             cursor: 'pointer',
-                            color: 'black',
+                            color: 'var(--muted-foreground)',
                             justifyContent: isCollapsed ? 'center' : 'flex-start'
                         }}>
                             <input
@@ -185,7 +200,7 @@ export default function Sidebar() {
                                 onChange={(e) => setIsClientMode(e.target.checked)}
                                 style={{ accentColor: 'var(--primary)' }}
                             />
-                            {!isCollapsed && 'Cliente'}
+                            {!isCollapsed && 'Ver como Cliente'}
                         </label>
                     </div>
 
@@ -203,6 +218,7 @@ export default function Sidebar() {
                                 { name: 'Blog Social', path: '/admin/blog', icon: '📱' },
                                 { name: 'Analytics', path: '/admin/analytics', icon: '📊' },
                                 { name: 'Backups', path: '/admin/backups', icon: '💾' },
+                                { name: 'Personalizar Tema', path: '/admin/theme', icon: '🎨' },
                                 { name: 'Config', path: '/admin/settings', icon: '⚙️' }
                             ].map(link => (
                                 <Link
@@ -211,16 +227,17 @@ export default function Sidebar() {
                                     style={{
                                         display: 'flex',
                                         alignItems: 'center',
-                                        gap: '0.5rem',
-                                        padding: '0.5rem',
+                                        gap: '0.75rem',
+                                        padding: '0.6rem 0.75rem',
                                         borderRadius: 'var(--radius)',
-                                        background: pathname === link.path ? 'rgba(255,255,255,0.2)' : 'transparent',
-                                        color: 'black',
+                                        background: pathname === link.path ? 'rgba(255,255,255,0.1)' : 'transparent',
+                                        color: pathname === link.path ? 'var(--primary)' : 'var(--foreground)',
                                         textDecoration: 'none',
                                         fontSize: '0.9rem',
                                         marginBottom: '0.25rem',
                                         justifyContent: isCollapsed ? 'center' : 'flex-start',
-                                        transition: 'all 0.2s ease'
+                                        transition: 'all 0.2s ease',
+                                        borderLeft: pathname === link.path ? '3px solid var(--primary)' : '3px solid transparent'
                                     }}
                                     title={isCollapsed ? link.name : ''}
                                 >
@@ -235,18 +252,18 @@ export default function Sidebar() {
             )}
 
             {isAdmin && !isClientMode && !isCollapsed && (
-                <div style={{ marginBottom: '1.5rem' }}>
+                <div style={{ marginBottom: '1.5rem', padding: '0 0.5rem' }}>
                     <button
                         onClick={() => router.push('/admin/products/new')}
                         className="btn btn-primary"
-                        style={{ width: '100%', marginBottom: '0.5rem', fontSize: '0.9rem' }}
+                        style={{ width: '100%', marginBottom: '0.5rem', fontSize: '0.9rem', justifyContent: 'center' }}
                     >
                         ➕ Novo Produto
                     </button>
                 </div>
             )}
 
-            <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                 {menuItems.map((item, index) => {
                     const isVisibleToClient = settings[item.settingKey];
                     if (!isAdmin && !isVisibleToClient) return null;
@@ -263,12 +280,13 @@ export default function Sidebar() {
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: isCollapsed ? 'center' : 'space-between',
-                                padding: '0.5rem',
+                                padding: '0.6rem 0.75rem',
                                 borderRadius: 'var(--radius)',
-                                background: isActive ? 'rgba(255,255,255,0.2)' : 'transparent',
-                                color: 'white',
+                                background: isActive ? 'rgba(255,255,255,0.1)' : 'transparent',
+                                color: isActive ? 'var(--primary)' : 'var(--foreground)',
                                 transition: 'all 0.2s ease',
-                                cursor: 'pointer'
+                                cursor: 'pointer',
+                                borderLeft: isActive ? '3px solid var(--primary)' : '3px solid transparent'
                             }}>
                                 {item.hasSubmenu ? (
                                     <div
@@ -280,7 +298,7 @@ export default function Sidebar() {
                                         {!isCollapsed && (
                                             <>
                                                 <span style={{ fontWeight: 500, flex: 1 }}>{item.name}</span>
-                                                <span style={{ fontSize: '0.8rem' }}>{item.isOpen ? '▼' : '▶'}</span>
+                                                <span style={{ fontSize: '0.7rem', opacity: 0.7 }}>{item.isOpen ? '▼' : '▶'}</span>
                                             </>
                                         )}
                                     </div>
@@ -308,17 +326,21 @@ export default function Sidebar() {
                             </div>
 
                             {item.hasSubmenu && item.isOpen && !isCollapsed && (
-                                <div style={{ paddingLeft: '1rem', marginTop: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                <div style={{ paddingLeft: '1rem', marginTop: '0.25rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                                     {item.submenu.length > 0 ? item.submenu.map((sub, subIndex) => (
                                         <div key={subIndex} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                             <Link href={`/categories/${sub.slug}`} style={{
                                                 textDecoration: 'none',
-                                                color: 'rgba(255, 255, 255, 0.8)',
-                                                fontSize: '0.9rem',
+                                                color: 'var(--muted-foreground)',
+                                                fontSize: '0.85rem',
                                                 flex: 1,
-                                                padding: '0.25rem 0',
-                                                paddingLeft: '2rem'
-                                            }}>
+                                                padding: '0.4rem 0',
+                                                paddingLeft: '2.5rem',
+                                                transition: 'color 0.2s ease'
+                                            }}
+                                                onMouseEnter={(e) => e.target.style.color = 'var(--primary)'}
+                                                onMouseLeave={(e) => e.target.style.color = 'var(--muted-foreground)'}
+                                            >
                                                 {sub.name}
                                             </Link>
                                             {isAdmin && (
@@ -333,7 +355,7 @@ export default function Sidebar() {
                                             )}
                                         </div>
                                     )) : (
-                                        <span style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '0.8rem', paddingLeft: '2rem' }}>Sem categorias</span>
+                                        <span style={{ color: 'var(--muted-foreground)', fontSize: '0.8rem', paddingLeft: '2.5rem', fontStyle: 'italic' }}>Sem categorias</span>
                                     )}
                                 </div>
                             )}

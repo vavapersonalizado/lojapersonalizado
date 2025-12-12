@@ -193,6 +193,7 @@ model SiteSettings {
   showPartners   Boolean @default(true)
   showSponsors   Boolean @default(true)
   showBlog       Boolean @default(true)
+  theme          Json?   // Stores custom theme configuration
 }
 
 model Cart {

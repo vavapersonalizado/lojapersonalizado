@@ -3,6 +3,7 @@ import { Providers } from "./providers";
 import { Inter, Outfit } from "next/font/google";
 import { CartProvider } from "@/contexts/CartContext";
 import { CompareProvider } from "@/contexts/CompareContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import ChatWidget from "@/components/ChatWidget";
 import MainLayout from "@/components/MainLayout";
 import { getServerSession } from "next-auth";
@@ -47,14 +48,16 @@ export default async function RootLayout({ children }) {
         <html lang="pt-BR">
             <body className={`${inter.className} ${outfit.variable}`}>
                 <Providers session={session}>
-                    <CartProvider>
-                        <CompareProvider>
-                            <MainLayout>
-                                {children}
-                            </MainLayout>
-                            <ChatWidget />
-                        </CompareProvider>
-                    </CartProvider>
+                    <ThemeProvider>
+                        <CartProvider>
+                            <CompareProvider>
+                                <MainLayout>
+                                    {children}
+                                </MainLayout>
+                                <ChatWidget />
+                            </CompareProvider>
+                        </CartProvider>
+                    </ThemeProvider>
                 </Providers>
             </body>
         </html>

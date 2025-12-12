@@ -43,29 +43,52 @@ export default function Header() {
     };
 
     return (
-        <header style={{
+        <header className="glass" style={{
             padding: '1rem 2rem',
-            borderBottom: '1px solid rgba(255,255,255,0.1)',
             display: 'grid',
             gridTemplateColumns: '1fr auto 1fr',
             alignItems: 'center',
-            background: 'rgba(0, 0, 0, 0.1)',
-            backdropFilter: 'blur(10px)',
-            color: 'white',
             position: 'sticky',
             top: 0,
-            zIndex: 10
+            zIndex: 50,
+            borderBottom: 'var(--glass-border)',
+            background: 'rgba(255, 255, 255, 0.05)',
+            backdropFilter: 'blur(12px)'
         }}>
             {/* Esquerda: Nome da Página */}
-            <div style={{ fontSize: '1.2rem', fontWeight: '500', color: 'rgba(255,255,255,0.9)' }}>
+            <div style={{
+                fontSize: '1.1rem',
+                fontWeight: '600',
+                color: 'var(--foreground)',
+                fontFamily: 'Outfit, sans-serif',
+                letterSpacing: '0.05em'
+            }}>
                 {getPageName(pathname)}
             </div>
 
             {/* Centro: Nome da Loja */}
-            <Link href="/" style={{ textDecoration: 'none', color: 'white', justifySelf: 'center', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                <img src="/logo.jpg" alt="Logo" style={{ height: '50px', width: 'auto', borderRadius: '50%', backgroundColor: 'white', padding: '2px' }} />
-                <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', cursor: 'pointer', textAlign: 'center' }}>
-                    Vanessa Yachiro Personalizados
+            <Link href="/" style={{ textDecoration: 'none', color: 'inherit', justifySelf: 'center', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <div style={{
+                    padding: '2px',
+                    background: 'var(--gradient-primary)',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                }}>
+                    <img src="/logo.jpg" alt="Logo" style={{ height: '48px', width: '48px', borderRadius: '50%', border: '2px solid var(--background)' }} />
+                </div>
+                <h1 style={{
+                    fontSize: '1.5rem',
+                    fontWeight: '800',
+                    cursor: 'pointer',
+                    textAlign: 'center',
+                    background: 'var(--gradient-primary)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    letterSpacing: '-0.02em'
+                }}>
+                    Vanessa Yachiro
                 </h1>
             </Link>
 
@@ -78,11 +101,12 @@ export default function Header() {
                     style={{
                         padding: '0.5rem',
                         borderRadius: 'var(--radius)',
-                        border: '1px solid rgba(255,255,255,0.2)',
-                        background: 'rgba(255,255,255,0.1)',
-                        color: 'white',
+                        border: '1px solid var(--border)',
+                        background: 'rgba(255,255,255,0.05)',
+                        color: 'var(--foreground)',
                         cursor: 'pointer',
-                        fontSize: '0.9rem'
+                        fontSize: '0.85rem',
+                        outline: 'none'
                     }}
                     title="Select Language"
                 >
@@ -96,17 +120,15 @@ export default function Header() {
                 {/* View Mode Toggle */}
                 <button
                     onClick={toggleViewMode}
+                    className="btn btn-outline"
                     style={{
-                        background: 'rgba(255,255,255,0.1)',
-                        border: '1px solid rgba(255,255,255,0.2)',
-                        borderRadius: 'var(--radius)',
                         padding: '0.5rem',
-                        cursor: 'pointer',
                         fontSize: '1.2rem',
-                        color: 'white',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '0.25rem'
+                        justifyContent: 'center',
+                        width: '40px',
+                        height: '40px'
                     }}
                     title={viewMode === 'mobile' ? 'Mudar para versão Desktop' : 'Mudar para versão Mobile'}
                 >
@@ -126,9 +148,12 @@ export default function Header() {
                         cursor: 'pointer',
                         fontSize: '1.5rem',
                         padding: '0.5rem',
-                        color: 'white'
+                        color: 'var(--foreground)',
+                        transition: 'transform 0.2s ease'
                     }}
                     title="Carrinho"
+                    onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+                    onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                 >
                     🛒
                     {cartCount > 0 && (
@@ -137,15 +162,16 @@ export default function Header() {
                             top: 0,
                             right: 0,
                             background: 'var(--primary)',
-                            color: 'var(--primary-foreground)',
+                            color: 'white',
                             borderRadius: '50%',
-                            width: '20px',
-                            height: '20px',
+                            width: '18px',
+                            height: '18px',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            fontSize: '0.75rem',
-                            fontWeight: 'bold'
+                            fontSize: '0.7rem',
+                            fontWeight: 'bold',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
                         }}>
                             {cartCount}
                         </span>
