@@ -292,6 +292,69 @@ export default function AdminThemePage() {
                             </div>
                         </div>
 
+                        <hr style={{ borderColor: 'var(--border)' }} />
+
+                        <h3 style={{ marginBottom: '1rem' }}>Ícones Dinâmicos</h3>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                            {localTheme.icons && Object.entries(localTheme.icons).map(([category, icons]) => (
+                                <div key={category} style={{ padding: '1rem', border: '1px solid var(--border)', borderRadius: 'var(--radius)' }}>
+                                    <h4 style={{ marginBottom: '1rem', textTransform: 'capitalize' }}>
+                                        {category === 'cart' ? '🛒 Carrinho' :
+                                            category === 'bell' ? '🔔 Notificações' :
+                                                category === 'mobile' ? '📱 Mobile' :
+                                                    category === 'desktop' ? '💻 Desktop' : category}
+                                    </h4>
+
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1rem' }}>
+                                        {icons.map((icon, index) => (
+                                            <div key={index} style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '0.25rem',
+                                                padding: '0.25rem 0.5rem',
+                                                background: 'var(--muted)',
+                                                borderRadius: '4px'
+                                            }}>
+                                                <span style={{ fontSize: '1.2rem' }}>{icon}</span>
+                                                <button
+                                                    onClick={() => {
+                                                        const newIcons = [...icons];
+                                                        newIcons.splice(index, 1);
+                                                        handleChange('icons', { ...localTheme.icons, [category]: newIcons });
+                                                    }}
+                                                    style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'red', fontSize: '0.8rem' }}
+                                                >
+                                                    ×
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                        <input
+                                            type="text"
+                                            placeholder="Novo Ícone (Emoji)"
+                                            id={`newIcon-${category}`}
+                                            style={{ width: '150px' }}
+                                        />
+                                        <button
+                                            className="btn btn-outline"
+                                            onClick={() => {
+                                                const input = document.getElementById(`newIcon-${category}`);
+                                                const val = input.value.trim();
+                                                if (val) {
+                                                    handleChange('icons', { ...localTheme.icons, [category]: [...icons, val] });
+                                                    input.value = '';
+                                                }
+                                            }}
+                                        >
+                                            Adicionar
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
                         <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
                             <button onClick={handleSave} className="btn btn-primary" disabled={saving}>
                                 {saving ? 'Salvando...' : 'Salvar Alterações'}

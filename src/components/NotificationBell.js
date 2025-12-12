@@ -4,12 +4,22 @@ import { useState, useEffect, useRef } from 'react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 
+import { useTheme } from '@/contexts/ThemeContext';
+
 export default function NotificationBell() {
     const { data: session } = useSession();
+    const { theme } = useTheme();
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
+    const [bellIcon, setBellIcon] = useState('🔔');
+
+    useEffect(() => {
+        if (theme?.icons?.bell) {
+            setBellIcon(theme.icons.bell[Math.floor(Math.random() * theme.icons.bell.length)] || '🔔');
+        }
+    }, [theme]);
 
     useEffect(() => {
         if (session) {
@@ -82,11 +92,9 @@ export default function NotificationBell() {
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className="relative p-2 text-gray-600 hover:text-black transition-colors"
+                style={{ fontSize: '1.5rem', background: 'none', border: 'none', cursor: 'pointer' }}
             >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-                </svg>
+                {bellIcon}
                 {unreadCount > 0 && (
                     <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/4 -translate-y-1/4 bg-red-600 rounded-full">
                         {unreadCount}

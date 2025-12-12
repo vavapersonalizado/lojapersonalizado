@@ -29,6 +29,12 @@ export function ThemeProvider({ children }) {
             buyNow: 'Comprar Agora',
             contact: 'Fale Conosco',
             searchPlaceholder: 'Buscar produtos...'
+        },
+        icons: {
+            cart: ['🛒', '🛍️', '🎁', '🎒', '🧺', '🎅', '🎄'],
+            bell: ['🔔', '🔕', '🎺', '📣', '🎅', '🦌'],
+            mobile: ['📱', '📲', '📶', '📵', '🤳'],
+            desktop: ['💻', '🖥️', '⌨️', '🖱️']
         }
     });
 

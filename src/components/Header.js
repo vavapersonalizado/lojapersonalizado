@@ -23,6 +23,19 @@ export default function Header() {
     const { language, changeLanguage, t } = useLanguage();
     const { viewMode, toggleViewMode } = useView();
 
+    const { theme } = useTheme();
+    const [randomIcons, setRandomIcons] = useState({ cart: '🛒', mobile: '📱', desktop: '💻' });
+
+    useEffect(() => {
+        if (theme?.icons) {
+            setRandomIcons({
+                cart: theme.icons.cart[Math.floor(Math.random() * theme.icons.cart.length)] || '🛒',
+                mobile: theme.icons.mobile[Math.floor(Math.random() * theme.icons.mobile.length)] || '📱',
+                desktop: theme.icons.desktop[Math.floor(Math.random() * theme.icons.desktop.length)] || '💻'
+            });
+        }
+    }, [theme]);
+
     const languages = [
         { code: 'pt', flag: '🇧🇷', name: 'Português' },
         { code: 'en', flag: '🇺🇸', name: 'English' },
@@ -132,7 +145,7 @@ export default function Header() {
                     }}
                     title={viewMode === 'mobile' ? 'Mudar para versão Desktop' : 'Mudar para versão Mobile'}
                 >
-                    {viewMode === 'mobile' ? '💻' : '📱'}
+                    {viewMode === 'mobile' ? randomIcons.desktop : randomIcons.mobile}
                 </button>
 
                 {/* Notification Bell */}
@@ -155,7 +168,7 @@ export default function Header() {
                     onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
                     onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                 >
-                    🛒
+                    {randomIcons.cart}
                     {cartCount > 0 && (
                         <span style={{
                             position: 'absolute',
