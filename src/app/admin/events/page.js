@@ -69,6 +69,38 @@ export default function AdminEvents() {
         }
     };
 
+    const handleEdit = (event) => {
+        setFormData({
+            id: event.id,
+            title: event.title,
+            date: new Date(event.date).toISOString().split('T')[0],
+            description: event.description || '',
+            images: event.images || [],
+            htmlContent: event.htmlContent || '',
+            carouselDuration: event.carouselDuration || 8,
+            autoRotate: event.autoRotate !== undefined ? event.autoRotate : true
+        });
+        setIsEditing(true);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const cancelEdit = () => {
+        setFormData({ id: null, title: '', date: '', description: '', images: [], htmlContent: '', carouselDuration: 8, autoRotate: true });
+        setIsEditing(false);
+    };
+
+    const handleDelete = async (id) => {
+        if (!confirm('Tem certeza?')) return;
+        try {
+            await fetch(`/api/events?id=${id}`, { method: 'DELETE' });
+            const fetchRes = await fetch('/api/events?admin=true');
+            const fetchData = await fetchRes.json();
+            setEvents(Array.isArray(fetchData) ? fetchData : []);
+        } catch (error) {
+            console.error('Error deleting event:', error);
+        }
+    };
+
     const toggleActive = async (id, currentStatus) => {
         try {
             await fetch('/api/events', {
