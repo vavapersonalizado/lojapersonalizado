@@ -13,7 +13,7 @@ export default function CheckoutPage() {
     const { t, formatCurrency } = useLanguage();
 
     const [couponCode, setCouponCode] = useState('');
-    const [couponData, setCouponData] = useState(null); // { discount, type, cumulative, productId }
+    const [couponData, setCouponData] = useState(null);
     const [couponError, setCouponError] = useState('');
     const [validatingCoupon, setValidatingCoupon] = useState(false);
     const [submitting, setSubmitting] = useState(false);
@@ -37,14 +37,12 @@ export default function CheckoutPage() {
     const [guestErrors, setGuestErrors] = useState({});
 
     useEffect(() => {
-        // Allow unauthenticated users for guest checkout
         if (cart.length === 0 && !orderSuccess) {
             router.push('/products');
             return;
         }
 
         if (session?.user?.email) {
-            // Fetch full user profile to get discount info
             fetch(`/api/users/profile?email=${session.user.email}`)
                 .then(res => res.json())
                 .then(data => {
@@ -93,8 +91,8 @@ export default function CheckoutPage() {
 
             if (res.ok) {
                 setCouponData(data.coupon);
-                applyCoupon(data.coupon); // Sync with context
-                setCouponCode(data.coupon.code); // Ensure code matches applied coupon
+                applyCoupon(data.coupon);
+                setCouponCode(data.coupon.code);
                 setCouponError('');
             } else {
                 setCouponError(data.error || t('checkout.coupon_invalid'));
@@ -114,62 +112,48 @@ export default function CheckoutPage() {
         let appliedUserDiscount = 0;
         let appliedCouponDiscount = 0;
 
-        // 1. Calculate User Discount
         if (userDiscount.eligible) {
             appliedUserDiscount = subtotal * (userDiscount.percentage / 100);
         }
 
-        // 2. Calculate Coupon Discount
         if (couponData) {
             let currentCouponValue = 0;
-
             if (couponData.productId) {
-                // Product specific coupon
                 const targetItem = cart.find(item => item.id === couponData.productId);
                 if (targetItem) {
                     const itemTotal = targetItem.price * targetItem.quantity;
                     if (couponData.type === 'percentage') {
                         currentCouponValue = itemTotal * (couponData.discount / 100);
                     } else {
-                        currentCouponValue = couponData.discount; // Fixed amount per order or per item? Assuming per order for now, but if it's product specific usually it's per item. Let's assume fixed amount total for simplicity unless specified.
-                        // Actually, if it's a fixed discount on a product, it usually applies once or per item. Let's assume it applies once to the total of that item line.
+                        currentCouponValue = couponData.discount;
                     }
                 }
             } else {
-                // General coupon
                 if (couponData.type === 'percentage') {
                     currentCouponValue = subtotal * (couponData.discount / 100);
                 } else {
                     currentCouponValue = couponData.discount;
                 }
             }
-
             appliedCouponDiscount = currentCouponValue;
         }
 
-        // 3. Combine Discounts
         if (couponData) {
             if (couponData.cumulative) {
-                // Cumulative: Add both
                 totalDiscount = appliedUserDiscount + appliedCouponDiscount;
             } else {
-                // Not Cumulative: Use the larger one
-                // Wait, user said: "pode acumular, a não ser que... não acumulativo".
-                // If NOT cumulative, it shouldn't stack with user discount.
-                // Usually this means you pick the best one.
                 if (appliedCouponDiscount > appliedUserDiscount) {
                     totalDiscount = appliedCouponDiscount;
-                    appliedUserDiscount = 0; // Reset user discount for display purposes if we want to show what was applied
+                    appliedUserDiscount = 0;
                 } else {
                     totalDiscount = appliedUserDiscount;
-                    appliedCouponDiscount = 0; // Coupon not applied effectively
+                    appliedCouponDiscount = 0;
                 }
             }
         } else {
             totalDiscount = appliedUserDiscount;
         }
 
-        // Cap discount at subtotal
         if (totalDiscount > subtotal) totalDiscount = subtotal;
 
         return {
@@ -184,7 +168,6 @@ export default function CheckoutPage() {
     const totals = calculateTotals();
 
     const handleSubmitOrder = async () => {
-        // Validate guest data if not logged in
         if (!session?.user) {
             const errors = {};
             if (!guestData.name.trim()) errors.name = 'Nome é obrigatório';
@@ -222,6 +205,7 @@ export default function CheckoutPage() {
             if (res.ok) {
                 clearCart();
                 setOrderSuccess(true);
+                window.scrollTo(0, 0);
             } else {
                 const data = await res.json();
                 alert(data.error || t('checkout.order_error'));
@@ -235,387 +219,348 @@ export default function CheckoutPage() {
 
     if (orderSuccess) {
         return (
-            <div style={{ maxWidth: '600px', margin: '4rem auto', padding: '2rem', textAlign: 'center' }}>
-                <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>✅</div>
-                <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '1rem' }}>
-                    {t('order.received')}
-                </h1>
+            <div className="container" style={{ padding: '4rem 1rem', textAlign: 'center', minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                 <div style={{
-                    background: 'var(--muted)',
-                    padding: '2rem',
+                    fontSize: '5rem',
+                    marginBottom: '1.5rem',
+                    animation: 'bounce 1s infinite'
+                }}>🎉</div>
+                <h1 style={{
+                    fontSize: '2.5rem',
+                    fontWeight: '800',
+                    marginBottom: '1rem',
+                    background: 'var(--gradient-primary)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent'
+                }}>
+                    Solicitação Recebida!
+                </h1>
+                <div className="glass" style={{
+                    padding: '2.5rem',
                     borderRadius: 'var(--radius)',
-                    border: '1px solid var(--border)',
+                    maxWidth: '600px',
+                    width: '100%',
                     marginBottom: '2rem'
                 }}>
-                    <p style={{ fontSize: '1.1rem', lineHeight: '1.6', marginBottom: '1rem' }}>
-                        {t('order.thank_you')}
+                    <p style={{ fontSize: '1.2rem', lineHeight: '1.6', marginBottom: '1.5rem', color: 'var(--foreground)' }}>
+                        Obrigado por escolher a Vanessa Yachiro Personalizados!
                     </p>
-                    <p style={{ color: '#000000' }}>
-                        {t('order.email_sent')}
+                    <p style={{ color: 'var(--muted-foreground)', marginBottom: '1rem' }}>
+                        Recebemos o seu pedido e nossa equipe entrará em contato em breve pelo <strong>WhatsApp</strong> ou <strong>Email</strong> para combinar o pagamento e a entrega.
                     </p>
+                    <div style={{
+                        background: 'rgba(16, 185, 129, 0.1)',
+                        color: '#10b981',
+                        padding: '1rem',
+                        borderRadius: '8px',
+                        border: '1px solid rgba(16, 185, 129, 0.2)',
+                        fontWeight: '600'
+                    }}>
+                        Fique atento ao seu telefone! 📱
+                    </div>
                 </div>
                 <button
                     onClick={() => router.push('/products')}
                     className="btn btn-primary"
-                    style={{ padding: '0.75rem 2rem' }}
+                    style={{ padding: '1rem 3rem', fontSize: '1.1rem' }}
                 >
-                    {t('cart.continue_shopping')}
+                    Continuar Comprando
                 </button>
             </div>
         );
     }
 
     if (cart.length === 0) {
-        return <div style={{ padding: '2rem' }}>{t('common.loading')}</div>;
+        return <div className="container" style={{ padding: '4rem', textAlign: 'center' }}>Carregando...</div>;
     }
 
     return (
-        <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem' }}>
-            <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '2rem' }}>
-                {t('checkout.title')}
+        <div className="container" style={{ padding: '2rem 1rem' }}>
+            <h1 style={{
+                fontSize: '2.5rem',
+                fontWeight: '800',
+                marginBottom: '2rem',
+                background: 'var(--gradient-primary)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent'
+            }}>
+                Finalizar Solicitação
             </h1>
 
-            {/* Guest Checkout Form */}
-            {!session?.user && (
-                <div style={{
-                    background: 'var(--card)',
-                    borderRadius: 'var(--radius)',
-                    border: '1px solid var(--border)',
-                    padding: '1.5rem',
-                    marginBottom: '2rem'
-                }}>
-                    <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '1rem' }}>
-                        Seus Dados
-                    </h2>
-                    <p style={{ fontSize: '0.9rem', color: '#000000', marginBottom: '1rem' }}>
-                        Preencha seus dados para finalizar o pedido
-                    </p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem', alignItems: 'start' }}>
 
-                    <div style={{ display: 'grid', gap: '1rem' }}>
-                        {/* Nome */}
-                        <div>
-                            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-                                Nome <span style={{ color: 'red' }}>*</span>
-                            </label>
-                            <input
-                                type="text"
-                                value={guestData.name}
-                                onChange={(e) => {
-                                    setGuestData({ ...guestData, name: e.target.value });
-                                    setGuestErrors({ ...guestErrors, name: '' });
-                                }}
-                                style={{
-                                    width: '100%',
-                                    padding: '0.75rem',
-                                    borderRadius: 'var(--radius)',
-                                    border: `1px solid ${guestErrors.name ? 'red' : 'var(--border)'}`,
-                                    fontSize: '1rem'
-                                }}
-                                placeholder="Seu nome completo"
-                            />
-                            {guestErrors.name && (
-                                <p style={{ color: 'red', fontSize: '0.85rem', marginTop: '0.25rem' }}>
-                                    {guestErrors.name}
-                                </p>
-                            )}
-                        </div>
+                {/* Left Column: Forms */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
 
-                        {/* Email */}
-                        <div>
-                            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-                                Email <span style={{ color: 'red' }}>*</span>
-                            </label>
-                            <input
-                                type="email"
-                                value={guestData.email}
-                                onChange={(e) => {
-                                    setGuestData({ ...guestData, email: e.target.value });
-                                    setGuestErrors({ ...guestErrors, email: '' });
-                                }}
-                                style={{
-                                    width: '100%',
-                                    padding: '0.75rem',
-                                    borderRadius: 'var(--radius)',
-                                    border: `1px solid ${guestErrors.email ? 'red' : 'var(--border)'}`,
-                                    fontSize: '1rem'
-                                }}
-                                placeholder="seu@email.com"
-                            />
-                            {guestErrors.email && (
-                                <p style={{ color: 'red', fontSize: '0.85rem', marginTop: '0.25rem' }}>
-                                    {guestErrors.email}
-                                </p>
-                            )}
-                        </div>
+                    {/* Guest Checkout Form */}
+                    {!session?.user && (
+                        <div className="glass" style={{ padding: '2rem', borderRadius: 'var(--radius)' }}>
+                            <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                👤 Seus Dados
+                            </h2>
+                            <p style={{ fontSize: '0.95rem', color: 'var(--muted-foreground)', marginBottom: '1.5rem' }}>
+                                Precisamos destes dados para entrar em contato sobre o pagamento e entrega.
+                            </p>
 
-                        {/* Telefone */}
-                        <div>
-                            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-                                Telefone <span style={{ color: 'red' }}>*</span>
-                            </label>
-                            <input
-                                type="tel"
-                                value={guestData.phone}
-                                onChange={(e) => {
-                                    setGuestData({ ...guestData, phone: e.target.value });
-                                    setGuestErrors({ ...guestErrors, phone: '' });
-                                }}
-                                style={{
-                                    width: '100%',
-                                    padding: '0.75rem',
-                                    borderRadius: 'var(--radius)',
-                                    border: `1px solid ${guestErrors.phone ? 'red' : 'var(--border)'}`,
-                                    fontSize: '1rem'
-                                }}
-                                placeholder="(00) 00000-0000"
-                            />
-                            {guestErrors.phone && (
-                                <p style={{ color: 'red', fontSize: '0.85rem', marginTop: '0.25rem' }}>
-                                    {guestErrors.phone}
-                                </p>
-                            )}
-                        </div>
+                            <div style={{ display: 'grid', gap: '1.5rem' }}>
+                                {/* Nome */}
+                                <div>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: 'var(--foreground)' }}>
+                                        Nome Completo <span style={{ color: '#ef4444' }}>*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={guestData.name}
+                                        onChange={(e) => {
+                                            setGuestData({ ...guestData, name: e.target.value });
+                                            setGuestErrors({ ...guestErrors, name: '' });
+                                        }}
+                                        style={{ width: '100%', borderColor: guestErrors.name ? '#ef4444' : undefined }}
+                                        placeholder="Ex: Maria Silva"
+                                    />
+                                    {guestErrors.name && <p style={{ color: '#ef4444', fontSize: '0.85rem', marginTop: '0.25rem' }}>{guestErrors.name}</p>}
+                                </div>
 
-                        {/* Endereço (Opcional) */}
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                            <input
-                                type="text"
-                                placeholder="CEP (opcional)"
-                                value={guestData.postalCode}
-                                onChange={(e) => setGuestData({ ...guestData, postalCode: e.target.value })}
-                                style={{
-                                    padding: '0.75rem',
-                                    borderRadius: 'var(--radius)',
-                                    border: '1px solid var(--border)',
-                                    fontSize: '1rem'
-                                }}
-                            />
-                            <input
-                                type="text"
-                                placeholder="Província (opcional)"
-                                value={guestData.prefecture}
-                                onChange={(e) => setGuestData({ ...guestData, prefecture: e.target.value })}
-                                style={{
-                                    padding: '0.75rem',
-                                    borderRadius: 'var(--radius)',
-                                    border: '1px solid var(--border)',
-                                    fontSize: '1rem'
-                                }}
-                            />
-                        </div>
-                        <input
-                            type="text"
-                            placeholder="Cidade (opcional)"
-                            value={guestData.city}
-                            onChange={(e) => setGuestData({ ...guestData, city: e.target.value })}
-                            style={{
-                                padding: '0.75rem',
-                                borderRadius: 'var(--radius)',
-                                border: '1px solid var(--border)',
-                                fontSize: '1rem'
-                            }}
-                        />
-                        <input
-                            type="text"
-                            placeholder="Bairro (opcional)"
-                            value={guestData.town}
-                            onChange={(e) => setGuestData({ ...guestData, town: e.target.value })}
-                            style={{
-                                padding: '0.75rem',
-                                borderRadius: 'var(--radius)',
-                                border: '1px solid var(--border)',
-                                fontSize: '1rem'
-                            }}
-                        />
-                        <input
-                            type="text"
-                            placeholder="Rua (opcional)"
-                            value={guestData.street}
-                            onChange={(e) => setGuestData({ ...guestData, street: e.target.value })}
-                            style={{
-                                padding: '0.75rem',
-                                borderRadius: 'var(--radius)',
-                                border: '1px solid var(--border)',
-                                fontSize: '1rem'
-                            }}
-                        />
-                        <input
-                            type="text"
-                            placeholder="Edifício/Apartamento (opcional)"
-                            value={guestData.building}
-                            onChange={(e) => setGuestData({ ...guestData, building: e.target.value })}
-                            style={{
-                                padding: '0.75rem',
-                                borderRadius: 'var(--radius)',
-                                border: '1px solid var(--border)',
-                                fontSize: '1rem'
-                            }}
-                        />
-                    </div>
-                </div>
-            )}
+                                {/* Email */}
+                                <div>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: 'var(--foreground)' }}>
+                                        Email <span style={{ color: '#ef4444' }}>*</span>
+                                    </label>
+                                    <input
+                                        type="email"
+                                        value={guestData.email}
+                                        onChange={(e) => {
+                                            setGuestData({ ...guestData, email: e.target.value });
+                                            setGuestErrors({ ...guestErrors, email: '' });
+                                        }}
+                                        style={{ width: '100%', borderColor: guestErrors.email ? '#ef4444' : undefined }}
+                                        placeholder="Ex: maria@email.com"
+                                    />
+                                    {guestErrors.email && <p style={{ color: '#ef4444', fontSize: '0.85rem', marginTop: '0.25rem' }}>{guestErrors.email}</p>}
+                                </div>
 
-            {/* Order Summary */}
-            <div style={{
-                background: 'var(--card)',
-                borderRadius: 'var(--radius)',
-                border: '1px solid var(--border)',
-                padding: '1.5rem',
-                marginBottom: '2rem'
-            }}>
-                <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '1rem' }}>
-                    {t('checkout.order_summary')}
-                </h2>
+                                {/* Telefone */}
+                                <div>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: 'var(--foreground)' }}>
+                                        Telefone / WhatsApp <span style={{ color: '#ef4444' }}>*</span>
+                                    </label>
+                                    <input
+                                        type="tel"
+                                        value={guestData.phone}
+                                        onChange={(e) => {
+                                            setGuestData({ ...guestData, phone: e.target.value });
+                                            setGuestErrors({ ...guestErrors, phone: '' });
+                                        }}
+                                        style={{ width: '100%', borderColor: guestErrors.phone ? '#ef4444' : undefined }}
+                                        placeholder="Ex: (11) 99999-9999"
+                                    />
+                                    {guestErrors.phone && <p style={{ color: '#ef4444', fontSize: '0.85rem', marginTop: '0.25rem' }}>{guestErrors.phone}</p>}
+                                </div>
 
-                {cart.map((item) => (
-                    <div key={item.id} style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        padding: '0.75rem 0',
-                        borderBottom: '1px solid var(--border)'
-                    }}>
-                        <div>
-                            <div style={{ fontWeight: '500' }}>{item.name}</div>
-                            <div style={{ fontSize: '0.9rem', color: '#000000' }}>
-                                {t('common.quantity')}: {item.quantity}
+                                {/* Endereço (Opcional) */}
+                                <div>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: 'var(--foreground)' }}>
+                                        Endereço de Entrega (Opcional)
+                                    </label>
+                                    <div style={{ display: 'grid', gap: '1rem' }}>
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                            <input
+                                                type="text"
+                                                placeholder="CEP"
+                                                value={guestData.postalCode}
+                                                onChange={(e) => setGuestData({ ...guestData, postalCode: e.target.value })}
+                                            />
+                                            <input
+                                                type="text"
+                                                placeholder="Estado"
+                                                value={guestData.prefecture}
+                                                onChange={(e) => setGuestData({ ...guestData, prefecture: e.target.value })}
+                                            />
+                                        </div>
+                                        <input
+                                            type="text"
+                                            placeholder="Cidade"
+                                            value={guestData.city}
+                                            onChange={(e) => setGuestData({ ...guestData, city: e.target.value })}
+                                        />
+                                        <input
+                                            type="text"
+                                            placeholder="Bairro"
+                                            value={guestData.town}
+                                            onChange={(e) => setGuestData({ ...guestData, town: e.target.value })}
+                                        />
+                                        <input
+                                            type="text"
+                                            placeholder="Rua e Número"
+                                            value={guestData.street}
+                                            onChange={(e) => setGuestData({ ...guestData, street: e.target.value })}
+                                        />
+                                        <input
+                                            type="text"
+                                            placeholder="Complemento (Apto, Bloco)"
+                                            value={guestData.building}
+                                            onChange={(e) => setGuestData({ ...guestData, building: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div style={{ fontWeight: '600' }}>
-                            {formatCurrency(item.price * item.quantity)}
-                        </div>
-                    </div>
-                ))}
-
-                <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '2px solid var(--border)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                        <span>{t('common.subtotal')}:</span>
-                        <span>{formatCurrency(totals.subtotal)}</span>
-                    </div>
-
-                    {/* User Discount Display */}
-                    {userDiscount.eligible && (
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', color: 'blue' }}>
-                            <span>
-                                Desconto Cliente ({userDiscount.classification || 'VIP'} - {userDiscount.percentage}%)
-                                {couponData && !couponData.cumulative && totals.userDiscountVal === 0 && " (Substituído pelo Cupom)"}
-                            </span>
-                            <span>- {formatCurrency(totals.userDiscountVal)}</span>
-                        </div>
                     )}
 
-                    {/* Coupon Discount Display */}
-                    {couponData && (
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', color: 'green' }}>
-                            <span>
-                                Cupom ({couponCode})
-                                {couponData.productId && " (Produto Específico)"}
-                                {!couponData.cumulative && " (Não Acumulativo)"}
-                                {!couponData.cumulative && totals.couponDiscountVal === 0 && " (Menor que desc. cliente)"}
-                            </span>
-                            <span>- {formatCurrency(totals.couponDiscountVal)}</span>
+                    {session?.user && (
+                        <div className="glass" style={{ padding: '2rem', borderRadius: 'var(--radius)' }}>
+                            <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                👤 Seus Dados
+                            </h2>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                <div style={{
+                                    width: '50px',
+                                    height: '50px',
+                                    borderRadius: '50%',
+                                    background: 'var(--gradient-primary)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontSize: '1.5rem',
+                                    color: 'white'
+                                }}>
+                                    {session.user.name?.[0] || 'U'}
+                                </div>
+                                <div>
+                                    <p style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>{session.user.name}</p>
+                                    <p style={{ color: 'var(--muted-foreground)' }}>{session.user.email}</p>
+                                </div>
+                            </div>
+                            <p style={{ marginTop: '1rem', fontSize: '0.9rem', color: 'var(--muted-foreground)' }}>
+                                Usaremos seus dados de cadastro para contato.
+                            </p>
                         </div>
                     )}
-
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.25rem', fontWeight: 'bold', marginTop: '0.5rem' }}>
-                        <span>{t('common.total')}:</span>
-                        <span style={{ color: 'var(--primary)' }}>{formatCurrency(totals.finalTotal)}</span>
-                    </div>
-                </div>
-            </div>
-
-            {/* Coupon Section */}
-            <div style={{
-                background: 'var(--card)',
-                borderRadius: 'var(--radius)',
-                border: '1px solid var(--border)',
-                padding: '1.5rem',
-                marginBottom: '2rem'
-            }}>
-                <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '1rem' }}>
-                    {t('checkout.coupon_code')}
-                </h2>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <input
-                        type="text"
-                        value={couponCode}
-                        onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                        placeholder={t('checkout.enter_coupon')}
-                        style={{
-                            flex: 1,
-                            padding: '0.75rem',
-                            borderRadius: 'var(--radius)',
-                            border: '1px solid var(--border)',
-                            background: 'var(--background)'
-                        }}
-                    />
-                    <button
-                        onClick={() => validateCoupon()}
-                        className="btn btn-outline"
-                        disabled={validatingCoupon || !couponCode.trim()}
-                    >
-                        {validatingCoupon ? t('checkout.validating') : t('checkout.apply')}
-                    </button>
                 </div>
 
-                {/* Available Coupons List */}
-                {availableCoupons && availableCoupons.length > 0 && !couponData && (
-                    <div style={{ marginTop: '1rem' }}>
-                        <p style={{ fontSize: '0.9rem', color: '#000000', marginBottom: '0.5rem' }}>
-                            Cupons disponíveis para você:
-                        </p>
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                            {availableCoupons.map(c => (
-                                <button
-                                    key={c.id}
-                                    onClick={() => validateCoupon(c.code)}
-                                    style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '0.5rem',
-                                        padding: '0.5rem 1rem',
-                                        background: '#f0fdf4',
-                                        border: '1px dashed #86efac',
-                                        borderRadius: '4px',
-                                        cursor: 'pointer',
-                                        color: '#000000',
-                                        fontSize: '0.9rem'
-                                    }}
-                                >
-                                    <strong>{c.code}</strong>
-                                    <span>
-                                        {c.type === 'percentage' ? `${c.discount}% OFF` : `R$ ${c.discount} OFF`}
-                                    </span>
-                                </button>
+                {/* Right Column: Summary */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                    <div className="glass" style={{ padding: '2rem', borderRadius: 'var(--radius)', position: 'sticky', top: '2rem' }}>
+                        <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            🛍️ Resumo do Pedido
+                        </h2>
+
+                        <div style={{ maxHeight: '300px', overflowY: 'auto', paddingRight: '0.5rem', marginBottom: '1.5rem' }}>
+                            {cart.map((item) => (
+                                <div key={item.id} style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    padding: '1rem 0',
+                                    borderBottom: '1px solid var(--border)'
+                                }}>
+                                    <div>
+                                        <div style={{ fontWeight: '600', marginBottom: '0.25rem' }}>{item.name}</div>
+                                        <div style={{ fontSize: '0.9rem', color: 'var(--muted-foreground)' }}>
+                                            Qtd: {item.quantity}
+                                        </div>
+                                    </div>
+                                    <div style={{ fontWeight: '600' }}>
+                                        {formatCurrency(item.price * item.quantity)}
+                                    </div>
+                                </div>
                             ))}
                         </div>
+
+                        {/* Coupon Section */}
+                        <div style={{ marginBottom: '1.5rem' }}>
+                            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                                <input
+                                    type="text"
+                                    value={couponCode}
+                                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                                    placeholder="Código do Cupom"
+                                    style={{ flex: 1 }}
+                                />
+                                <button
+                                    onClick={() => validateCoupon()}
+                                    className="btn btn-outline"
+                                    disabled={validatingCoupon || !couponCode.trim()}
+                                    style={{ padding: '0.75rem 1rem' }}
+                                >
+                                    {validatingCoupon ? '...' : 'Aplicar'}
+                                </button>
+                            </div>
+
+                            {/* Available Coupons */}
+                            {availableCoupons && availableCoupons.length > 0 && !couponData && (
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.5rem' }}>
+                                    {availableCoupons.map(c => (
+                                        <button
+                                            key={c.id}
+                                            onClick={() => validateCoupon(c.code)}
+                                            style={{
+                                                padding: '0.25rem 0.5rem',
+                                                background: 'rgba(16, 185, 129, 0.1)',
+                                                border: '1px dashed #10b981',
+                                                borderRadius: '4px',
+                                                cursor: 'pointer',
+                                                color: '#10b981',
+                                                fontSize: '0.8rem'
+                                            }}
+                                        >
+                                            {c.code}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+
+                            {couponError && <p style={{ color: '#ef4444', fontSize: '0.85rem', marginTop: '0.5rem' }}>{couponError}</p>}
+                            {couponData && <p style={{ color: '#10b981', fontSize: '0.85rem', marginTop: '0.5rem' }}>✓ Cupom {couponData.code} aplicado!</p>}
+                        </div>
+
+                        {/* Totals */}
+                        <div style={{ borderTop: '2px solid var(--border)', paddingTop: '1.5rem' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', color: 'var(--muted-foreground)' }}>
+                                <span>Subtotal:</span>
+                                <span>{formatCurrency(totals.subtotal)}</span>
+                            </div>
+
+                            {userDiscount.eligible && (
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', color: '#3b82f6' }}>
+                                    <span>Desc. Cliente ({userDiscount.percentage}%):</span>
+                                    <span>- {formatCurrency(totals.userDiscountVal)}</span>
+                                </div>
+                            )}
+
+                            {couponData && (
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', color: '#10b981' }}>
+                                    <span>Cupom ({couponCode}):</span>
+                                    <span>- {formatCurrency(totals.couponDiscountVal)}</span>
+                                </div>
+                            )}
+
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.5rem', fontWeight: '800', marginTop: '1rem', color: 'var(--foreground)' }}>
+                                <span>Total:</span>
+                                <span style={{
+                                    background: 'var(--gradient-primary)',
+                                    WebkitBackgroundClip: 'text',
+                                    WebkitTextFillColor: 'transparent'
+                                }}>
+                                    {formatCurrency(totals.finalTotal)}
+                                </span>
+                            </div>
+                        </div>
+
+                        <button
+                            onClick={handleSubmitOrder}
+                            className="btn btn-primary"
+                            disabled={submitting}
+                            style={{ width: '100%', marginTop: '2rem', padding: '1rem', fontSize: '1.1rem' }}
+                        >
+                            {submitting ? 'Enviando...' : 'Enviar Solicitação de Pedido'}
+                        </button>
+
+                        <p style={{ textAlign: 'center', fontSize: '0.85rem', color: 'var(--muted-foreground)', marginTop: '1rem' }}>
+                            Ao clicar, você concorda que o pagamento será combinado posteriormente.
+                        </p>
                     </div>
-                )}
-
-                {couponError && (
-                    <p style={{ color: 'red', fontSize: '0.9rem', marginTop: '0.5rem' }}>
-                        {couponError}
-                    </p>
-                )}
-                {couponData && (
-                    <p style={{ color: 'green', fontSize: '0.9rem', marginTop: '0.5rem' }}>
-                        ✓ {t('checkout.coupon_applied')} ({couponData.code})
-                    </p>
-                )}
+                </div>
             </div>
-
-            {/* Submit Button */}
-            <button
-                onClick={handleSubmitOrder}
-                className="btn btn-primary"
-                disabled={submitting}
-                style={{ width: '100%', padding: '1rem', fontSize: '1.1rem' }}
-            >
-                {submitting ? t('checkout.processing') : t('checkout.confirm_order')}
-            </button>
-
-            <p style={{ textAlign: 'center', color: '#000000', fontSize: '0.9rem', marginTop: '1rem' }}>
-                {t('checkout.email_notice')}
-            </p>
         </div>
     );
 }
