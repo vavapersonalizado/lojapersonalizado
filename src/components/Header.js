@@ -52,7 +52,7 @@ export default function Header() {
             top: 0,
             zIndex: 50,
             borderBottom: 'var(--glass-border)',
-            background: 'rgba(255, 255, 255, 0.05)',
+            background: 'var(--headerBg, rgba(255, 255, 255, 0.05))',
             backdropFilter: 'blur(12px)'
         }}>
             {/* Esquerda: Nome da Página */}

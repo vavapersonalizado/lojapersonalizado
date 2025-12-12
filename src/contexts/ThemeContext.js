@@ -9,24 +9,34 @@ export function ThemeProvider({ children }) {
         primary: '#7C3AED',
         secondary: '#F472B6',
         accent: '#D4AF37',
-        background: '#0a0e27', // Dark by default for futuristic look
+        background: '#0a0e27',
         card: 'rgba(255, 255, 255, 0.05)',
         text: '#ffffff',
-        radius: '0.75rem'
+        radius: '0.75rem',
+        profilePopupBackground: '#ffffff',
+        // Page specific backgrounds (default to null/undefined to use CSS fallbacks)
+        headerBg: '',
+        checkoutBg: '',
+        blogBg: '',
+        productCardBg: '',
+        texts: {
+            homeTitle: 'Vanessa Yachiro',
+            checkoutTitle: 'Finalizar Solicitação',
+            blogTitle: 'Mural Social',
+            footerText: '© 2025 Vanessa Yachiro Personalizados'
+        }
     });
 
     useEffect(() => {
-        // Load theme from API and fallback to localStorage
         const fetchTheme = async () => {
             try {
                 const res = await fetch('/api/settings');
                 const data = await res.json();
                 if (data && data.theme) {
-                    setTheme(data.theme);
-                    // Update localStorage to keep in sync
+                    // Merge with defaults to ensure new keys exist
+                    setTheme(prev => ({ ...prev, ...data.theme, texts: { ...prev.texts, ...data.theme.texts } }));
                     localStorage.setItem('site-theme', JSON.stringify(data.theme));
                 } else {
-                    // Fallback to localStorage if API has no theme yet
                     const savedTheme = localStorage.getItem('site-theme');
                     if (savedTheme) {
                         setTheme(JSON.parse(savedTheme));
@@ -34,7 +44,6 @@ export function ThemeProvider({ children }) {
                 }
             } catch (error) {
                 console.error('Error fetching theme:', error);
-                // Fallback to localStorage on error
                 const savedTheme = localStorage.getItem('site-theme');
                 if (savedTheme) {
                     setTheme(JSON.parse(savedTheme));
@@ -50,10 +59,12 @@ export function ThemeProvider({ children }) {
         setTheme(updated);
         localStorage.setItem('site-theme', JSON.stringify(updated));
 
-        // Apply to CSS variables
+        // Apply to CSS variables (skip objects like 'texts')
         const root = document.documentElement;
         Object.entries(updated).forEach(([key, value]) => {
-            root.style.setProperty(`--${key}`, value);
+            if (typeof value !== 'object') {
+                root.style.setProperty(`--${key}`, value);
+            }
         });
     };
 
@@ -61,7 +72,9 @@ export function ThemeProvider({ children }) {
     useEffect(() => {
         const root = document.documentElement;
         Object.entries(theme).forEach(([key, value]) => {
-            root.style.setProperty(`--${key}`, value);
+            if (typeof value !== 'object') {
+                root.style.setProperty(`--${key}`, value);
+            }
         });
     }, [theme]);
 

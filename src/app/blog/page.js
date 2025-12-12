@@ -48,7 +48,8 @@ export default async function BlogPage() {
                             borderRadius: 'var(--radius)',
                             padding: '1rem',
                             transition: 'transform 0.3s ease',
-                            cursor: 'default'
+                            cursor: 'default',
+                            background: 'var(--blogBg, var(--card))'
                         }}>
                             <div style={{ borderRadius: '8px', overflow: 'hidden' }}>
                                 <SocialEmbed url={post.embedUrl} platform={post.platform} />

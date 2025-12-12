@@ -294,7 +294,11 @@ export default function CheckoutPage() {
 
                     {/* Guest Checkout Form */}
                     {!session?.user && (
-                        <div className="glass" style={{ padding: '2rem', borderRadius: 'var(--radius)' }}>
+                        <div className="glass" style={{
+                            padding: '2rem',
+                            borderRadius: 'var(--radius)',
+                            background: 'var(--checkoutBg, var(--card))'
+                        }}>
                             <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                                 👤 Seus Dados
                             </h2>
@@ -408,7 +412,11 @@ export default function CheckoutPage() {
                     )}
 
                     {session?.user && (
-                        <div className="glass" style={{ padding: '2rem', borderRadius: 'var(--radius)' }}>
+                        <div className="glass" style={{
+                            padding: '2rem',
+                            borderRadius: 'var(--radius)',
+                            background: 'var(--checkoutBg, var(--card))'
+                        }}>
                             <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                                 👤 Seus Dados
                             </h2>
@@ -440,7 +448,13 @@ export default function CheckoutPage() {
 
                 {/* Right Column: Summary */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                    <div className="glass" style={{ padding: '2rem', borderRadius: 'var(--radius)', position: 'sticky', top: '2rem' }}>
+                    <div className="glass" style={{
+                        padding: '2rem',
+                        borderRadius: 'var(--radius)',
+                        position: 'sticky',
+                        top: '2rem',
+                        background: 'var(--checkoutBg, var(--card))'
+                    }}>
                         <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                             🛍️ Resumo do Pedido
                         </h2>

@@ -79,6 +79,7 @@ export default function AdminThemePage() {
                     <h2 style={{ marginBottom: '1.5rem' }}>Cores e Estilo</h2>
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                        {/* ... existing colors ... */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                             <label>Cor Primária</label>
                             <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
@@ -170,6 +171,24 @@ export default function AdminThemePage() {
                         </div>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                            <label>Fundo do Popup de Perfil</label>
+                            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                                <input
+                                    type="color"
+                                    value={localTheme.profilePopupBackground || '#ffffff'}
+                                    onChange={(e) => handleChange('profilePopupBackground', e.target.value)}
+                                    style={{ width: '50px', height: '50px', padding: 0, border: 'none', borderRadius: '8px', cursor: 'pointer' }}
+                                />
+                                <input
+                                    type="text"
+                                    value={localTheme.profilePopupBackground || '#ffffff'}
+                                    onChange={(e) => handleChange('profilePopupBackground', e.target.value)}
+                                    style={{ flex: 1 }}
+                                />
+                            </div>
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                             <label>Arredondamento (Radius)</label>
                             <input
                                 type="range"
@@ -181,6 +200,40 @@ export default function AdminThemePage() {
                                 style={{ width: '100%' }}
                             />
                             <span>{localTheme.radius}</span>
+                        </div>
+
+                        <hr style={{ borderColor: 'var(--border)' }} />
+
+                        <h3 style={{ marginBottom: '1rem' }}>Textos do Site</h3>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            <div>
+                                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Título da Home</label>
+                                <input
+                                    type="text"
+                                    value={localTheme.texts?.homeTitle || ''}
+                                    onChange={(e) => handleChange('texts', { ...localTheme.texts, homeTitle: e.target.value })}
+                                    style={{ width: '100%' }}
+                                />
+                            </div>
+                            <div>
+                                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Título do Checkout</label>
+                                <input
+                                    type="text"
+                                    value={localTheme.texts?.checkoutTitle || ''}
+                                    onChange={(e) => handleChange('texts', { ...localTheme.texts, checkoutTitle: e.target.value })}
+                                    style={{ width: '100%' }}
+                                />
+                            </div>
+                            <div>
+                                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Título do Blog</label>
+                                <input
+                                    type="text"
+                                    value={localTheme.texts?.blogTitle || ''}
+                                    onChange={(e) => handleChange('texts', { ...localTheme.texts, blogTitle: e.target.value })}
+                                    style={{ width: '100%' }}
+                                />
+                            </div>
                         </div>
 
                         <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
@@ -212,6 +265,9 @@ export default function AdminThemePage() {
 
                     <div className="card" style={{ padding: '2rem', background: 'rgba(0,0,0,0.2)' }}>
                         <h3>Elementos de Formulário</h3>
+                        <p style={{ fontSize: '0.9rem', marginBottom: '1rem', color: 'var(--muted-foreground)' }}>
+                            Use a classe <code>.glass</code> ou estilos padrão para inputs.
+                        </p>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
                             <input type="text" placeholder="Input de texto moderno" />
                             <select>
@@ -219,6 +275,31 @@ export default function AdminThemePage() {
                                 <option>Outra Opção</option>
                             </select>
                         </div>
+                    </div>
+
+                    <div className="card" style={{ padding: '1.5rem', background: 'rgba(0,0,0,0.2)', border: '1px dashed var(--border)' }}>
+                        <h4 style={{ marginBottom: '0.5rem' }}>👨‍💻 Como usar (Dev Guide)</h4>
+                        <ul style={{ fontSize: '0.85rem', paddingLeft: '1.2rem', color: 'var(--muted-foreground)' }}>
+                            <li style={{ marginBottom: '0.5rem' }}>
+                                <strong>Inputs:</strong> Adicione a classe <code>glass</code> para o fundo translúcido.
+                            </li>
+                            <li style={{ marginBottom: '0.5rem' }}>
+                                <strong>Botões:</strong> Use <code>btn btn-primary</code> (gradiente) ou <code>btn btn-outline</code> (borda).
+                            </li>
+                            <li>
+                                <strong>Cards:</strong> Use <code>className="glass"</code> no container pai.
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div className="card" style={{ padding: '2rem', background: localTheme.profilePopupBackground || '#ffffff', color: '#000000' }}>
+                        <h3>Preview Popup de Perfil</h3>
+                        <p>Este é o fundo que será usado no menu do usuário.</p>
+                        <ul style={{ listStyle: 'none', padding: 0, marginTop: '1rem' }}>
+                            <li style={{ padding: '0.5rem 0', borderBottom: '1px solid #eee' }}>Meu Perfil</li>
+                            <li style={{ padding: '0.5rem 0', borderBottom: '1px solid #eee' }}>Meus Pedidos</li>
+                            <li style={{ padding: '0.5rem 0', color: 'red' }}>Sair</li>
+                        </ul>
                     </div>
                 </div>
             </div>

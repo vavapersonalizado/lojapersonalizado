@@ -74,7 +74,7 @@ export default function UserProfile() {
                     top: '100%',
                     right: 0,
                     marginTop: '0.5rem',
-                    background: 'var(--card)',
+                    background: 'var(--profilePopupBackground, #ffffff)', // Default to white if var not set
                     border: '1px solid var(--border)',
                     borderRadius: 'var(--radius)',
                     boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
