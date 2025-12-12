@@ -83,7 +83,7 @@ export default function UserProfile() {
                     padding: '0.5rem 0'
                 }}>
                     <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid var(--border)' }}>
-                        <div style={{ fontSize: '0.875rem', fontWeight: '500', color: '#000' }}>
+                        <div style={{ fontSize: '0.875rem', fontWeight: '500', color: 'var(--profilePopupText, #000000)' }}>
                             {session.user.name}
                         </div>
                         <div style={{ fontSize: '0.75rem', color: '#666' }}>
@@ -97,7 +97,7 @@ export default function UserProfile() {
                         style={{
                             display: 'block',
                             padding: '0.75rem 1rem',
-                            color: '#000',
+                            color: 'var(--profilePopupText, #000000)',
                             textDecoration: 'none',
                             transition: 'background 0.2s'
                         }}
@@ -113,7 +113,7 @@ export default function UserProfile() {
                         style={{
                             display: 'block',
                             padding: '0.75rem 1rem',
-                            color: '#000',
+                            color: 'var(--profilePopupText, #000000)',
                             textDecoration: 'none',
                             transition: 'background 0.2s'
                         }}
@@ -129,7 +129,7 @@ export default function UserProfile() {
                         style={{
                             display: 'block',
                             padding: '0.75rem 1rem',
-                            color: '#000',
+                            color: 'var(--profilePopupText, #000000)',
                             textDecoration: 'none',
                             transition: 'background 0.2s'
                         }}

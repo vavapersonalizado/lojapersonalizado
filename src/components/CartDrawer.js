@@ -108,7 +108,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                         <div style={{
                             textAlign: 'center',
                             padding: '3rem 1rem',
-                            color: '#000000'
+                            color: 'var(--foreground)'
                         }}>
                             <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🛒</div>
                             <p>{t('cart.empty')}</p>
@@ -271,7 +271,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                                     borderRadius: 'var(--radius)',
                                     border: '1px solid #86efac'
                                 }}>
-                                    <span style={{ color: '#000000', fontSize: '0.9rem' }}>
+                                    <span style={{ color: 'var(--foreground)', fontSize: '0.9rem' }}>
                                         Cupom <b>{coupon.code}</b> aplicado!
                                     </span>
                                     <button
@@ -279,7 +279,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                                         style={{
                                             background: 'none',
                                             border: 'none',
-                                            color: '#000000',
+                                            color: 'var(--foreground)',
                                             cursor: 'pointer',
                                             fontSize: '1.2rem',
                                             padding: '0 0.5rem'
@@ -317,7 +317,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                                     {/* Available Coupons List */}
                                     {availableCoupons && availableCoupons.length > 0 && (
                                         <div style={{ marginTop: '0.5rem' }}>
-                                            <p style={{ fontSize: '0.8rem', color: '#000000', marginBottom: '0.5rem' }}>
+                                            <p style={{ fontSize: '0.8rem', color: 'var(--foreground)', marginBottom: '0.5rem' }}>
                                                 Cupons disponíveis para você:
                                             </p>
                                             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -332,8 +332,8 @@ export default function CartDrawer({ isOpen, onClose }) {
                                                         borderRadius: '4px'
                                                     }}>
                                                         <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                                            <span style={{ fontWeight: 'bold', color: '#000000', fontSize: '0.9rem' }}>{c.code}</span>
-                                                            <span style={{ fontSize: '0.8rem', color: '#000000' }}>
+                                                            <span style={{ fontWeight: 'bold', color: 'var(--foreground)', fontSize: '0.9rem' }}>{c.code}</span>
+                                                            <span style={{ fontSize: '0.8rem', color: 'var(--foreground)' }}>
                                                                 {c.type === 'percentage' ? `${c.discount}% OFF` : `R$ ${c.discount} OFF`}
                                                             </span>
                                                         </div>

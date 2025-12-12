@@ -171,20 +171,42 @@ export default function AdminThemePage() {
                         </div>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                            <label>Fundo do Popup de Perfil</label>
-                            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                                <input
-                                    type="color"
-                                    value={localTheme.profilePopupBackground || '#ffffff'}
-                                    onChange={(e) => handleChange('profilePopupBackground', e.target.value)}
-                                    style={{ width: '50px', height: '50px', padding: 0, border: 'none', borderRadius: '8px', cursor: 'pointer' }}
-                                />
-                                <input
-                                    type="text"
-                                    value={localTheme.profilePopupBackground || '#ffffff'}
-                                    onChange={(e) => handleChange('profilePopupBackground', e.target.value)}
-                                    style={{ flex: 1 }}
-                                />
+                            <label>Popup de Perfil (Fundo & Texto)</label>
+                            <div style={{ display: 'flex', gap: '1rem' }}>
+                                <div style={{ flex: 1 }}>
+                                    <label style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)' }}>Fundo</label>
+                                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                                        <input
+                                            type="color"
+                                            value={localTheme.profilePopupBackground || '#ffffff'}
+                                            onChange={(e) => handleChange('profilePopupBackground', e.target.value)}
+                                            style={{ width: '40px', height: '40px', padding: 0, border: 'none', borderRadius: '8px', cursor: 'pointer' }}
+                                        />
+                                        <input
+                                            type="text"
+                                            value={localTheme.profilePopupBackground || '#ffffff'}
+                                            onChange={(e) => handleChange('profilePopupBackground', e.target.value)}
+                                            style={{ flex: 1, minWidth: 0 }}
+                                        />
+                                    </div>
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                    <label style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)' }}>Texto</label>
+                                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                                        <input
+                                            type="color"
+                                            value={localTheme.profilePopupText || '#000000'}
+                                            onChange={(e) => handleChange('profilePopupText', e.target.value)}
+                                            style={{ width: '40px', height: '40px', padding: 0, border: 'none', borderRadius: '8px', cursor: 'pointer' }}
+                                        />
+                                        <input
+                                            type="text"
+                                            value={localTheme.profilePopupText || '#000000'}
+                                            onChange={(e) => handleChange('profilePopupText', e.target.value)}
+                                            style={{ flex: 1, minWidth: 0 }}
+                                        />
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -207,32 +229,66 @@ export default function AdminThemePage() {
                         <h3 style={{ marginBottom: '1rem' }}>Textos do Site</h3>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                            <div>
-                                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Título da Home</label>
-                                <input
-                                    type="text"
-                                    value={localTheme.texts?.homeTitle || ''}
-                                    onChange={(e) => handleChange('texts', { ...localTheme.texts, homeTitle: e.target.value })}
-                                    style={{ width: '100%' }}
-                                />
-                            </div>
-                            <div>
-                                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Título do Checkout</label>
-                                <input
-                                    type="text"
-                                    value={localTheme.texts?.checkoutTitle || ''}
-                                    onChange={(e) => handleChange('texts', { ...localTheme.texts, checkoutTitle: e.target.value })}
-                                    style={{ width: '100%' }}
-                                />
-                            </div>
-                            <div>
-                                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Título do Blog</label>
-                                <input
-                                    type="text"
-                                    value={localTheme.texts?.blogTitle || ''}
-                                    onChange={(e) => handleChange('texts', { ...localTheme.texts, blogTitle: e.target.value })}
-                                    style={{ width: '100%' }}
-                                />
+                            {localTheme.texts && Object.entries(localTheme.texts).map(([key, value]) => (
+                                <div key={key} style={{ display: 'flex', gap: '0.5rem', alignItems: 'end' }}>
+                                    <div style={{ flex: 1 }}>
+                                        <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.8rem', color: 'var(--muted-foreground)' }}>
+                                            {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())} ({key})
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={value}
+                                            onChange={(e) => handleChange('texts', { ...localTheme.texts, [key]: e.target.value })}
+                                            style={{ width: '100%' }}
+                                        />
+                                    </div>
+                                    <button
+                                        onClick={() => {
+                                            const newTexts = { ...localTheme.texts };
+                                            delete newTexts[key];
+                                            handleChange('texts', newTexts);
+                                        }}
+                                        className="btn btn-outline"
+                                        style={{ padding: '0.5rem', color: 'red', borderColor: 'red' }}
+                                        title="Remover"
+                                    >
+                                        🗑️
+                                    </button>
+                                </div>
+                            ))}
+
+                            <div style={{ marginTop: '1rem', padding: '1rem', border: '1px dashed var(--border)', borderRadius: 'var(--radius)' }}>
+                                <h4 style={{ fontSize: '0.9rem', marginBottom: '0.5rem' }}>➕ Adicionar Novo Texto</h4>
+                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                    <input
+                                        type="text"
+                                        placeholder="Chave (ex: botaoPromo)"
+                                        id="newTextKey"
+                                        style={{ flex: 1 }}
+                                    />
+                                    <input
+                                        type="text"
+                                        placeholder="Texto (ex: Oferta!)"
+                                        id="newTextValue"
+                                        style={{ flex: 2 }}
+                                    />
+                                    <button
+                                        className="btn btn-primary"
+                                        onClick={() => {
+                                            const keyInput = document.getElementById('newTextKey');
+                                            const valueInput = document.getElementById('newTextValue');
+                                            const key = keyInput.value.trim();
+                                            const value = valueInput.value.trim();
+                                            if (key && value) {
+                                                handleChange('texts', { ...localTheme.texts, [key]: value });
+                                                keyInput.value = '';
+                                                valueInput.value = '';
+                                            }
+                                        }}
+                                    >
+                                        Adicionar
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
@@ -292,12 +348,12 @@ export default function AdminThemePage() {
                         </ul>
                     </div>
 
-                    <div className="card" style={{ padding: '2rem', background: localTheme.profilePopupBackground || '#ffffff', color: '#000000' }}>
+                    <div className="card" style={{ padding: '2rem', background: localTheme.profilePopupBackground || '#ffffff', color: localTheme.profilePopupText || '#000000' }}>
                         <h3>Preview Popup de Perfil</h3>
                         <p>Este é o fundo que será usado no menu do usuário.</p>
                         <ul style={{ listStyle: 'none', padding: 0, marginTop: '1rem' }}>
-                            <li style={{ padding: '0.5rem 0', borderBottom: '1px solid #eee' }}>Meu Perfil</li>
-                            <li style={{ padding: '0.5rem 0', borderBottom: '1px solid #eee' }}>Meus Pedidos</li>
+                            <li style={{ padding: '0.5rem 0', borderBottom: '1px solid var(--border)' }}>Meu Perfil</li>
+                            <li style={{ padding: '0.5rem 0', borderBottom: '1px solid var(--border)' }}>Meus Pedidos</li>
                             <li style={{ padding: '0.5rem 0', color: 'red' }}>Sair</li>
                         </ul>
                     </div>

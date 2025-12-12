@@ -14,7 +14,8 @@ export function ThemeProvider({ children }) {
         text: '#ffffff',
         radius: '0.75rem',
         profilePopupBackground: '#ffffff',
-        // Page specific backgrounds (default to null/undefined to use CSS fallbacks)
+        profilePopupText: '#000000',
+        // Page specific backgrounds
         headerBg: '',
         checkoutBg: '',
         blogBg: '',
@@ -23,7 +24,11 @@ export function ThemeProvider({ children }) {
             homeTitle: 'Vanessa Yachiro',
             checkoutTitle: 'Finalizar Solicitação',
             blogTitle: 'Mural Social',
-            footerText: '© 2025 Vanessa Yachiro Personalizados'
+            footerText: '© 2025 Vanessa Yachiro Personalizados',
+            addToCart: 'Adicionar ao Carrinho',
+            buyNow: 'Comprar Agora',
+            contact: 'Fale Conosco',
+            searchPlaceholder: 'Buscar produtos...'
         }
     });
 
