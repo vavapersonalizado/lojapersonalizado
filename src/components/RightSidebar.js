@@ -13,6 +13,7 @@ export default function RightSidebar() {
     const [promotions, setPromotions] = useState([]);
     const [ads, setAds] = useState([]);
     const [showEvents, setShowEvents] = useState(true);
+    const [selectedMedia, setSelectedMedia] = useState(null);
 
     const [currentPromoIndex, setCurrentPromoIndex] = useState(0);
     const [isPromoHovered, setIsPromoHovered] = useState(false);
