@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import UserProfile from './UserProfile';
 import { useCart } from '@/contexts/CartContext';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import CartDrawer from './CartDrawer';
 import LoginModal from './LoginModal';
 import { useLanguage } from '@/contexts/LanguageContext';
