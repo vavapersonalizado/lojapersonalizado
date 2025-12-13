@@ -87,6 +87,14 @@ export default function NotificationBell() {
 
     if (!session) return null;
 
+    const renderIcon = (icon) => {
+        if (!icon) return null;
+        if (icon.startsWith('http') || icon.startsWith('/')) {
+            return <img src={icon} alt="notification icon" style={{ width: '24px', height: '24px', objectFit: 'contain' }} />;
+        }
+        return <span>{icon}</span>;
+    };
+
     return (
         <div className="relative" ref={dropdownRef}>
             <button
@@ -94,7 +102,7 @@ export default function NotificationBell() {
                 className="relative p-2 text-gray-600 hover:text-black transition-colors"
                 style={{ fontSize: '1.5rem', background: 'none', border: 'none', cursor: 'pointer' }}
             >
-                {bellIcon}
+                {renderIcon(bellIcon)}
                 {unreadCount > 0 && (
                     <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/4 -translate-y-1/4 bg-red-600 rounded-full">
                         {unreadCount}

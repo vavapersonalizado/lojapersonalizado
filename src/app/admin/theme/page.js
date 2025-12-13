@@ -315,7 +315,11 @@ export default function AdminThemePage() {
                                                 background: 'var(--muted)',
                                                 borderRadius: '4px'
                                             }}>
-                                                <span style={{ fontSize: '1.2rem' }}>{icon}</span>
+                                                {(icon.startsWith('http') || icon.startsWith('/')) ? (
+                                                    <img src={icon} alt="icon" style={{ width: '20px', height: '20px', objectFit: 'contain' }} />
+                                                ) : (
+                                                    <span style={{ fontSize: '1.2rem' }}>{icon}</span>
+                                                )}
                                                 <button
                                                     onClick={() => {
                                                         const newIcons = [...icons];
@@ -333,9 +337,9 @@ export default function AdminThemePage() {
                                     <div style={{ display: 'flex', gap: '0.5rem' }}>
                                         <input
                                             type="text"
-                                            placeholder="Novo Ícone (Emoji)"
+                                            placeholder="Emoji ou URL de Imagem"
                                             id={`newIcon-${category}`}
-                                            style={{ width: '150px' }}
+                                            style={{ width: '200px' }}
                                         />
                                         <button
                                             className="btn btn-outline"

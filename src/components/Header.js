@@ -56,6 +56,14 @@ export default function Header() {
         return '';
     };
 
+    const renderIcon = (icon) => {
+        if (!icon) return null;
+        if (icon.startsWith('http') || icon.startsWith('/')) {
+            return <img src={icon} alt="icon" style={{ width: '24px', height: '24px', objectFit: 'contain' }} />;
+        }
+        return <span>{icon}</span>;
+    };
+
     return (
         <header className="glass" style={{
             padding: '1rem 2rem',
@@ -146,7 +154,7 @@ export default function Header() {
                     }}
                     title={viewMode === 'mobile' ? 'Mudar para versão Desktop' : 'Mudar para versão Mobile'}
                 >
-                    {viewMode === 'mobile' ? randomIcons.desktop : randomIcons.mobile}
+                    {viewMode === 'mobile' ? renderIcon(randomIcons.desktop) : renderIcon(randomIcons.mobile)}
                 </button>
 
                 {/* Notification Bell */}
@@ -169,7 +177,7 @@ export default function Header() {
                     onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
                     onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                 >
-                    {randomIcons.cart}
+                    {renderIcon(randomIcons.cart)}
                     {cartCount > 0 && (
                         <span style={{
                             position: 'absolute',
