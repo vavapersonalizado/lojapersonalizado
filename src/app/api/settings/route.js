@@ -16,10 +16,16 @@ export async function GET() {
             });
         }
 
-        // Fetch analytics order
-        const analyticsSetting = await prisma.settings.findUnique({
-            where: { key: 'analytics_order' }
+        // Fetch analytics order, adsense_id, and adsense_slot_id
+        const settings = await prisma.settings.findMany({
+            where: {
+                key: { in: ['analytics_order', 'adsense_id', 'adsense_slot_id'] }
+            }
         });
+
+        const analyticsSetting = settings.find(s => s.key === 'analytics_order');
+        const adsenseSetting = settings.find(s => s.key === 'adsense_id');
+        const adsenseSlotSetting = settings.find(s => s.key === 'adsense_slot_id');
 
         // Default order if not set
         const defaultOrder = ['page', 'event', 'product', 'promotion', 'ad', 'partner', 'coupon'];
@@ -36,7 +42,9 @@ export async function GET() {
         // Merge settings
         return NextResponse.json({
             ...siteSettings,
-            order
+            order,
+            adsense_id: adsenseSetting?.value || '',
+            adsense_slot_id: adsenseSlotSetting?.value || ''
         });
     } catch (error) {
         console.error('Error fetching settings:', error);
@@ -53,10 +61,25 @@ export async function PUT(request) {
 
     try {
         const body = await request.json();
-        // Filter out 'order' or other non-SiteSettings keys if necessary, 
-        // but prisma update will ignore or throw if fields don't exist.
-        // For safety, we extract known keys.
-        const { showProducts, showCategories, showEvents, showPromotions, showPartners, showSponsors, showBlog, theme } = body;
+        const { showProducts, showCategories, showEvents, showPromotions, showPartners, showSponsors, showBlog, theme, adsense_id, adsense_slot_id } = body;
+
+        // Handle AdSense ID
+        if (adsense_id !== undefined) {
+            await prisma.settings.upsert({
+                where: { key: 'adsense_id' },
+                update: { value: adsense_id },
+                create: { key: 'adsense_id', value: adsense_id }
+            });
+        }
+
+        // Handle AdSense Slot ID
+        if (adsense_slot_id !== undefined) {
+            await prisma.settings.upsert({
+                where: { key: 'adsense_slot_id' },
+                update: { value: adsense_slot_id },
+                create: { key: 'adsense_slot_id', value: adsense_slot_id }
+            });
+        }
 
         const updateData = {};
         if (showProducts !== undefined) updateData.showProducts = showProducts;

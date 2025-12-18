@@ -149,6 +149,15 @@ export async function POST(request) {
             }
         }
 
+        // Send email notification
+        try {
+            const { sendOrderNotification } = await import('@/lib/email');
+            await sendOrderNotification(order);
+        } catch (emailError) {
+            console.error('Failed to send order notification email:', emailError);
+            // Don't fail the order if email fails
+        }
+
         return NextResponse.json(order, { status: 201 });
     } catch (error) {
         console.error("Error creating order:", error);

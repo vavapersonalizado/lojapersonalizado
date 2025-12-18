@@ -51,7 +51,7 @@ export default function AdminCategoriesPage() {
             <ul style={{ listStyle: 'none' }}>
                 {categories.map(cat => (
                     <li key={cat.id} style={{ padding: '1rem', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between' }}>
-                        <span>{cat.name}</span>
+                        <span style={{ color: 'var(--foreground)' }}>{cat.name}</span>
                         <span style={{ color: '#000000' }}>/{cat.slug}</span>
                     </li>
                 ))}

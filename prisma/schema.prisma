@@ -104,7 +104,10 @@ model Product {
   sku         String?    @unique // Admin only product code
   description String?
   price       Float
-  stock       Int        @default(0)
+  stock       Int?       @default(0) // Null = Unlimited
+  sizes       Json?      // Array of { name: string, active: boolean }
+  variants    Json?      // Array of { size: string, color: string, quantity: int }
+  attributes  Json?      // Array of { name: string, value: string, active: boolean }
   images      String[]   @default([])
   visible     Boolean    @default(true) // Show to clients
   isCustomizable Boolean @default(false) // Can be customized by user

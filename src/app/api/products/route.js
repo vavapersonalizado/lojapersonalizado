@@ -9,6 +9,20 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
     try {
         console.log('[API] Fetching products...');
+        console.log('[API] Database URL exists:', !!process.env.POSTGRES_PRISMA_URL);
+
+        // Test database connection
+        try {
+            await prisma.$connect();
+            console.log('[API] Database connected successfully');
+        } catch (dbError) {
+            console.error('[API] Database connection failed:', dbError);
+            return NextResponse.json({
+                error: "Database connection failed",
+                details: dbError.message
+            }, { status: 500 });
+        }
+
         const session = await getServerSession(authOptions);
         const isAdmin = session?.user?.role === 'admin';
 
@@ -26,7 +40,7 @@ export async function GET() {
         console.error("[API] Error stack:", error.stack);
         return NextResponse.json({
             error: "Error fetching products",
-            details: process.env.NODE_ENV === 'development' ? error.message : undefined
+            details: error.message
         }, { status: 500 });
     }
 }
@@ -41,7 +55,7 @@ export async function POST(request) {
 
     try {
         const body = await request.json();
-        const { name, sku, price, description, categoryId, images, stock, htmlContent, isCustomizable, printWidth, printHeight } = body;
+        const { name, sku, price, description, categoryId, images, stock, variants, htmlContent, isCustomizable, printWidth, printHeight } = body;
 
         // Validate required fields
         if (!name || !price || !categoryId) {
@@ -60,6 +74,7 @@ export async function POST(request) {
                 categoryId,
                 images: imageUrls,
                 stock: stock ? parseInt(stock) : 0,
+                variants: variants || [],
                 visible: true, // New products are visible by default
                 htmlContent,
                 isCustomizable: isCustomizable || false,

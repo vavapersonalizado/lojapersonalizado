@@ -27,7 +27,7 @@ export default function ImageUpload({ onUpload, currentImage }) {
                     cropping: true,
                     multiple: true,
                     defaultSource: "local",
-                    maxFiles: 10,
+                    maxFiles: 50,
                     resourceType: "auto",
                     clientAllowedFormats: ["image", "video", "glb", "gltf"],
                     maxFileSize: 50000000,

@@ -35,6 +35,8 @@ export default function CheckoutPage() {
         building: ''
     });
     const [guestErrors, setGuestErrors] = useState({});
+    const [prefectures, setPrefectures] = useState([]);
+    const [cities, setCities] = useState([]);
 
     useEffect(() => {
         if (cart.length === 0 && !orderSuccess) {
@@ -62,6 +64,9 @@ export default function CheckoutPage() {
         } else {
             setLoadingUser(false);
         }
+
+        // Fetch prefectures for address dropdown
+        fetchPrefectures();
     }, [status, cart, router, orderSuccess, session]);
 
     useEffect(() => {
@@ -104,6 +109,34 @@ export default function CheckoutPage() {
         } finally {
             setValidatingCoupon(false);
         }
+    };
+
+    const fetchPrefectures = () => {
+        fetch('/api/address/cities')
+            .then(res => res.json())
+            .then(data => {
+                if (Array.isArray(data)) setPrefectures(data);
+            })
+            .catch(console.error);
+    };
+
+    const fetchCities = (pref) => {
+        if (!pref) {
+            setCities([]);
+            return;
+        }
+        fetch(`/api/address/cities?prefecture=${pref}`)
+            .then(res => res.json())
+            .then(data => {
+                if (Array.isArray(data)) setCities(data);
+            })
+            .catch(console.error);
+    };
+
+    const handlePrefectureChange = (e) => {
+        const pref = e.target.value;
+        setGuestData({ ...guestData, prefecture: pref, city: '' });
+        fetchCities(pref);
     };
 
     const calculateTotals = () => {
@@ -361,50 +394,132 @@ export default function CheckoutPage() {
                                     {guestErrors.phone && <p style={{ color: '#ef4444', fontSize: '0.85rem', marginTop: '0.25rem' }}>{guestErrors.phone}</p>}
                                 </div>
 
-                                {/* Endereço (Opcional) */}
+                                {/* Endereço (Opcional) - Japan Format */}
                                 <div>
                                     <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: 'var(--foreground)' }}>
                                         Endereço de Entrega (Opcional)
                                     </label>
                                     <div style={{ display: 'grid', gap: '1rem' }}>
+                                        {/* CEP with Auto-fill */}
+                                        <div>
+                                            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--muted-foreground)' }}>
+                                                CEP (Postal Code) - Auto Preenchimento
+                                            </label>
+                                            <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                                <input
+                                                    type="text"
+                                                    placeholder="123-4567"
+                                                    value={guestData.postalCode}
+                                                    onChange={(e) => setGuestData({ ...guestData, postalCode: e.target.value })}
+                                                    style={{ width: '150px' }}
+                                                />
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-secondary"
+                                                    onClick={async () => {
+                                                        if (!guestData.postalCode || guestData.postalCode.length < 7) {
+                                                            alert('Digite um CEP válido (7 dígitos)');
+                                                            return;
+                                                        }
+                                                        try {
+                                                            const res = await fetch(`/api/address/lookup?zip=${guestData.postalCode}`);
+                                                            const data = await res.json();
+                                                            if (res.ok) {
+                                                                setGuestData(prev => ({
+                                                                    ...prev,
+                                                                    prefecture: data.prefecture,
+                                                                    city: data.city,
+                                                                    town: data.town
+                                                                }));
+                                                                fetchCities(data.prefecture);
+                                                            } else {
+                                                                alert(data.error || 'Endereço não encontrado');
+                                                            }
+                                                        } catch (error) {
+                                                            alert('Erro ao buscar endereço');
+                                                        }
+                                                    }}
+                                                    style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}
+                                                >
+                                                    🔍 Buscar
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        {/* Prefecture and City */}
                                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                            <div>
+                                                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--muted-foreground)' }}>
+                                                    Província (Prefecture)
+                                                </label>
+                                                <select
+                                                    value={guestData.prefecture}
+                                                    onChange={handlePrefectureChange}
+                                                    style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
+                                                >
+                                                    <option value="">Selecione...</option>
+                                                    {prefectures.map(p => (
+                                                        <option key={p} value={p}>{p}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--muted-foreground)' }}>
+                                                    Cidade (City)
+                                                </label>
+                                                <select
+                                                    value={guestData.city}
+                                                    onChange={(e) => setGuestData({ ...guestData, city: e.target.value })}
+                                                    style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
+                                                    disabled={!guestData.prefecture}
+                                                >
+                                                    <option value="">Selecione...</option>
+                                                    {cities.map(c => (
+                                                        <option key={c} value={c}>{c}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        {/* Town and Street */}
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                            <div>
+                                                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--muted-foreground)' }}>
+                                                    Bairro (Town)
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={guestData.town}
+                                                    onChange={(e) => setGuestData({ ...guestData, town: e.target.value })}
+                                                    style={{ width: '100%' }}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--muted-foreground)' }}>
+                                                    Rua
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={guestData.street}
+                                                    onChange={(e) => setGuestData({ ...guestData, street: e.target.value })}
+                                                    style={{ width: '100%' }}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* Building */}
+                                        <div>
+                                            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--muted-foreground)' }}>
+                                                Casa / Edifício - Apartamento
+                                            </label>
                                             <input
                                                 type="text"
-                                                placeholder="CEP"
-                                                value={guestData.postalCode}
-                                                onChange={(e) => setGuestData({ ...guestData, postalCode: e.target.value })}
-                                            />
-                                            <input
-                                                type="text"
-                                                placeholder="Estado"
-                                                value={guestData.prefecture}
-                                                onChange={(e) => setGuestData({ ...guestData, prefecture: e.target.value })}
+                                                placeholder="Complemento (Apto, Bloco)"
+                                                value={guestData.building}
+                                                onChange={(e) => setGuestData({ ...guestData, building: e.target.value })}
+                                                style={{ width: '100%' }}
                                             />
                                         </div>
-                                        <input
-                                            type="text"
-                                            placeholder="Cidade"
-                                            value={guestData.city}
-                                            onChange={(e) => setGuestData({ ...guestData, city: e.target.value })}
-                                        />
-                                        <input
-                                            type="text"
-                                            placeholder="Bairro"
-                                            value={guestData.town}
-                                            onChange={(e) => setGuestData({ ...guestData, town: e.target.value })}
-                                        />
-                                        <input
-                                            type="text"
-                                            placeholder="Rua e Número"
-                                            value={guestData.street}
-                                            onChange={(e) => setGuestData({ ...guestData, street: e.target.value })}
-                                        />
-                                        <input
-                                            type="text"
-                                            placeholder="Complemento (Apto, Bloco)"
-                                            value={guestData.building}
-                                            onChange={(e) => setGuestData({ ...guestData, building: e.target.value })}
-                                        />
                                     </div>
                                 </div>
                             </div>
@@ -463,18 +578,79 @@ export default function CheckoutPage() {
                             {cart.map((item) => (
                                 <div key={item.id} style={{
                                     display: 'flex',
-                                    justifyContent: 'space-between',
+                                    gap: '1rem',
                                     padding: '1rem 0',
                                     borderBottom: '1px solid var(--border)'
                                 }}>
-                                    <div>
-                                        <div style={{ fontWeight: '600', marginBottom: '0.25rem' }}>{item.name}</div>
-                                        <div style={{ fontSize: '0.9rem', color: 'var(--muted-foreground)' }}>
-                                            Qtd: {item.quantity}
-                                        </div>
+                                    {/* Product Thumbnail */}
+                                    <div style={{
+                                        width: '60px',
+                                        height: '60px',
+                                        background: 'var(--background)',
+                                        borderRadius: 'var(--radius)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        overflow: 'hidden',
+                                        flexShrink: 0
+                                    }}>
+                                        {item.customization?.preview ? (
+                                            <img
+                                                src={item.customization.preview}
+                                                alt={item.name}
+                                                style={{
+                                                    width: '100%',
+                                                    height: '100%',
+                                                    objectFit: 'contain'
+                                                }}
+                                            />
+                                        ) : (item.images && item.images[0] ? (
+                                            (() => {
+                                                const firstImage = typeof item.images[0] === 'string' ? item.images[0] : item.images[0].url;
+                                                const isVideoFile = firstImage && (
+                                                    firstImage.toLowerCase().endsWith('.mp4') ||
+                                                    firstImage.toLowerCase().endsWith('.webm') ||
+                                                    firstImage.toLowerCase().endsWith('.mov') ||
+                                                    firstImage.toLowerCase().includes('video')
+                                                );
+
+                                                return isVideoFile ? (
+                                                    <video
+                                                        src={firstImage}
+                                                        style={{
+                                                            width: '100%',
+                                                            height: '100%',
+                                                            objectFit: 'cover'
+                                                        }}
+                                                        muted
+                                                    />
+                                                ) : (
+                                                    <img
+                                                        src={firstImage}
+                                                        alt={item.name}
+                                                        style={{
+                                                            width: '100%',
+                                                            height: '100%',
+                                                            objectFit: 'cover'
+                                                        }}
+                                                    />
+                                                );
+                                            })()
+                                        ) : (
+                                            <span style={{ fontSize: '1.5rem' }}>📦</span>
+                                        ))}
                                     </div>
-                                    <div style={{ fontWeight: '600' }}>
-                                        {formatCurrency(item.price * item.quantity)}
+
+                                    <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between' }}>
+                                        <div>
+                                            <div style={{ fontWeight: '600', marginBottom: '0.25rem' }}>{item.name}</div>
+                                            <div style={{ fontSize: '0.9rem', color: 'var(--muted-foreground)' }}>
+                                                Qtd: {item.quantity}
+                                            </div>
+                                        </div>
+                                        <div style={{ fontWeight: '600' }}>
+                                            {formatCurrency(item.price * item.quantity)}
+                                        </div>
                                     </div>
                                 </div>
                             ))}

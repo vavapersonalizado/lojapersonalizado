@@ -6,19 +6,26 @@ import Link from 'next/link';
 import ProductCard from '@/components/ProductCard';
 import OnlineCounter from '@/components/OnlineCounter';
 import SocialEmbed from '@/components/SocialEmbed';
+import EditableText from '@/components/EditableText';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function HomeContent() {
     const { data: session } = useSession();
+    const { theme } = useTheme();
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [blogPosts, setBlogPosts] = useState([]);
     const [showBlog, setShowBlog] = useState(false);
 
     useEffect(() => {
         // Fetch products
         fetch('/api/products')
-            .then(res => {
-                if (!res.ok) throw new Error('Erro ao buscar produtos');
+            .then(async res => {
+                if (!res.ok) {
+                    const errorData = await res.json().catch(() => ({}));
+                    throw new Error(errorData.details || errorData.error || `Erro HTTP: ${res.status}`);
+                }
                 return res.json();
             })
             .then(data => {
@@ -32,6 +39,7 @@ export default function HomeContent() {
             })
             .catch(err => {
                 console.error('Erro:', err);
+                setError(err.message || 'Erro desconhecido');
                 setProducts([]);
                 setLoading(false);
             });
@@ -64,38 +72,67 @@ export default function HomeContent() {
             <section style={{
                 padding: '4rem 2rem',
                 textAlign: 'center',
-                background: 'var(--card)',
-                backdropFilter: 'blur(12px)',
+                background: theme?.global?.homeBannerImage ? `url(${theme.global.homeBannerImage}) center/cover no-repeat` : 'var(--card)',
+                backdropFilter: theme?.global?.homeBannerImage ? 'none' : 'blur(12px)',
                 border: 'var(--glass-border)',
                 borderRadius: 'var(--radius)',
                 color: 'var(--foreground)',
                 boxShadow: 'var(--shadow-glow)',
                 position: 'relative',
                 overflow: 'hidden',
-                marginTop: '1rem'
+                marginTop: '1rem',
+                minHeight: theme?.global?.homeBannerImage ? '400px' : 'auto',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center'
             }}>
+                {/* Overlay if enabled */}
+                {theme?.global?.homeBannerImage && theme?.global?.showBannerOverlay !== false && (
+                    <div style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: 'rgba(0,0,0,0.5)',
+                        zIndex: 0
+                    }} />
+                )}
+
                 <div style={{ position: 'relative', zIndex: 1 }}>
                     <h1 style={{
                         fontSize: '3rem',
                         marginBottom: '1rem',
-                        background: 'var(--gradient-primary)',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                        fontWeight: '800'
+                        background: theme?.global?.homeBannerImage ? 'none' : 'var(--gradient-primary)',
+                        WebkitBackgroundClip: theme?.global?.homeBannerImage ? 'none' : 'text',
+                        WebkitTextFillColor: theme?.global?.homeBannerImage ? 'white' : 'transparent',
+                        color: theme?.global?.homeBannerImage ? 'white' : 'inherit',
+                        fontWeight: '800',
+                        textShadow: theme?.global?.homeBannerImage ? '0 2px 4px rgba(0,0,0,0.5)' : 'none'
                     }}>
-                        Vanessa Yachiro
+                        <EditableText
+                            textKey="homeTitle"
+                            defaultText="Vanessa Yachiro"
+                            style={{ color: 'inherit' }}
+                        />
                     </h1>
-                    <p style={{
+                    <div style={{
                         fontSize: '1.2rem',
                         marginBottom: '2rem',
                         opacity: 0.9,
                         fontFamily: 'Outfit, sans-serif',
                         maxWidth: '600px',
                         margin: '0 auto 2rem auto',
-                        lineHeight: '1.6'
+                        lineHeight: '1.6',
+                        color: theme?.global?.homeBannerImage ? 'white' : 'inherit',
+                        textShadow: theme?.global?.homeBannerImage ? '0 1px 2px rgba(0,0,0,0.5)' : 'none'
                     }}>
-                        Personalizados exclusivos feitos com carinho e qualidade premium. Transforme suas ideias em presentes inesquecíveis.
-                    </p>
+                        <EditableText
+                            textKey="homeSubtitle"
+                            defaultText="Personalizados exclusivos feitos com carinho e qualidade premium. Transforme suas ideias em presentes inesquecíveis."
+                        />
+                    </div>
 
                     {/* Online Counter */}
                     <div style={{ display: 'flex', justifyContent: 'center' }}>
@@ -148,9 +185,17 @@ export default function HomeContent() {
                             borderRadius: '50%'
                         }} />
                     </div>
+                ) : error ? (
+                    <div className="glass" style={{ textAlign: 'center', padding: '4rem', borderRadius: 'var(--radius)', border: '1px solid red' }}>
+                        <p style={{ fontSize: '1.2rem', marginBottom: '1rem', color: 'red' }}>Erro ao carregar produtos:</p>
+                        <pre style={{ textAlign: 'left', background: 'rgba(0,0,0,0.5)', padding: '1rem', overflow: 'auto' }}>
+                            {error}
+                        </pre>
+                    </div>
                 ) : products.length === 0 ? (
                     <div className="glass" style={{ textAlign: 'center', padding: '4rem', borderRadius: 'var(--radius)' }}>
                         <p style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>Nenhum produto cadastrado ainda.</p>
+                        <p style={{ fontSize: '0.8rem', color: '#888' }}>Debug: Array vazio retornado pela API.</p>
                     </div>
                 ) : (
                     <div style={{

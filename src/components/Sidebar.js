@@ -216,6 +216,7 @@ export default function Sidebar() {
                                 { name: 'Propagandas', path: '/admin/ads', icon: '📢' },
                                 { name: 'Chat Suporte', path: '/admin/chat', icon: '💬' },
                                 { name: 'Blog Social', path: '/admin/blog', icon: '📱' },
+                                { name: 'Parceiros', path: '/admin/partners', icon: '🤝' },
                                 { name: 'Analytics', path: '/admin/analytics', icon: '📊' },
                                 { name: 'Backups', path: '/admin/backups', icon: '💾' },
                                 { name: 'Personalizar Tema', path: '/admin/theme', icon: '🎨' },

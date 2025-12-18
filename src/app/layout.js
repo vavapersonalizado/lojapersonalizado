@@ -8,6 +8,8 @@ import ChatWidget from "@/components/ChatWidget";
 import MainLayout from "@/components/MainLayout";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import prisma from "@/lib/prisma";
+import Script from "next/script";
 
 const inter = Inter({ subsets: ["latin"] });
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
@@ -44,8 +46,16 @@ export const metadata = {
 export default async function RootLayout({ children }) {
     const session = await getServerSession(authOptions);
 
+    // Fetch AdSense ID
+    const adsenseSetting = await prisma.settings.findUnique({
+        where: { key: 'adsense_id' }
+    });
+    const adsenseId = adsenseSetting?.value;
+
     return (
         <html lang="pt-BR">
+            <head>
+            </head>
             <body className={`${inter.className} ${outfit.variable}`}>
                 <Providers session={session}>
                     <ThemeProvider>

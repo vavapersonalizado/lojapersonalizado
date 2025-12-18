@@ -2,32 +2,19 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
+import ImageUpload from '@/components/ImageUpload';
 
 export default function NewPartnerPage() {
-    const { data: session, status } = useSession();
     const router = useRouter();
     const [formData, setFormData] = useState({
         name: '',
-        logo: '',
         link: '',
+        logo: '',
         active: true
     });
-    const [loading, setLoading] = useState(false);
-
-    if (status === 'unauthenticated') {
-        router.push('/');
-        return null;
-    }
-
-    if (status === 'authenticated' && session?.user?.role !== 'admin') {
-        router.push('/');
-        return null;
-    }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);
 
         try {
             const res = await fetch('/api/partners', {
@@ -37,55 +24,67 @@ export default function NewPartnerPage() {
             });
 
             if (res.ok) {
-                router.push('/partners');
-                router.refresh();
+                router.push('/admin/partners');
             } else {
                 alert('Erro ao criar parceiro');
             }
         } catch (error) {
-            console.error('Error:', error);
+            console.error('Error creating partner:', error);
             alert('Erro ao criar parceiro');
-        } finally {
-            setLoading(false);
         }
     };
 
     return (
-        <div style={{ maxWidth: '600px', margin: '2rem auto', padding: '2rem' }}>
-            <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '2rem' }}>Novo Parceiro</h1>
+        <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem' }}>
+            <h1 style={{ marginBottom: '2rem' }}>Novo Parceiro / Patrocinador</h1>
 
-            <form onSubmit={handleSubmit} className="card" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                 <div>
-                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Nome</label>
+                    <label style={{ display: 'block', marginBottom: '0.5rem' }}>Nome</label>
                     <input
                         type="text"
-                        required
+                        className="input"
                         value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        onChange={e => setFormData({ ...formData, name: e.target.value })}
+                        required
                         style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
                     />
                 </div>
 
                 <div>
-                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Logo URL (Opcional)</label>
+                    <label style={{ display: 'block', marginBottom: '0.5rem' }}>Link (Site ou Rede Social)</label>
                     <input
                         type="url"
-                        value={formData.logo}
-                        onChange={(e) => setFormData({ ...formData, logo: e.target.value })}
-                        placeholder="https://..."
-                        style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
-                    />
-                </div>
-
-                <div>
-                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Link do Site (Opcional)</label>
-                    <input
-                        type="url"
+                        className="input"
                         value={formData.link}
-                        onChange={(e) => setFormData({ ...formData, link: e.target.value })}
+                        onChange={e => setFormData({ ...formData, link: e.target.value })}
                         placeholder="https://..."
                         style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
                     />
+                </div>
+
+                <div>
+                    <label style={{ display: 'block', marginBottom: '0.5rem' }}>Logo</label>
+                    <div style={{ marginBottom: '1rem' }}>
+                        <ImageUpload
+                            onUpload={(url) => setFormData({ ...formData, logo: url })}
+                            maxFiles={1}
+                        />
+                    </div>
+                    {formData.logo && (
+                        <div style={{
+                            width: '150px',
+                            height: '150px',
+                            background: 'rgba(255,255,255,0.1)',
+                            borderRadius: 'var(--radius)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: '1rem'
+                        }}>
+                            <img src={formData.logo} alt="Preview" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                        </div>
+                    )}
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -93,24 +92,21 @@ export default function NewPartnerPage() {
                         type="checkbox"
                         id="active"
                         checked={formData.active}
-                        onChange={(e) => setFormData({ ...formData, active: e.target.checked })}
+                        onChange={e => setFormData({ ...formData, active: e.target.checked })}
+                        style={{ width: '20px', height: '20px' }}
                     />
-                    <label htmlFor="active">Ativo</label>
+                    <label htmlFor="active" style={{ cursor: 'pointer' }}>Ativo</label>
                 </div>
 
                 <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="btn btn-primary"
-                        style={{ flex: 1 }}
-                    >
-                        {loading ? 'Salvando...' : 'Salvar Parceiro'}
+                    <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>
+                        Salvar Parceiro
                     </button>
                     <button
                         type="button"
-                        onClick={() => router.back()}
                         className="btn btn-outline"
+                        onClick={() => router.back()}
+                        style={{ flex: 1 }}
                     >
                         Cancelar
                     </button>

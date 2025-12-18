@@ -4,6 +4,8 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { isVideo } from '@/lib/mediaUtils';
+import AdSenseUnit from './AdSenseUnit';
+import ErrorBoundary from './ErrorBoundary';
 
 export default function RightSidebar() {
     const { data: session } = useSession();
@@ -14,6 +16,8 @@ export default function RightSidebar() {
     const [ads, setAds] = useState([]);
     const [showEvents, setShowEvents] = useState(true);
     const [selectedMedia, setSelectedMedia] = useState(null);
+    const [adSettings, setAdSettings] = useState({ publisherId: '', slotId: '' });
+
 
     const [currentPromoIndex, setCurrentPromoIndex] = useState(0);
     const [isPromoHovered, setIsPromoHovered] = useState(false);
@@ -50,8 +54,12 @@ export default function RightSidebar() {
             setEvents(Array.isArray(eventsData) ? eventsData : []);
             setPromotions(Array.isArray(promoData) ? promoData : []);
             setAds(Array.isArray(adsData) ? adsData : []);
-            if (settingsData && typeof settingsData.showEvents === 'boolean') {
-                setShowEvents(settingsData.showEvents);
+            if (settingsData) {
+                if (typeof settingsData.showEvents === 'boolean') setShowEvents(settingsData.showEvents);
+                setAdSettings({
+                    publisherId: settingsData.adsense_id,
+                    slotId: settingsData.adsense_slot_id
+                });
             }
         } catch (error) {
             console.error("Error fetching sidebar data:", error);
@@ -614,6 +622,49 @@ export default function RightSidebar() {
                         </section>
                     )
                 }
+
+
+                {/* Google AdSense Unit - TEMPORARILY DISABLED */}
+                {false && adSettings.publisherId && adSettings.slotId && (
+                    <section style={{ display: 'flex', flexDirection: 'column', alignItems: isCollapsed ? 'center' : 'stretch' }}>
+                        {isCollapsed ? (
+                            <div title="Google Ads" style={{ fontSize: '1.5rem', cursor: 'pointer' }}>💰</div>
+                        ) : (
+                            <>
+                                <h3 style={{
+                                    fontSize: '1.1rem',
+                                    marginBottom: '1rem',
+                                    color: 'var(--foreground)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between'
+                                }}>
+                                    💰 Patrocinado
+                                </h3>
+                                <div style={{
+                                    background: 'var(--card)',
+                                    border: '1px solid var(--border)',
+                                    padding: '0.5rem',
+                                    borderRadius: 'var(--radius)',
+                                    boxShadow: 'var(--shadow)',
+                                    minHeight: '250px',
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    overflow: 'hidden'
+                                }}>
+                                    <ErrorBoundary fallback={<div style={{ padding: '1rem', fontSize: '0.8rem', opacity: 0.7 }}>Anúncio indisponível</div>}>
+                                        <AdSenseUnit
+                                            publisherId={adSettings.publisherId}
+                                            slotId={adSettings.slotId}
+                                            style={{ width: '100%', minHeight: '250px' }}
+                                        />
+                                    </ErrorBoundary>
+                                </div>
+                            </>
+                        )}
+                    </section>
+                )}
 
             </aside >
 

@@ -75,19 +75,23 @@ export function CartProvider({ children }) {
         });
     };
 
-    const removeFromCart = (productId) => {
-        setCart(prevCart => prevCart.filter(item => item.id !== productId));
+    const removeFromCart = (productId, customization = null) => {
+        setCart(prevCart => prevCart.filter(item =>
+            !(item.id === productId && JSON.stringify(item.customization) === JSON.stringify(customization))
+        ));
     };
 
-    const updateQuantity = (productId, quantity) => {
+    const updateQuantity = (productId, quantity, customization = null) => {
         if (quantity <= 0) {
-            removeFromCart(productId);
+            removeFromCart(productId, customization);
             return;
         }
 
         setCart(prevCart =>
             prevCart.map(item =>
-                item.id === productId ? { ...item, quantity } : item
+                (item.id === productId && JSON.stringify(item.customization) === JSON.stringify(customization))
+                    ? { ...item, quantity }
+                    : item
             )
         );
     };

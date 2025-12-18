@@ -13,6 +13,7 @@ import { useView } from '@/contexts/ViewContext';
 
 import { useTheme } from '@/contexts/ThemeContext';
 import NotificationBell from './NotificationBell';
+import EditableText from './EditableText';
 
 export default function Header() {
     const { data: session } = useSession();
@@ -29,10 +30,23 @@ export default function Header() {
 
     useEffect(() => {
         if (theme?.icons) {
+            const getIcon = (category) => {
+                const icons = theme.icons[category];
+                if (!icons || !Array.isArray(icons)) return null;
+
+                // Filter visible icons
+                const visibleIcons = icons.filter(i => typeof i === 'string' || i.visible !== false);
+
+                if (visibleIcons.length === 0) return null;
+
+                const randomIcon = visibleIcons[Math.floor(Math.random() * visibleIcons.length)];
+                return typeof randomIcon === 'object' ? randomIcon.value : randomIcon;
+            };
+
             setRandomIcons({
-                cart: theme.icons.cart?.[Math.floor(Math.random() * theme.icons.cart.length)] || '🛒',
-                mobile: theme.icons.mobile?.[Math.floor(Math.random() * theme.icons.mobile.length)] || '📱',
-                desktop: theme.icons.desktop?.[Math.floor(Math.random() * theme.icons.desktop.length)] || '💻'
+                cart: getIcon('cart') || '🛒',
+                mobile: getIcon('mobile') || '📱',
+                desktop: getIcon('desktop') || '💻'
             });
         }
     }, [theme]);
@@ -108,9 +122,13 @@ export default function Header() {
                     background: 'var(--gradient-primary)',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
-                    letterSpacing: '-0.02em'
+                    letterSpacing: '-0.02em',
+                    display: theme?.global?.showSiteTitle === false ? 'none' : 'block'
                 }}>
-                    Vanessa Yachiro
+                    <EditableText
+                        textKey="homeTitle"
+                        defaultText="Vanessa Yachiro"
+                    />
                 </h1>
             </Link>
 

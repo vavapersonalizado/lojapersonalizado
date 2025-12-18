@@ -1,12 +1,29 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 
 export default function SettingsPage() {
     const { data: session } = useSession();
     const [restoring, setRestoring] = useState(false);
     const [message, setMessage] = useState('');
+
+    // Load existing settings
+    useEffect(() => {
+        fetch('/api/settings')
+            .then(res => res.json())
+            .then(data => {
+                if (data.adsense_id) {
+                    const input = document.getElementById('adsense-input');
+                    if (input) input.value = data.adsense_id;
+                }
+                if (data.adsense_slot_id) {
+                    const slotInput = document.getElementById('adsense-slot-input');
+                    if (slotInput) slotInput.value = data.adsense_slot_id;
+                }
+            })
+            .catch(console.error);
+    }, []);
 
     const handleDownloadBackup = async () => {
         try {
@@ -131,7 +148,7 @@ export default function SettingsPage() {
                 {/* Seed Rules Section */}
                 <div style={{ marginTop: '2rem', borderTop: '1px solid var(--border)', paddingTop: '2rem' }}>
                     <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>🎫 Regras de Cupom</h2>
-                    <p style={{ color: '#000000', marginBottom: '1rem' }}>
+                    <p style={{ color: 'var(--foreground)', marginBottom: '1rem' }}>
                         Inicialize as regras padrão de cupom (ex: Primeira Compra) se elas não existirem.
                     </p>
                     <button
@@ -150,6 +167,88 @@ export default function SettingsPage() {
                     >
                         🚀 Inicializar Regras Padrão
                     </button>
+                </div>
+
+                {/* Google AdSense Section */}
+                <div style={{ marginTop: '2rem', borderTop: '1px solid var(--border)', paddingTop: '2rem' }}>
+                    <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>💰 Google AdSense</h2>
+                    <p style={{ color: 'var(--foreground)', marginBottom: '1rem' }}>
+                        Configure o Google AdSense para exibir anúncios no site.
+                    </p>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                        {/* Publisher ID */}
+                        <div>
+                            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>ID do Editor (Publisher ID)</label>
+                            <p style={{ fontSize: '0.9rem', color: 'var(--foreground)', opacity: 0.8, marginBottom: '0.5rem' }}>
+                                Encontrado em: Conta {'>'} Configurações {'>'} Informações da conta (ex: <code>pub-1234567890123456</code>)
+                            </p>
+                            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                                <input
+                                    type="text"
+                                    placeholder="pub-XXXXXXXXXXXXXXXX"
+                                    id="adsense-input"
+                                    className="input"
+                                    style={{ flex: 1 }}
+                                />
+                                <button
+                                    onClick={async () => {
+                                        const id = document.getElementById('adsense-input').value;
+                                        try {
+                                            const res = await fetch('/api/settings', {
+                                                method: 'PUT',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({ adsense_id: id })
+                                            });
+                                            if (res.ok) setMessage('✅ ID do AdSense salvo!');
+                                            else throw new Error('Falha ao salvar');
+                                        } catch (e) {
+                                            setMessage('❌ ' + e.message);
+                                        }
+                                    }}
+                                    className="btn btn-primary"
+                                >
+                                    Salvar
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Slot ID */}
+                        <div>
+                            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>ID do Bloco de Anúncios (Slot ID)</label>
+                            <p style={{ fontSize: '0.9rem', color: 'var(--foreground)', opacity: 0.8, marginBottom: '0.5rem' }}>
+                                Para exibir anúncios apenas na barra lateral. Crie um anúncio de "Display" no AdSense e copie o número <code>data-ad-slot</code>.
+                            </p>
+                            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                                <input
+                                    type="text"
+                                    placeholder="XXXXXXXXXX"
+                                    id="adsense-slot-input"
+                                    className="input"
+                                    style={{ flex: 1 }}
+                                />
+                                <button
+                                    onClick={async () => {
+                                        const id = document.getElementById('adsense-slot-input').value;
+                                        try {
+                                            const res = await fetch('/api/settings', {
+                                                method: 'PUT',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({ adsense_slot_id: id })
+                                            });
+                                            if (res.ok) setMessage('✅ Slot ID salvo!');
+                                            else throw new Error('Falha ao salvar');
+                                        } catch (e) {
+                                            setMessage('❌ ' + e.message);
+                                        }
+                                    }}
+                                    className="btn btn-primary"
+                                >
+                                    Salvar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 {message && (

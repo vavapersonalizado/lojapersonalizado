@@ -1,33 +1,28 @@
 const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
 
-async function main() {
-    const email = 'projetovanvava@gmail.com';
-    console.log(`Checking data for: ${email}`);
+const connectionString = "postgresql://neondb_owner:npg_skplIw0B1gSO@ep-falling-wave-ahjhzn8p-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
 
-    const user = await prisma.user.findUnique({
-        where: { email },
-        include: {
-            orders: true,
-            carts: true
-        }
-    });
+console.log('Using hardcoded connection string:', connectionString);
 
-    if (!user) {
-        console.log('User not found.');
-        return;
+const prisma = new PrismaClient({
+    datasources: {
+        db: {
+            url: connectionString,
+        },
+    },
+});
+
+async function checkData() {
+    try {
+        const userCount = await prisma.user.count();
+        const productCount = await prisma.product.count();
+        console.log(`Users: ${userCount}`);
+        console.log(`Products: ${productCount}`);
+    } catch (error) {
+        console.error('Error checking data:', error);
+    } finally {
+        await prisma.$disconnect();
     }
-
-    console.log(`User ID: ${user.id}`);
-    console.log(`Orders: ${user.orders.length}`);
-    console.log(`Carts: ${user.carts.length}`);
 }
 
-main()
-    .catch(e => {
-        console.error(e);
-        process.exit(1);
-    })
-    .finally(async () => {
-        await prisma.$disconnect();
-    });
+checkData();

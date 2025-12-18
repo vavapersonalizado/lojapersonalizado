@@ -18,6 +18,7 @@ export default function NewProductPage() {
         categoryId: '',
         images: [],
         stock: '',
+        variants: [], // New: [{size, color, quantity}]
         htmlContent: '',
         isCustomizable: false,
         model3D: '',
@@ -25,6 +26,15 @@ export default function NewProductPage() {
         printWidth: '',
         printHeight: ''
     });
+
+    // Variant form state
+    const [variantForm, setVariantForm] = useState({
+        size: '',
+        color: '',
+        quantity: 0
+    });
+    const [customColor, setCustomColor] = useState('');
+
 
     const loadCategories = () => {
         fetch('/api/categories')
@@ -238,6 +248,143 @@ export default function NewProductPage() {
                                 value={formData.description}
                                 onChange={e => setFormData({ ...formData, description: e.target.value })}
                             />
+                        </div>
+
+                        {/* Variantes (Tamanho + Cor + Quantidade) */}
+                        <div style={{ marginTop: '1.5rem', padding: '1.5rem', background: '#f0f9ff', borderRadius: 'var(--radius)', border: '2px solid #3b82f6' }}>
+                            <h3 style={{ fontSize: '1.1rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#1e40af' }}>
+                                📦 Variantes (Tamanho + Cor + Quantidade)
+                            </h3>
+                            <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '1rem' }}>
+                                Adicione combinações de tamanho e cor com quantidades em estoque.
+                            </p>
+
+                            {/* Add Variant Form */}
+                            <div style={{ background: 'white', padding: '1rem', borderRadius: '8px', marginBottom: '1rem', border: '1px solid #e2e8f0' }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr auto', gap: '0.75rem', alignItems: 'end' }}>
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.85rem', fontWeight: '500' }}>Tamanho</label>
+                                        <select
+                                            value={variantForm.size}
+                                            onChange={(e) => setVariantForm({ ...variantForm, size: e.target.value })}
+                                            style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '6px' }}
+                                        >
+                                            <option value="">Selecione...</option>
+                                            {['PP', 'P', 'M', 'G', 'GG', 'XG', 'XGG', 'Único'].map(size => (
+                                                <option key={size} value={size}>{size}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.85rem', fontWeight: '500' }}>Cor</label>
+                                        <select
+                                            value={variantForm.color}
+                                            onChange={(e) => {
+                                                setVariantForm({ ...variantForm, color: e.target.value });
+                                                if (e.target.value !== 'custom') setCustomColor('');
+                                            }}
+                                            style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '6px' }}
+                                        >
+                                            <option value="">Selecione...</option>
+                                            {['Branco', 'Preto', 'Vermelho', 'Azul', 'Verde', 'Amarelo', 'Rosa', 'Roxo', 'Laranja', 'Cinza', 'Marrom', 'Bege'].map(color => (
+                                                <option key={color} value={color}>{color}</option>
+                                            ))}
+                                            <option value="custom">✏️ Outra cor...</option>
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.85rem', fontWeight: '500' }}>Quantidade</label>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            value={variantForm.quantity}
+                                            onChange={(e) => setVariantForm({ ...variantForm, quantity: parseInt(e.target.value) || 0 })}
+                                            style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '6px' }}
+                                        />
+                                    </div>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            const finalColor = variantForm.color === 'custom' ? customColor : variantForm.color;
+                                            if (!variantForm.size || !finalColor || variantForm.quantity <= 0) {
+                                                alert('Preencha todos os campos!');
+                                                return;
+                                            }
+                                            setFormData({
+                                                ...formData,
+                                                variants: [...(formData.variants || []), { size: variantForm.size, color: finalColor, quantity: variantForm.quantity }]
+                                            });
+                                            setVariantForm({ size: '', color: '', quantity: 0 });
+                                            setCustomColor('');
+                                        }}
+                                        style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '0.5rem 1.25rem', borderRadius: '6px', cursor: 'pointer', fontWeight: '500' }}
+                                    >
+                                        ➕ Adicionar
+                                    </button>
+                                </div>
+
+                                {variantForm.color === 'custom' && (
+                                    <div style={{ marginTop: '0.75rem' }}>
+                                        <input
+                                            type="text"
+                                            placeholder="Ex: Azul Marinho, Vermelho Sangue, Cor de Pele..."
+                                            value={customColor}
+                                            onChange={(e) => setCustomColor(e.target.value)}
+                                            style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '6px' }}
+                                        />
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Variants Table */}
+                            {formData.variants && formData.variants.length > 0 ? (
+                                <div style={{ background: 'white', borderRadius: '8px', overflow: 'hidden' }}>
+                                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                        <thead>
+                                            <tr style={{ background: '#f8fafc' }}>
+                                                <th style={{ padding: '0.75rem', textAlign: 'left', fontSize: '0.85rem' }}>Tamanho</th>
+                                                <th style={{ padding: '0.75rem', textAlign: 'left', fontSize: '0.85rem' }}>Cor</th>
+                                                <th style={{ padding: '0.75rem', textAlign: 'right', fontSize: '0.85rem' }}>Quantidade</th>
+                                                <th style={{ padding: '0.75rem', textAlign: 'center', fontSize: '0.85rem' }}>Ações</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {formData.variants.map((variant, index) => (
+                                                <tr key={index} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                                                    <td style={{ padding: '0.75rem' }}><strong>{variant.size}</strong></td>
+                                                    <td style={{ padding: '0.75rem' }}>{variant.color}</td>
+                                                    <td style={{ padding: '0.75rem', textAlign: 'right' }}>{variant.quantity} un.</td>
+                                                    <td style={{ padding: '0.75rem', textAlign: 'center' }}>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setFormData({ ...formData, variants: formData.variants.filter((_, i) => i !== index) })}
+                                                            style={{ background: '#ef4444', color: 'white', border: 'none', padding: '0.35rem 0.75rem', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}
+                                                        >
+                                                            🗑️
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                        <tfoot>
+                                            <tr style={{ background: '#f8fafc', fontWeight: 'bold' }}>
+                                                <td colSpan="2" style={{ padding: '0.75rem' }}>Total: {formData.variants.length} variante(s)</td>
+                                                <td style={{ padding: '0.75rem', textAlign: 'right', color: '#3b82f6' }}>
+                                                    {formData.variants.reduce((sum, v) => sum + v.quantity, 0)} un.
+                                                </td>
+                                                <td></td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            ) : (
+                                <div style={{ background: 'white', padding: '2rem', textAlign: 'center', borderRadius: '8px', border: '1px dashed #cbd5e1' }}>
+                                    <p style={{ color: '#94a3b8', fontSize: '0.9rem' }}>Nenhuma variante adicionada.</p>
+                                </div>
+                            )}
                         </div>
 
                         <div>

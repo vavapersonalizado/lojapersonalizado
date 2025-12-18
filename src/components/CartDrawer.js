@@ -70,22 +70,23 @@ export default function CartDrawer({ isOpen, onClose }) {
                     bottom: 0,
                     width: '450px',
                     maxWidth: '90vw',
-                    background: 'var(--card)',
+                    background: '#000000',
+                    color: '#ffffff',
                     display: 'flex',
                     flexDirection: 'column',
-                    boxShadow: '-2px 0 10px rgba(0,0,0,0.1)'
+                    boxShadow: '-2px 0 10px rgba(0,0,0,0.5)'
                 }}
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header */}
                 <div style={{
                     padding: '1.5rem',
-                    borderBottom: '1px solid var(--border)',
+                    borderBottom: '1px solid #333',
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center'
                 }}>
-                    <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', margin: 0 }}>
+                    <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', margin: 0, color: '#ffffff' }}>
                         🛒 {t('cart.title')}
                     </h2>
                     <button
@@ -95,7 +96,8 @@ export default function CartDrawer({ isOpen, onClose }) {
                             border: 'none',
                             fontSize: '1.5rem',
                             cursor: 'pointer',
-                            padding: '0.5rem'
+                            padding: '0.5rem',
+                            color: '#ffffff'
                         }}
                     >
                         ✕
@@ -108,7 +110,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                         <div style={{
                             textAlign: 'center',
                             padding: '3rem 1rem',
-                            color: 'var(--foreground)'
+                            color: '#ffffff'
                         }}>
                             <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🛒</div>
                             <p>{t('cart.empty')}</p>
@@ -122,9 +124,9 @@ export default function CartDrawer({ isOpen, onClose }) {
                                         display: 'flex',
                                         gap: '1rem',
                                         padding: '1rem',
-                                        background: 'var(--muted)',
+                                        background: '#1a1a1a',
                                         borderRadius: 'var(--radius)',
-                                        border: '1px solid var(--border)'
+                                        border: '1px solid #333'
                                     }}
                                 >
                                     {/* Product Image */}
@@ -168,27 +170,42 @@ export default function CartDrawer({ isOpen, onClose }) {
 
                                     {/* Product Info */}
                                     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                                        <h3 style={{ fontSize: '1rem', fontWeight: '600', margin: 0 }}>
+                                        <h3 style={{ fontSize: '1rem', fontWeight: '600', margin: 0, color: '#ffffff' }}>
                                             {item.name}
                                         </h3>
-                                        <p style={{ fontSize: '1.1rem', fontWeight: 'bold', color: 'var(--primary)', margin: 0 }}>
+
+                                        {/* Variants Info */}
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.1rem' }}>
+                                            {item.customization?.size && (
+                                                <span style={{ fontSize: '0.8rem', color: '#aaaaaa' }}>
+                                                    Tamanho: {item.customization.size}
+                                                </span>
+                                            )}
+                                            {item.customization?.color && (
+                                                <span style={{ fontSize: '0.8rem', color: '#aaaaaa' }}>
+                                                    Cor: {item.customization.color}
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        <p style={{ fontSize: '1.1rem', fontWeight: 'bold', color: '#7C3AED', margin: 0 }}>
                                             {formatCurrency(item.price)}
                                         </p>
 
                                         {/* Quantity Controls */}
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: 'auto' }}>
                                             <button
-                                                onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                                onClick={() => updateQuantity(item.id, item.quantity - 1, item.customization)}
                                                 className="btn btn-outline"
                                                 style={{ padding: '0.25rem 0.5rem', fontSize: '0.9rem' }}
                                             >
                                                 −
                                             </button>
-                                            <span style={{ minWidth: '2rem', textAlign: 'center', fontWeight: '600' }}>
+                                            <span style={{ minWidth: '2rem', textAlign: 'center', fontWeight: '600', color: '#ffffff' }}>
                                                 {item.quantity}
                                             </span>
                                             <button
-                                                onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                                onClick={() => updateQuantity(item.id, item.quantity + 1, item.customization)}
                                                 className="btn btn-outline"
                                                 style={{ padding: '0.25rem 0.5rem', fontSize: '0.9rem' }}
                                                 disabled={item.stock && item.quantity >= item.stock}
@@ -196,7 +213,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                                                 +
                                             </button>
                                             <button
-                                                onClick={() => removeFromCart(item.id)}
+                                                onClick={() => removeFromCart(item.id, item.customization)}
                                                 style={{
                                                     marginLeft: 'auto',
                                                     background: 'none',
@@ -221,8 +238,8 @@ export default function CartDrawer({ isOpen, onClose }) {
                 {cart.length > 0 && (
                     <div style={{
                         padding: '1.5rem',
-                        borderTop: '1px solid var(--border)',
-                        background: 'var(--muted)'
+                        borderTop: '1px solid #333',
+                        background: '#000000'
                     }}>
                         <div style={{
                             display: 'flex',
@@ -230,13 +247,13 @@ export default function CartDrawer({ isOpen, onClose }) {
                             gap: '0.5rem',
                             marginBottom: '1rem'
                         }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1rem' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1rem', color: '#ffffff' }}>
                                 <span>Subtotal:</span>
                                 <span>{formatCurrency(getSubtotal())}</span>
                             </div>
 
                             {coupon && (
-                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1rem', color: 'green' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1rem', color: '#10b981' }}>
                                     <span>Desconto ({coupon.code}):</span>
                                     <span>- {formatCurrency(getDiscountAmount())}</span>
                                 </div>
@@ -250,10 +267,11 @@ export default function CartDrawer({ isOpen, onClose }) {
                                 fontWeight: 'bold',
                                 marginTop: '0.5rem',
                                 paddingTop: '0.5rem',
-                                borderTop: '1px solid var(--border)'
+                                borderTop: '1px solid #333',
+                                color: '#ffffff'
                             }}>
                                 <span>{t('common.total')}:</span>
-                                <span style={{ color: 'var(--primary)' }}>
+                                <span style={{ color: '#7C3AED' }}>
                                     {formatCurrency(getCartTotal())}
                                 </span>
                             </div>
@@ -271,7 +289,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                                     borderRadius: 'var(--radius)',
                                     border: '1px solid #86efac'
                                 }}>
-                                    <span style={{ color: 'var(--foreground)', fontSize: '0.9rem' }}>
+                                    <span style={{ color: '#000000', fontSize: '0.9rem' }}>
                                         Cupom <b>{coupon.code}</b> aplicado!
                                     </span>
                                     <button
@@ -279,7 +297,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                                         style={{
                                             background: 'none',
                                             border: 'none',
-                                            color: 'var(--foreground)',
+                                            color: '#000000',
                                             cursor: 'pointer',
                                             fontSize: '1.2rem',
                                             padding: '0 0.5rem'
@@ -300,8 +318,10 @@ export default function CartDrawer({ isOpen, onClose }) {
                                                 flex: 1,
                                                 padding: '0.5rem',
                                                 borderRadius: 'var(--radius)',
-                                                border: '1px solid var(--border)',
-                                                fontSize: '0.9rem'
+                                                border: '1px solid #333',
+                                                fontSize: '0.9rem',
+                                                background: '#1a1a1a',
+                                                color: '#ffffff'
                                             }}
                                         />
                                         <button
@@ -317,7 +337,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                                     {/* Available Coupons List */}
                                     {availableCoupons && availableCoupons.length > 0 && (
                                         <div style={{ marginTop: '0.5rem' }}>
-                                            <p style={{ fontSize: '0.8rem', color: 'var(--foreground)', marginBottom: '0.5rem' }}>
+                                            <p style={{ fontSize: '0.8rem', color: '#ffffff', marginBottom: '0.5rem' }}>
                                                 Cupons disponíveis para você:
                                             </p>
                                             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -332,8 +352,8 @@ export default function CartDrawer({ isOpen, onClose }) {
                                                         borderRadius: '4px'
                                                     }}>
                                                         <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                                            <span style={{ fontWeight: 'bold', color: 'var(--foreground)', fontSize: '0.9rem' }}>{c.code}</span>
-                                                            <span style={{ fontSize: '0.8rem', color: 'var(--foreground)' }}>
+                                                            <span style={{ fontWeight: 'bold', color: '#000000', fontSize: '0.9rem' }}>{c.code}</span>
+                                                            <span style={{ fontSize: '0.8rem', color: '#000000' }}>
                                                                 {c.type === 'percentage' ? `${c.discount}% OFF` : `R$ ${c.discount} OFF`}
                                                             </span>
                                                         </div>
