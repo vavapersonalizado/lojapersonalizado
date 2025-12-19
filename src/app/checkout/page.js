@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 import { useCart } from '@/contexts/CartContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 
+export const dynamic = 'force-dynamic';
+
 export default function CheckoutPage() {
     const { data: session, status } = useSession();
     const router = useRouter();

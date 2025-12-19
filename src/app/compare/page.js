@@ -6,6 +6,8 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 export default function ComparePage() {
     const { compareList, removeFromCompare, clearCompare } = useCompare();
     const { addToCart } = useCart();

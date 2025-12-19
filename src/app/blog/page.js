@@ -6,7 +6,7 @@ export const metadata = {
     description: "Acompanhe nossas novidades e inspirações do Instagram, Facebook e Pinterest.",
 };
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 
 export default async function BlogPage() {
     const posts = await prisma.blogPost.findMany({

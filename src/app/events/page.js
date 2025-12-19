@@ -6,6 +6,8 @@ import Link from "next/link";
 import { isVideo } from "@/lib/mediaUtils";
 import { useAnalytics } from "@/hooks/useAnalytics";
 
+export const dynamic = 'force-dynamic';
+
 export default function EventsPage() {
     const { data: session } = useSession();
     const isAdmin = session?.user?.role === 'admin';
