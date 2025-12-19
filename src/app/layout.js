@@ -47,10 +47,10 @@ export default async function RootLayout({ children }) {
     const session = await getServerSession(authOptions);
 
     // Fetch AdSense ID
-    const adsenseSetting = await prisma.settings.findUnique({
-        where: { key: 'adsense_id' }
-    });
-    const adsenseId = adsenseSetting?.value;
+    // const adsenseSetting = await prisma.settings.findUnique({
+    //     where: { key: 'adsense_id' }
+    // });
+    // const adsenseId = adsenseSetting?.value;
 
     return (
         <html lang="pt-BR">
