@@ -52,10 +52,15 @@ export default async function RootLayout({ children }) {
     }
 
     // Fetch AdSense ID
-    // const adsenseSetting = await prisma.settings.findUnique({
-    //     where: { key: 'adsense_id' }
-    // });
-    // const adsenseId = adsenseSetting?.value;
+    let adsenseId = null;
+    try {
+        const adsenseSetting = await prisma.settings.findUnique({
+            where: { key: 'adsense_id' }
+        });
+        adsenseId = adsenseSetting?.value;
+    } catch (error) {
+        console.error("Failed to fetch settings:", error);
+    }
 
     return (
         <html lang="pt-BR">
