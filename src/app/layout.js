@@ -44,7 +44,12 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }) {
-    const session = await getServerSession(authOptions);
+    let session;
+    try {
+        session = await getServerSession(authOptions);
+    } catch (error) {
+        console.error("Failed to fetch session:", error);
+    }
 
     // Fetch AdSense ID
     // const adsenseSetting = await prisma.settings.findUnique({
