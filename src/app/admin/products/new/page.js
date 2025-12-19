@@ -36,6 +36,8 @@ export default function NewProductPage() {
     const [customColor, setCustomColor] = useState('');
 
 
+    const [mounted, setMounted] = useState(false);
+
     const loadCategories = () => {
         fetch('/api/categories')
             .then(res => res.json())
@@ -43,8 +45,13 @@ export default function NewProductPage() {
     };
 
     useEffect(() => {
+        setMounted(true);
         loadCategories();
     }, []);
+
+    if (!mounted) {
+        return <div style={{ padding: '2rem', textAlign: 'center' }}>Carregando editor...</div>;
+    }
 
     const handleAddCategory = async () => {
         if (!newCategoryName.trim()) return;
