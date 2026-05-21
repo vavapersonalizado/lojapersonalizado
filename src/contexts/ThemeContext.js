@@ -29,14 +29,14 @@ export function ThemeProvider({ children }) {
             admin: {}
         },
         texts: {
-            homeTitle: 'Vanessa Yachiro',
-            checkoutTitle: 'Finalizar Solicitação',
-            blogTitle: 'Mural Social',
-            footerText: '© 2025 Vanessa Yachiro Personalizados',
+            homeTitle: 'MG3D',
+            checkoutTitle: 'Finalizar Pedido',
+            blogTitle: 'Inovações 3D',
+            footerText: '© 2026 MG3D | Tecnologia em Impressão 3D',
             addToCart: 'Adicionar ao Carrinho',
             buyNow: 'Comprar Agora',
             contact: 'Fale Conosco',
-            searchPlaceholder: 'Buscar produtos...'
+            searchPlaceholder: 'Buscar peças ou modelos...'
         },
         icons: {
             cart: [
