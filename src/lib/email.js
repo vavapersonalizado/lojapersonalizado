@@ -47,7 +47,7 @@ TOTAL: ¥${orderData.finalTotal}
 ${customerInfo}${addressInfo}
 
 🔗 Ver pedido completo no admin:
-${process.env.NEXTAUTH_URL || 'https://projetovava.vercel.app'}/admin/orders
+${process.env.NEXTAUTH_URL || 'https://mg3d.vercel.app'}/admin/orders
 
 ---
 Este é um email automático de notificação de pedido.
@@ -60,7 +60,7 @@ Este é um email automático de notificação de pedido.
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                from: 'Vanessa Yachiro Personalizados <pedidos@projetovava.com>',
+                from: 'MG3D | Impressão 3D <pedidos@mg3d.com>',
                 to: [NOTIFICATION_EMAIL],
                 subject: `🛍️ Novo Pedido #${orderData.id.slice(-8).toUpperCase()} - ¥${orderData.finalTotal}`,
                 text: emailBody

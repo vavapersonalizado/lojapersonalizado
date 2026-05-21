@@ -216,8 +216,6 @@ model CartItem {
   product   Product @relation(fields: [productId], references: [id])
   quantity  Int     @default(1)
   customization Json? // Stores customization data (image, text, stickers)
-
-  @@unique([cartId, productId])
 }
 
 model Coupon {

@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic';
 export default function CheckoutPage() {
     const { data: session, status } = useSession();
     const router = useRouter();
-    const { cart, getCartTotal, clearCart, coupon, applyCoupon, availableCoupons } = useCart();
+    const { cart, getSubtotal, clearCart, coupon, applyCoupon, availableCoupons } = useCart();
     const { t, formatCurrency } = useLanguage();
 
     const [couponCode, setCouponCode] = useState('');
@@ -142,7 +142,7 @@ export default function CheckoutPage() {
     };
 
     const calculateTotals = () => {
-        const subtotal = getCartTotal();
+        const subtotal = getSubtotal();
         let totalDiscount = 0;
         let appliedUserDiscount = 0;
         let appliedCouponDiscount = 0;
@@ -278,7 +278,7 @@ export default function CheckoutPage() {
                     marginBottom: '2rem'
                 }}>
                     <p style={{ fontSize: '1.2rem', lineHeight: '1.6', marginBottom: '1.5rem', color: 'var(--foreground)' }}>
-                        Obrigado por escolher a Vanessa Yachiro Personalizados!
+                        Obrigado por escolher a MG3D!
                     </p>
                     <p style={{ color: 'var(--muted-foreground)', marginBottom: '1rem' }}>
                         Recebemos o seu pedido e nossa equipe entrará em contato em breve pelo <strong>WhatsApp</strong> ou <strong>Email</strong> para combinar o pagamento e a entrega.

@@ -113,7 +113,7 @@ export default function HomeContent() {
                     }}>
                         <EditableText
                             textKey="homeTitle"
-                            defaultText="Vanessa Yachiro"
+                            defaultText="MG3D"
                             style={{ color: 'inherit' }}
                         />
                     </h1>
@@ -130,7 +130,7 @@ export default function HomeContent() {
                     }}>
                         <EditableText
                             textKey="homeSubtitle"
-                            defaultText="Personalizados exclusivos feitos com carinho e qualidade premium. Transforme suas ideias em presentes inesquecíveis."
+                            defaultText="Transformando ideias em realidade através da tecnologia de impressão 3D. Peças únicas, precisas e personalizadas."
                         />
                     </div>
 
@@ -263,7 +263,7 @@ export default function HomeContent() {
                 background: 'rgba(0,0,0,0.2)',
                 marginTop: 'auto'
             }}>
-                <p>&copy; 2025 Vanessa Yachiro Personalizados. Todos os direitos reservados.</p>
+                <p>&copy; 2026 MG3D | Tecnologia em Impressão 3D. Todos os direitos reservados.</p>
             </footer>
         </div >
     );

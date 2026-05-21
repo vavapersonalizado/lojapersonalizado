@@ -2,8 +2,8 @@ import SocialEmbed from '@/components/SocialEmbed';
 import prisma from '@/lib/prisma';
 
 export const metadata = {
-    title: "Blog Social | Vanessa Yachiro Personalizados",
-    description: "Acompanhe nossas novidades e inspirações do Instagram, Facebook e Pinterest.",
+    title: "Mural Social | MG3D",
+    description: "Acompanhe as novidades da MG3D e processos de impressão 3D direto das nossas redes sociais.",
 };
 
 export const dynamic = 'force-dynamic';

@@ -127,7 +127,7 @@ export default function Header() {
                 }}>
                     <EditableText
                         textKey="homeTitle"
-                        defaultText="Vanessa Yachiro"
+                        defaultText="MG3D"
                     />
                 </h1>
             </Link>

@@ -16,8 +16,8 @@ export async function generateMetadata({ params }) {
     }
 
     return {
-        title: `${product.name} | Vanessa Yachiro Personalizados`,
-        description: product.description || `Compre ${product.name} personalizado na Vanessa Yachiro.`,
+        title: `${product.name} | MG3D`,
+        description: product.description || `Compre ${product.name} na MG3D. Tecnologia de ponta em impressão 3D.`,
         openGraph: {
             title: product.name,
             description: product.description,

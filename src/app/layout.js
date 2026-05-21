@@ -16,24 +16,24 @@ const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
 
 export const metadata = {
     title: {
-        default: "Vanessa Yachiro Personalizados",
-        template: "%s | Vanessa Yachiro"
+        default: "MG3D | Tecnologia em Impressão 3D",
+        template: "%s | MG3D"
     },
-    description: "Produtos personalizados com qualidade e carinho. Canecas, camisetas, brindes e muito mais.",
-    keywords: ["personalizados", "brindes", "canecas", "camisetas", "presentes", "vanessa yachiro"],
-    authors: [{ name: "Vanessa Yachiro" }],
-    creator: "Vanessa Yachiro",
+    description: "Produtos exclusivos criados com tecnologia de impressão 3D de alta precisão. Peças decorativas, colecionáveis e utilitários personalizados.",
+    keywords: ["impressão 3d", "3d printing", "personalizados", "colecionáveis", "peças técnicas", "MG3D"],
+    authors: [{ name: "MG3D" }],
+    creator: "MG3D",
     openGraph: {
         type: "website",
         locale: "pt_BR",
-        url: "https://projetovava.vercel.app",
-        siteName: "Vanessa Yachiro Personalizados",
+        url: "https://mg3d.vercel.app",
+        siteName: "MG3D | Tecnologia em Impressão 3D",
         images: [
             {
                 url: "/og-image.jpg",
                 width: 1200,
                 height: 630,
-                alt: "Vanessa Yachiro Personalizados",
+                alt: "MG3D Impressão 3D",
             },
         ],
     },
@@ -69,14 +69,10 @@ export default async function RootLayout({ children }) {
             <body className={`${inter.className} ${outfit.variable}`}>
                 <Providers session={session}>
                     <ThemeProvider>
-                        <CartProvider>
-                            <CompareProvider>
-                                <MainLayout>
-                                    {children}
-                                </MainLayout>
-                                <ChatWidget />
-                            </CompareProvider>
-                        </CartProvider>
+                        <MainLayout>
+                            {children}
+                        </MainLayout>
+                        <ChatWidget />
                     </ThemeProvider>
                 </Providers>
             </body>
