@@ -48,7 +48,11 @@ export async function GET() {
         });
     } catch (error) {
         console.error('Error fetching settings:', error);
-        return NextResponse.json({ error: 'Error fetching settings' }, { status: 500 });
+        return NextResponse.json({ 
+            error: 'Error fetching settings', 
+            details: error.message,
+            code: error.code 
+        }, { status: 500 });
     }
 }
 
